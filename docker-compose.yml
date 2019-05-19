@@ -1,0 +1,45 @@
+version: '3'
+services:
+  api:
+    build: .
+    command : bash -c "sleep 9999999"
+    #command: bash -c "pip --retries 10 install -r /kinesio/pip_requirements.txt && python3 /daas/daas/manage.py runserver 0.0.0.0:80"
+    volumes:
+      - .:/kinesio
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    links:
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "api"
+
+  db:
+    image: postgres:11.3-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: kinesio
+      POSTGRES_PASSWORD: test1234
+      POSTGRES_DB: kinesio
+    links:
+      - syslog
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://127.0.0.1:5514"
+        tag: "db"
+
+  syslog:
+    image: voxxit/rsyslog
+    volumes:
+      - ../syslog/:/var/log/
+    entrypoint: bash -c "rm -f /var/run/rsyslogd.pid && rsyslogd -n"
+    ports:
+        - "127.0.0.1:5514:514/udp"
