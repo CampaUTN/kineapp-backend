@@ -3,6 +3,7 @@
 First create a new folder:
 ```
 mkdir kinesio
+cd kinesio
 ```
 
 Here we will have folders for the database, the logs and the source code.
