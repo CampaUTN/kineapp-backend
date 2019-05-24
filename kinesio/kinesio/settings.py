@@ -25,7 +25,11 @@ SECRET_KEY = '7lex&^&d#s^yuz-y#g+5=nr%t+&r7i)xtwjl=^mamo(l%&p2ql'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), ".."),
+)
 
 
 # Application definition
@@ -37,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'kinesioapp'
 ]
 
 MIDDLEWARE = [
