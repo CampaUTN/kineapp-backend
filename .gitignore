@@ -105,3 +105,6 @@ venv.bak/
 
 # Others
 /.idea
+
+# Migrations
+kinesio/kinesioapp/migrations/
