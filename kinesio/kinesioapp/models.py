@@ -2,12 +2,11 @@ from django.db import models
 
 
 class CUser(models.Model):
-    id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100, db_index=True)
     password = models.CharField(max_length=100, db_index=True)
     name = models.CharField(max_length=100)
-    lastName = models.CharField(max_length=100)
-    dayOfBirth = models.DateTimeField()
+    last_name = models.CharField(max_length=100)
+    birth_date = models.DateTimeField(auto_now=True)
 
 
 class Medic(CUser):
@@ -15,8 +14,8 @@ class Medic(CUser):
 
 
 class Patient(CUser):
-    startDate = models.DateTimeField()
-    finishDate = models.DateTimeField()
+    start_date = models.DateTimeField()
+    finish_date = models.DateTimeField()
 
 
 class Video(models.Model):
@@ -37,15 +36,15 @@ class HomeworkExercise(models.Model):
     ]
 
     date = models.DateTimeField()
-    numberOfHomeworkSession = models.IntegerField()
+    number_of_homework_session = models.IntegerField()
     status = models.CharField(max_length=100, choices=HOMEWORK_SESSION_STATUS_CHOICES, default='PENDING')
     exercises = models.ForeignKey(Exercise, on_delete=models.CASCADE)
 
 
 class Homework(models.Model):
-    fromDate = models.DateTimeField()
-    toDate = models.DateTimeField()
-    periodiciy = models.IntegerField()
+    from_date = models.DateTimeField()
+    to_date = models.DateTimeField()
+    periodicity = models.IntegerField()
     exercises = models.ForeignKey(HomeworkExercise, on_delete=models.CASCADE)
 
 
