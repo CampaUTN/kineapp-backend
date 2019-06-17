@@ -2,7 +2,6 @@ from django.db import models
 
 
 class CUser(models.Model):
-    id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100, db_index=True)
     password = models.CharField(max_length=100, db_index=True)
     name = models.CharField(max_length=100)
