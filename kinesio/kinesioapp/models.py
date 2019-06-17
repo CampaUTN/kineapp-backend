@@ -7,7 +7,7 @@ class CUser(models.Model):
     password = models.CharField(max_length=100, db_index=True)
     name = models.CharField(max_length=100)
     lastName = models.CharField(max_length=100)
-    dayOfBirth = models.DateTimeField()
+    birth_date = models.DateTimeField()
 
 
 class Medic(CUser):
@@ -15,8 +15,8 @@ class Medic(CUser):
 
 
 class Patient(CUser):
-    startDate = models.DateTimeField()
-    finishDate = models.DateTimeField()
+    start_ate = models.DateTimeField()
+    finish_date = models.DateTimeField()
 
 
 class Video(models.Model):
@@ -37,7 +37,7 @@ class HomeworkExercise(models.Model):
     ]
 
     date = models.DateTimeField()
-    numberOfHomeworkSession = models.IntegerField()
+    number_of_homework_session = models.IntegerField()
     status = models.CharField(max_length=100, choices=HOMEWORK_SESSION_STATUS_CHOICES, default='PENDING')
     exercises = models.ForeignKey(Exercise, on_delete=models.CASCADE)
 
@@ -45,7 +45,7 @@ class HomeworkExercise(models.Model):
 class Homework(models.Model):
     fromDate = models.DateTimeField()
     toDate = models.DateTimeField()
-    periodiciy = models.IntegerField()
+    periodicity = models.IntegerField()
     exercises = models.ForeignKey(HomeworkExercise, on_delete=models.CASCADE)
 
 
