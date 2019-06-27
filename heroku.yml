@@ -1,10 +1,12 @@
 setup:
   addons:
     - plan: heroku-postgresql
-      as: KINESIO_DATABASE
+      as: DATABASE
 build:
   docker:
     web: Dockerfile
-    worker: Dockerfile
-  config:
-    RAILS_ENV: development
+release:
+  command:
+    - ./deployment-tasks.sh
+run:
+    web: gunicorn --pythonpath kinesio kinesio.wsgi --log-file -
