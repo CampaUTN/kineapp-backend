@@ -1,3 +1,3 @@
 #!/bin/bash
-python manage.py makemigrations
-python manage.py migrate
+python kinesio/manage.py makemigrations kinesioapp
+python kinesio/manage.py migrate
