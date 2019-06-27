@@ -1,0 +1,16 @@
+setup:
+  addons:
+    - plan: heroku-postgresql
+      as: KINESIO_DATABASE
+build:
+  docker:
+    web: Dockerfile
+  config:
+    BUNDLE_INSTALL_ARGS: --jobs 10 --retry=3 --without development test
+    RAILS_ENV: development
+run:
+  web: bundle exec puma -C config/puma.rb
+  worker:
+    command:
+      - bundle exec rake jobs:work
+image: web
