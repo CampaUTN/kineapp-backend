@@ -1,5 +1,9 @@
 from django.db import models
 
+PENDING = 'pending'
+FINISHED = 'finished'
+CANCELLED = 'cancelled'
+
 
 class CUser(models.Model):
     username = models.CharField(max_length=100, db_index=True)
@@ -48,36 +52,35 @@ class Homework(models.Model):
     exercises = models.ForeignKey(HomeworkExercise, on_delete=models.CASCADE)
 
 
+class ClinicalHistory(models.Model):
+    CLINICAL_HISTORY_STATUS_CHOICES = [
+        (PENDING, 'Pending'),
+        (FINISHED, 'Finished'),
+        (CANCELLED, 'Cancelled')
+    ]
+
+    date = models.DateTimeField()
+    description = models.CharField(max_length=255)
+    status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default=PENDING)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, blank=True, null=True)  # FIXME: Remove ', blank=True, null=True' after the issue 155 is done!
+    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL, blank=True, null=True)
+
+
+class ClinicalSession(models.Model):
+    SESSION_STATUS_CHOICES = [
+        (PENDING, 'Pending'),
+        (FINISHED, 'Finished'),
+        (CANCELLED, 'Cancelled')
+    ]
+
+    date = models.DateTimeField()
+    status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default=PENDING)
+    clinical_history = models.ForeignKey(ClinicalHistory, on_delete=models.CASCADE)
+
+
 class Image(models.Model):
     content = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     date = models.DateTimeField()
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
-
-
-class Session(models.Model):
-    SESSION_STATUS_CHOICES = [
-        ('P', 'PENDING'),
-        ('F', 'FINISHED'),
-        ('C', 'CANCELLED')
-    ]
-    medic = models.ForeignKey(Medic, on_delete=models.CASCADE)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    date = models.DateTimeField()
-    status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
-    images = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True, null=True)
-
-
-class ClinicalHistory(models.Model):
-    CLINICAL_HISTORY_STATUS_CHOICES = [
-        ('P', 'PENDING'),
-        ('F', 'FINISHED'),
-        ('C', 'CANCELLED')
-    ]
-
-    date = models.DateTimeField()
-    description = models.CharField(max_length=255)
-    status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
-    sessions = models.ForeignKey(Session, on_delete=models.CASCADE)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    medic = models.ForeignKey(Medic, on_delete=models.CASCADE)
+    clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE)
