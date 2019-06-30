@@ -55,19 +55,6 @@ class Image(models.Model):
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
 
 
-class Session(models.Model):
-    SESSION_STATUS_CHOICES = [
-        ('P', 'PENDING'),
-        ('F', 'FINISHED'),
-        ('C', 'CANCELLED')
-    ]
-    medic = models.ForeignKey(Medic, on_delete=models.CASCADE)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    date = models.DateTimeField()
-    status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
-    images = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True, null=True)
-
-
 class ClinicalHistory(models.Model):
     CLINICAL_HISTORY_STATUS_CHOICES = [
         ('P', 'PENDING'),
@@ -78,6 +65,22 @@ class ClinicalHistory(models.Model):
     date = models.DateTimeField()
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
-    sessions = models.ForeignKey(Session, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    medic = models.ForeignKey(Medic, on_delete=models.CASCADE)
+    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL)
+
+
+class Session(models.Model):
+    SESSION_STATUS_CHOICES = [
+        ('P', 'PENDING'),
+        ('F', 'FINISHED'),
+        ('C', 'CANCELLED')
+    ]
+    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
+    images = models.ForeignKey(Image, on_delete=models.SET_NULL, blank=True, null=True)
+    clinical_history = models.ForeignKey(ClinicalHistory, on_delete=models.CASCADE)
+
+
+
