@@ -66,16 +66,16 @@ class ClinicalHistory(models.Model):
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL)
+    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL, blank=True, null=True)
 
 
-class Session(models.Model):
+class ClinicalSession(models.Model):
     SESSION_STATUS_CHOICES = [
         ('P', 'PENDING'),
         ('F', 'FINISHED'),
         ('C', 'CANCELLED')
     ]
-    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL)
+    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL, blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     date = models.DateTimeField()
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
