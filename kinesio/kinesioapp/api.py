@@ -9,9 +9,8 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework import generics
 
-from .models import Medic
-from .renderers import CustomJSONRenderer
-from .serializers import MedicSerializer
+from .models import Medic, ClinicalHistory, ClinicalSession
+from .serializers import MedicSerializer, ClinicalHistorySerializer, ClinicalSessionSerializer
 
 
 class GetTokenAPIView(APIView):
@@ -41,4 +40,13 @@ class GetTokenAPIView(APIView):
 class MedicsAPIView(generics.ListCreateAPIView):
     queryset = Medic.objects.all()
     serializer_class = MedicSerializer
-    renderer_classes = (CustomJSONRenderer,)
+
+
+class ClinicalHistoryAPIView(generics.ListCreateAPIView):
+    queryset = ClinicalHistory.objects.all()
+    serializer_class = ClinicalHistorySerializer
+
+
+class ClinicalSessionAPIView(generics.ListCreateAPIView):
+    queryset = ClinicalSession.objects.all()
+    serializer_class = ClinicalSessionSerializer

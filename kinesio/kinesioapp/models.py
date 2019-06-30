@@ -1,8 +1,8 @@
 from django.db import models
 
-PENDING = 'PENDING'
-FINISHED = 'FINISHED'
-CANCELLED = 'CANCELLED'
+PENDING = 'pending'
+FINISHED = 'finished'
+CANCELLED = 'cancelled'
 
 
 class CUser(models.Model):
@@ -52,13 +52,6 @@ class Homework(models.Model):
     exercises = models.ForeignKey(HomeworkExercise, on_delete=models.CASCADE)
 
 
-class Image(models.Model):
-    content = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    date = models.DateTimeField()
-    homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
-
-
 class ClinicalHistory(models.Model):
     CLINICAL_HISTORY_STATUS_CHOICES = [
         (PENDING, 'Pending'),
@@ -79,10 +72,15 @@ class ClinicalSession(models.Model):
         (FINISHED, 'Finished'),
         (CANCELLED, 'Cancelled')
     ]
-    
-    medic = models.ForeignKey(Medic, on_delete=models.SET_NULL, blank=True, null=True)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+
     date = models.DateTimeField()
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default=PENDING)
-    images = models.ForeignKey(Image, on_delete=models.SET_NULL, blank=True, null=True)
     clinical_history = models.ForeignKey(ClinicalHistory, on_delete=models.CASCADE)
+
+
+class Image(models.Model):
+    content = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    date = models.DateTimeField()
+    homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
+    clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE)
