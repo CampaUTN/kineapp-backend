@@ -16,7 +16,7 @@ class Medic(CUser):
 class Patient(CUser):
     start_date = models.DateTimeField()
     finish_date = models.DateTimeField()
-    current_medic = models.ForeignKey(Medic, on_delete=models.CASCADE, null=True)
+    current_medic = models.ForeignKey(Medic, related_name='patients', on_delete=models.CASCADE, null=True)
 
 
 class Homework(models.Model):
