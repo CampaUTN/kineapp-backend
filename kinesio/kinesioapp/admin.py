@@ -11,8 +11,10 @@ class MedicAdmin(admin.ModelAdmin):
 class PatientAdmin(admin.ModelAdmin):
     list_display = ['pk', 'username', 'name', 'last_name']
 
+
 class ClinicalHistoryAdmin(admin.ModelAdmin):
     list_display = ['pk', 'description', 'status']
+
 
 class ClinicalSessionAdmin(admin.ModelAdmin):
     list_display = ['pk', 'status']
