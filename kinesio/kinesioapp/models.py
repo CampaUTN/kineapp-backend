@@ -1,5 +1,9 @@
 from django.db import models
 
+PENDING = 'pending'
+FINISHED = 'finished'
+CANCELLED = 'cancelled'
+
 
 class CUser(models.Model):
     username = models.CharField(max_length=100, db_index=True)
@@ -72,7 +76,7 @@ class ClinicalSession(models.Model):
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     clinical_history = models.ForeignKey(ClinicalHistory, on_delete=models.CASCADE)
-
+    
 
 class Image(models.Model):
     content = models.CharField(max_length=255)

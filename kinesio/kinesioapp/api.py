@@ -7,11 +7,10 @@ from rest_framework.status import (
 )
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
-
-from .models import Medic, Patient
-from .serializers import MedicSerializer, PatientSerializer
-
 from rest_framework import generics
+
+from .models import Medic, ClinicalHistory, ClinicalSession, Patient
+from .serializers import MedicSerializer, ClinicalHistorySerializer, ClinicalSessionSerializer, PatientSerializer
 
 
 class GetTokenAPIView(APIView):
@@ -38,20 +37,6 @@ class GetTokenAPIView(APIView):
             return Response({'token': token.key}, status=HTTP_200_OK)
 
 
-class MedicsAPIView(APIView):
-    def get(self, request):
-        # This is just for testing.
-        # TODO Remove this 'IF' after creating a testing database and a testing instance (probably in cloud).
-        if Medic.objects.count() == 0:
-            Medic.objects.create(username='juan', password='1234', name='juan',
-                                 last_name='gomez', license='matricula #15433')
-            Medic.objects.create(username='maria76', password='7070', name='maria',
-                                 last_name='martinez vega', license='matricula #1342')
-        medics = Medic.objects.all()
-        serializer = MedicSerializer(medics, many=True, context={'request': request})
-        return Response(serializer.data)
-
-
 class PatientsAPIView(generics.ListCreateAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
@@ -60,3 +45,18 @@ class PatientsAPIView(generics.ListCreateAPIView):
 class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
+
+
+class MedicsAPIView(generics.ListCreateAPIView):
+    queryset = Medic.objects.all()
+    serializer_class = MedicSerializer
+
+
+class ClinicalHistoryAPIView(generics.ListCreateAPIView):
+    queryset = ClinicalHistory.objects.all()
+    serializer_class = ClinicalHistorySerializer
+
+
+class ClinicalSessionAPIView(generics.ListCreateAPIView):
+    queryset = ClinicalSession.objects.all()
+    serializer_class = ClinicalSessionSerializer
