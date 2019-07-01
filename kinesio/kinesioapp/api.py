@@ -8,8 +8,10 @@ from rest_framework.status import (
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 
-from .models import Medic
-from .serializers import MedicSerializer
+from .models import Medic, Patient
+from .serializers import MedicSerializer, PatientSerializer
+
+from rest_framework import generics
 
 
 class GetTokenAPIView(APIView):
@@ -48,3 +50,13 @@ class MedicsAPIView(APIView):
         medics = Medic.objects.all()
         serializer = MedicSerializer(medics, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+class PatientsAPIView(generics.ListCreateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+
+
+class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
