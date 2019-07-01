@@ -19,14 +19,18 @@ class MedicSerializer(serializers.ModelSerializer):
         fields = ('username', 'name', 'last_name', 'license', 'patients')
 
 
-class ClinicalHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClinicalHistory
-        fields = ('date', 'description', 'status', 'medic', 'patient')
-
-
 class ClinicalSessionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = ClinicalSession
         fields = ('date', 'status', 'clinical_history')
+
+
+class ClinicalHistorySerializer(serializers.ModelSerializer):
+    clinical_sessions = ClinicalSessionSerializer(many=True)
+    patient = PatientSerializer()
+
+    class Meta:
+        model = ClinicalHistory
+        fields = ('date', 'description', 'status', 'patient', 'clinical_sessions')
 
