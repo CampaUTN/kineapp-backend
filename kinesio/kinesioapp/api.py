@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework import generics
 
-from .models import Medic, ClinicalHistory, ClinicalSession
-from .serializers import MedicSerializer, ClinicalHistorySerializer, ClinicalSessionSerializer
+from .models import Medic, ClinicalHistory, ClinicalSession, Patient
+from .serializers import MedicSerializer, ClinicalHistorySerializer, ClinicalSessionSerializer, PatientSerializer
 
 
 class GetTokenAPIView(APIView):
@@ -35,6 +35,16 @@ class GetTokenAPIView(APIView):
                                 status=HTTP_404_NOT_FOUND)
             token, _ = Token.objects.get_or_create(user=user)
             return Response({'token': token.key}, status=HTTP_200_OK)
+
+
+class PatientsAPIView(generics.ListCreateAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+
+
+class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
 
 
 class MedicsAPIView(generics.ListCreateAPIView):
