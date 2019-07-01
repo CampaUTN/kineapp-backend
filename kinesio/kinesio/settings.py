@@ -131,3 +131,10 @@ STATIC_URL = '/static/'
 
 # Heroku Configurations
 django_heroku.settings(locals())
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'kinesioapp.renderers.CustomJSONRenderer',
+    ),
+}
