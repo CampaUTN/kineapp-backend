@@ -12,7 +12,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
 
 class MedicSerializer(serializers.ModelSerializer):
-    patients = PatientSerializer(many=True)
+    patients = PatientSerializer(many=True, required=False)
 
     class Meta:
         model = Medic
@@ -27,10 +27,10 @@ class ClinicalSessionSerializer(serializers.ModelSerializer):
 
 
 class ClinicalHistorySerializer(serializers.ModelSerializer):
-    clinical_sessions = ClinicalSessionSerializer(many=True)
-    patient = PatientSerializer()
+    clinical_sessions = ClinicalSessionSerializer(many=True, required=False)
+    patient_id = serializers.IntegerField(write_only=True)
+    patient = PatientSerializer(read_only=True)
 
     class Meta:
         model = ClinicalHistory
-        fields = ('date', 'description', 'status', 'patient', 'clinical_sessions')
-
+        fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
