@@ -1,26 +1,10 @@
 from django.db import models
+from users.models import CustomUser
+
 
 PENDING = 'pending'
 FINISHED = 'finished'
 CANCELLED = 'cancelled'
-
-
-class CUser(models.Model):
-    username = models.CharField(max_length=100, db_index=True)
-    password = models.CharField(max_length=100, db_index=True)
-    name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    birth_date = models.DateTimeField(auto_now=True)
-
-
-class Medic(CUser):
-    license = models.CharField(max_length=100)
-
-
-class Patient(CUser):
-    start_date = models.DateTimeField()
-    finish_date = models.DateTimeField()
-    current_medic = models.ForeignKey(Medic, related_name='patients', on_delete=models.CASCADE, null=True)
 
 
 class Homework(models.Model):
@@ -49,7 +33,7 @@ class Exercise(models.Model):
 
 class Video(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.OneToOneField(Medic, on_delete=models.CASCADE)
+    owner = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, null=True)
 
 
@@ -63,7 +47,7 @@ class ClinicalHistory(models.Model):
     date = models.DateTimeField()
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
 
 class ClinicalSession(models.Model):
