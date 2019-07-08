@@ -1,19 +1,19 @@
 from rest_framework import generics
 
-from .models import Medic, Patient
+from .models import CustomUser
 from .serializers import MedicSerializer, PatientSerializer
 
 
 class PatientsAPIView(generics.ListCreateAPIView):
-    queryset = Patient.objects.all()
+    queryset = CustomUser.objects.patients()
     serializer_class = PatientSerializer
 
 
 class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Patient.objects.all()
+    queryset = CustomUser.objects.patients()
     serializer_class = PatientSerializer
 
 
 class MedicsAPIView(generics.ListCreateAPIView):
-    queryset = Medic.objects.all()
+    queryset = CustomUser.objects.medics()
     serializer_class = MedicSerializer

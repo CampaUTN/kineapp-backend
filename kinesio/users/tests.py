@@ -21,7 +21,7 @@ class TestObjectsSerializedInADictionary(TestCase):
 
     def test_serializing_multiple_medics_returns_a_dictionary(self):
         CustomUser.objects.create_user(username='maria76', license='matricula #1342')
-        serialized_objects_data = CustomUserSerializer(Medic.objects.all(), many=True).data
+        serialized_objects_data = CustomUserSerializer(CustomUser.objects.medics(), many=True).data
         self.assertNotEquals(dict, type(serialized_objects_data))
 
 
