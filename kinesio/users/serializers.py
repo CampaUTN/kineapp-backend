@@ -17,7 +17,7 @@ class MedicSerializer(serializers.ModelSerializer):
 
 
 class PatientSerializer(serializers.ModelSerializer):
-    current_medic = MedicSerializer()
+    current_medic = CustomUserSerializer()
     user = CustomUserSerializer()
 
     class Meta:
