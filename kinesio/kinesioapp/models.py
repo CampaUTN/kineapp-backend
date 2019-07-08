@@ -6,6 +6,7 @@ CANCELLED = 'cancelled'
 
 
 class CUser(models.Model):
+    id_google = models.CharField(max_length=100, db_index=True)
     username = models.CharField(max_length=100, db_index=True)
     password = models.CharField(max_length=100, db_index=True)
     name = models.CharField(max_length=100)
