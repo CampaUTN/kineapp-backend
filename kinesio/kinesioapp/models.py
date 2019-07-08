@@ -84,3 +84,11 @@ class Image(models.Model):
     date = models.DateTimeField()
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
+
+class SecretQuestion(models.Model):
+    description = models.CharField(max_length=255)
+
+class SecretAnswer(models.Model):
+    user = models.ForeignKey(CUser, on_delete=models.CASCADE, null=False)
+    question = models.ForeignKey(SecretQuestion, on_delete=models.CASCADE, null=False)
+    answer = models.CharField(max_length=255)

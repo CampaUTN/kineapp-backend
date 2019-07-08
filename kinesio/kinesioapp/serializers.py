@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Medic, ClinicalHistory, ClinicalSession, Patient
+from .models import Medic, ClinicalHistory, ClinicalSession, Patient, SecretQuestion, SecretAnswer
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -34,3 +34,20 @@ class ClinicalHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClinicalHistory
         fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
+
+class SecretQuestionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SecretQuestion
+        fields = ('description')
+
+class SecretAnswerSerializer(serializers.ModelSerializer):
+    user = PatientSerializer(read_only=True)
+    user_id = serializers.IntegerField(write_only=True)
+    question = SecretQuestionSerializer(read_only=True)
+    question_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = SecretAnswer
+        fields = ('user', 'question', 'answer')
+
