@@ -82,7 +82,7 @@ class TokenGoogleAPIView(APIView):
                 if query_user.count() < 0:
                     return Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
                 else:
-                    #FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
+                    # FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
                     return Response({'questions': 'Saraza!'}, status=status.HTTP_200_OK)
             except ValueError:
                 return Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_404_NOT_FOUND)
