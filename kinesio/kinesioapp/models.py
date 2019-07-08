@@ -6,7 +6,8 @@ CANCELLED = 'cancelled'
 
 
 class CUser(models.Model):
-    id_google = models.CharField(max_length=100, db_index=True)
+    # FIXME Sacar null true cuando el ISSUE 93 este terminado
+    id_google = models.CharField(max_length=100, db_index=True, null=True)
     username = models.CharField(max_length=100, db_index=True)
     password = models.CharField(max_length=100, db_index=True)
     name = models.CharField(max_length=100)
