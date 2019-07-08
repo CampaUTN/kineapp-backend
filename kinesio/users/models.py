@@ -5,13 +5,16 @@ from django.db import transaction
 
 
 class CustomUserManager(UserManager):
-    @transaction.atomic
+    def _fixed_license(self, license):
+        if license is not None:
+            license = license.strip() if license.strip() != '' else None
+        return license
+
     def create_user(self, username, email=None, password=None, license=None, current_medic=None, **kwargs):
-        user_type = Medic.objects.create(license=license) if license is not None else Patient.objects.create(current_medic=current_medic)
-        user = super().create_user(username, email, password,  **dict(**kwargs, user_type=user_type))
-        user.user_type = user_type
-        user.save()
-        return user
+        license = self._fixed_license(license)
+        with transaction.atomic():
+            user_type = Medic.objects.create(license=license) if license is not None else Patient.objects.create(current_medic=current_medic)
+            return super().create_user(username, email, password,  **dict(**kwargs, user_type=user_type))
 
 
 class CustomUserType(models.Model):
