@@ -163,6 +163,6 @@ class TestGoogleToken(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_invalid_token(self):
-        data = {'username': 'pepe', 'name': 'pepe', 'last_name': 'gomez', 'license': 'matricula #1234A'}
+        data = {'google_token': 'asd123sd123sad'}
         response = self.client.post('/api/v1/login_google/', data, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

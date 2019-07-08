@@ -79,7 +79,7 @@ class TokenGoogleAPIView(APIView):
                 user_id = id_info['sub']
 
                 query_user = CUser.objects.filter(id_google=user_id)
-                if query_user.count() < 0:
+                if query_user.count() > 0:
                     return Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
                 else:
                     # FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
