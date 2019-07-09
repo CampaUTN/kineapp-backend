@@ -11,7 +11,19 @@ from rest_framework import generics
 
 from .models import Medic, ClinicalHistory, ClinicalSession, Patient, SecretQuestion, SecretAnswer
 from .serializers import MedicSerializer, ClinicalHistorySerializer, ClinicalSessionSerializer, PatientSerializer, SecretQuestionSerializer, SecretAnswerSerializer
+from simplecrypt import encrypt, decrypt
+import logging
 
+class Errors(object):
+
+    @staticmethod
+    def missing_field_error(field_name):
+        return Response({'error': f'Missing field: {field_name} field is empty.'},
+                        status=HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def is_invalid(field):
+        return field is None or field == ''
 
 class GetTokenAPIView(APIView):
     def __missing_field_error(self, field_name):
@@ -61,11 +73,31 @@ class ClinicalSessionAPIView(generics.ListCreateAPIView):
     queryset = ClinicalSession.objects.all()
     serializer_class = ClinicalSessionSerializer
 
+
 class SecretQuestionAPIView(generics.ListCreateAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer
 
+
 class SecretAnswerAPIView(generics.ListCreateAPIView):
     queryset = SecretAnswer.objects.all()
     serializer_class = SecretAnswerSerializer
+
+
+class CheckAnswerAPIView(APIView):
+
+    def post(self, request):
+        user_id = request.data.get('user_id', None)
+        answer = request.data.get('answer', None)
+        if Errors.is_invalid(user_id):
+            return Errors.missing_field_error('user_id')
+        elif Errors.is_invalid(answer):
+            return Errors.missing_field_error('answer')
+        else:
+            storedSecretAnswer = SecretAnswerSerializer(SecretAnswer.objects.filter(medic_id=user_id).order_by('-id')[:1]).data
+            #print(dir(storedSecretAnswer))
+            print(storedSecretAnswer.id)
+            #ciphertext = decrypt('s3cr3t', storedSecretAnswer['answer'])
+
+            return Response({'Status': 'a'}, status=HTTP_200_OK)
 

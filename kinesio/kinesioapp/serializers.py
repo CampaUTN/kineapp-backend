@@ -32,22 +32,24 @@ class ClinicalHistorySerializer(serializers.ModelSerializer):
     patient = PatientSerializer(read_only=True)
 
     class Meta:
-        model = ClinicalHistory
+        model = ClinicalHistory 
         fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
 
 class SecretQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SecretQuestion
-        fields = ('description')
+        fields = ('__all__')
 
 class SecretAnswerSerializer(serializers.ModelSerializer):
-    user = PatientSerializer(read_only=True)
-    user_id = serializers.IntegerField(write_only=True)
+    medic = MedicSerializer(read_only=True)
+    medic_id = serializers.IntegerField(write_only=True)
     question = SecretQuestionSerializer(read_only=True)
     question_id = serializers.IntegerField(write_only=True)
+    answer = serializers.CharField(write_only=True)
+    #depth = 1
 
     class Meta:
         model = SecretAnswer
-        fields = ('user', 'question', 'answer')
+        fields = ('medic', 'question', 'answer', 'question_id', 'medic_id')
 
