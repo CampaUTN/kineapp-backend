@@ -1,7 +1,7 @@
 from rest_framework import generics
 
 from .models import CustomUser
-from .serializers import MedicSerializer, PatientSerializer, CustomUserSerializer
+from .serializers import CustomUserSerializer
 
 
 class PatientsAPIView(generics.ListCreateAPIView):

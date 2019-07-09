@@ -1,5 +1,4 @@
-# users/models.py
-from django.contrib.auth.models import AbstractUser, BaseUserManager, UserManager
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models, transaction
 
 
@@ -53,7 +52,3 @@ class Medic(CustomUserType):
 class Patient(CustomUserType):
     current_medic = models.ForeignKey(CustomUser, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
-
-
-
-

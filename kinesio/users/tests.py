@@ -1,10 +1,10 @@
 from django.test import TestCase
-
 from rest_framework.test import APITestCase
-from .models import Medic, Patient, CustomUser
-from .serializers import CustomUserSerializer
 from rest_framework import status
 from json import dumps
+
+from .models import CustomUser
+from .serializers import CustomUserSerializer
 
 
 class TestObjectsSerializedInADictionary(TestCase):
