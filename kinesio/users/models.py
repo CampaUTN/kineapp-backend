@@ -41,6 +41,8 @@ class CustomUserType(models.Model):
 
 class CustomUser(AbstractUser):
     user_type = models.OneToOneField(CustomUserType, parent_link=True, related_name='user', on_delete=models.CASCADE)
+    # FIXME Sacar null true cuando el ISSUE 93 este terminado
+    id_google = models.CharField(max_length=100, db_index=True, null=True, blank=True, default=None)
 
     objects = CustomUserManager()
 
