@@ -69,12 +69,6 @@ class Image(models.Model):
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
 
+
 class SecretQuestion(models.Model):
     description = models.CharField(max_length=255)
-
-class SecretAnswer(models.Model):
-    medic = models.ForeignKey(Medic, on_delete=models.CASCADE, null=True)
-    question = models.ForeignKey(SecretQuestion, on_delete=models.CASCADE, null=True)
-    answer = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True, null = True)
-    updated_at = models.DateTimeField(auto_now=True, null = True )

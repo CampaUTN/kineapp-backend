@@ -6,9 +6,8 @@ from django.contrib.auth import authenticate
 from rest_framework import generics
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from .models import Medic, ClinicalHistory, ClinicalSession, Patient, SecretQuestion, SecretAnswer
-from .serializers import MedicSerializer, ClinicalHistorySerializer, ClinicalSessionSerializer, PatientSerializer, SecretQuestionSerializer, SecretAnswerSerializer
-from simplecrypt import encrypt, decrypt
+from .models import ClinicalHistory, ClinicalSession, SecretQuestion
+from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer, SecretQuestionSerializer
 import logging
 
 class Errors(object):
@@ -65,11 +64,6 @@ class SecretQuestionAPIView(generics.ListCreateAPIView):
     serializer_class = SecretQuestionSerializer
 
 
-class SecretAnswerAPIView(generics.ListCreateAPIView):
-    queryset = SecretAnswer.objects.all()
-    serializer_class = SecretAnswerSerializer
-
-
 class CheckAnswerAPIView(APIView):
 
     def post(self, request):
@@ -80,10 +74,8 @@ class CheckAnswerAPIView(APIView):
         elif Errors.is_invalid(answer):
             return Errors.missing_field_error('answer')
         else:
-            storedSecretAnswer = SecretAnswerSerializer(SecretAnswer.objects.filter(medic_id=user_id).order_by('-id')[:1]).data
-            #print(dir(storedSecretAnswer))
-            print(storedSecretAnswer.id)
-            #ciphertext = decrypt('s3cr3t', storedSecretAnswer['answer'])
+            #storedSecretAnswer = .objects.filter(user_id=user_id).order_by('-id')[:1]).data
+            #print(storedSecretAnswer.id)
 
             return Response({'Status': 'a'}, status=HTTP_200_OK)
 
