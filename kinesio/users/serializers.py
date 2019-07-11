@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Medic, Patient, CustomUser, CustomUserType
+from .models import Medic, Patient, CustomUser, CustomUserType, SecretQuestion
 
 
 class MedicSerializer(serializers.ModelSerializer):
@@ -29,3 +29,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'user_type')
+
+class SecretQuestionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SecretQuestion
+        fields = ('__all__')
+

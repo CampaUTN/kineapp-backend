@@ -69,6 +69,3 @@ class Image(models.Model):
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
 
-
-class SecretQuestion(models.Model):
-    description = models.CharField(max_length=255)

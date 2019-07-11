@@ -1,13 +1,14 @@
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework import generics
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from .models import ClinicalHistory, ClinicalSession, SecretQuestion
-from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer, SecretQuestionSerializer
+from .models import ClinicalHistory, ClinicalSession
+
+from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer
 import logging
 
 class Errors(object):
@@ -58,26 +59,6 @@ class ClinicalSessionAPIView(generics.ListCreateAPIView):
     queryset = ClinicalSession.objects.all()
     serializer_class = ClinicalSessionSerializer
 
-
-class SecretQuestionAPIView(generics.ListCreateAPIView):
-    queryset = SecretQuestion.objects.all()
-    serializer_class = SecretQuestionSerializer
-
-
-class CheckAnswerAPIView(APIView):
-
-    def post(self, request):
-        user_id = request.data.get('user_id', None)
-        answer = request.data.get('answer', None)
-        if Errors.is_invalid(user_id):
-            return Errors.missing_field_error('user_id')
-        elif Errors.is_invalid(answer):
-            return Errors.missing_field_error('answer')
-        else:
-            #storedSecretAnswer = .objects.filter(user_id=user_id).order_by('-id')[:1]).data
-            #print(storedSecretAnswer.id)
-
-            return Response({'Status': 'a'}, status=HTTP_200_OK)
 
 class TokenGoogleAPIView(APIView):
     def post(self, request):

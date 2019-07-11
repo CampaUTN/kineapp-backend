@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ClinicalHistory, ClinicalSession, SecretQuestion
+from .models import ClinicalHistory, ClinicalSession
 from users.serializers import PatientSerializer
 
 
@@ -18,11 +18,5 @@ class ClinicalHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClinicalHistory 
         fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
-
-class SecretQuestionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = SecretQuestion
-        fields = ('__all__')
 
 

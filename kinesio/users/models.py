@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models, transaction
-from kinesioapp.models import SecretQuestion
+
+class SecretQuestion(models.Model):
+    description = models.CharField(max_length=255)
 
 class CustomUserQuerySet(models.QuerySet):
     def medics(self):
@@ -43,7 +45,7 @@ class CustomUser(AbstractUser):
     user_type = models.OneToOneField(CustomUserType, parent_link=True, related_name='user', on_delete=models.CASCADE)
     # FIXME Sacar null true cuando el ISSUE 93 este terminado
     id_google = models.CharField(max_length=100, db_index=True, null=True, blank=True, default=None)
-    secret_question = models.ForeignKey(SecretQuestion, null=True)
+    secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
 
     objects = CustomUserManager()
 
@@ -58,3 +60,5 @@ class Medic(CustomUserType):
 class Patient(CustomUserType):
     current_medic = models.ForeignKey(CustomUser, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
+
+
