@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Medic, ClinicalHistory, ClinicalSession, Patient, SecretQuestion, SecretAnswer
-
+from users.serializers import PatientSerializer
 
 class PatientSerializer(serializers.ModelSerializer):
     start_date = serializers.DateTimeField(format="%Y-%m-%d")

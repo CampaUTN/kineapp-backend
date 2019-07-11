@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users.apps.UsersConfig',  # To use a custom User model.
     'kinesioapp'
 ]
 
@@ -138,3 +139,7 @@ REST_FRAMEWORK = {
         'kinesioapp.renderers.CustomJSONRenderer',
     ),
 }
+
+
+# User system
+AUTH_USER_MODEL = 'users.CustomUser'

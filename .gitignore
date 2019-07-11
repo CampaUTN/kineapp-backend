@@ -109,3 +109,4 @@ venv.bak/
 
 # Migrations
 kinesio/kinesioapp/migrations/
+kinesio/users/migrations/
