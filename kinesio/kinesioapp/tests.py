@@ -69,14 +69,3 @@ class TestClinicalSessionAPI(APITestCase):
         response = self.client.post('/api/v1/clinical_sessions/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalSession.objects.count(), 2)
-
-
-class TestGoogleToken(TestCase):
-    def test_missing_token(self):
-        response = self.client.post('/api/v1/login_google/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_invalid_token(self):
-        data = {'google_token': 'asd123sd123sad'}
-        response = self.client.post('/api/v1/login_google/', data, content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

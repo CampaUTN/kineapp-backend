@@ -59,3 +59,14 @@ class TestPatientsAPI(TestCase):
         response = self.client.patch('/api/v1/patients/1', data, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json().get('first_name'), 'facuUpdated')
+
+
+class TestGoogleToken(TestCase):
+    def test_missing_token(self):
+        response = self.client.post('/api/v1/login_google/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_invalid_token(self):
+        data = {'google_token': 'asd123sd123sad'}
+        response = self.client.post('/api/v1/login_google/', data, content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
