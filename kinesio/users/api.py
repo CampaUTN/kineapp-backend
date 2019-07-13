@@ -6,34 +6,30 @@ from rest_framework import status, generics
 
 from .models import CustomUser
 from .serializers import CustomUserSerializer
+from .utils.google_connector import GoogleConnector, InvalidTokenException
+from django.utils.datastructures import MultiValueDictKeyError
 
 
 class TokenGoogleAPIView(APIView):
     def post(self, request):
-        google_token = request.data.get('google_token', None)
-        if google_token is None:
-            return Response({'error': 'Missing token'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            google_token = request.data['google_token']
+        except MultiValueDictKeyError:
+            response = Response({'error': 'Missing token'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            print(google_token)
             try:
-                id_info = id_token.verify_oauth2_token(
-                    google_token,
-                    requests.Request(),
-                    '1093191472549-9gk2os2g3hm2qa1bhrhr1ab0cl7r5qkb.apps.googleusercontent.com')
-
-                if id_info['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-                    return Response({'error': 'Invalid Issuer'}, status=status.HTTP_404_NOT_FOUND)
-
-                user_id = id_info['sub']
-
-                query_user = CustomUser.objects.filter(id_google=user_id)
-                if query_user.count() > 0:
-                    return Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
+                google_connector = GoogleConnector(google_token=google_token)
+            except InvalidTokenException:
+                response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if not google_connector.username_is_valid:
+                    response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
+                elif CustomUser.objects.filter(id_google=google_connector.user_id).exists():
+                    response = Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
                 else:
                     # FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
-                    return Response({'questions': 'Saraza!'}, status=status.HTTP_200_OK)
-            except ValueError:
-                return Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_404_NOT_FOUND)
+                    response = Response({'questions': ['Question 1', 'Question 2', 'Question 3']}, status=status.HTTP_200_OK)
+        return response
 
 
 class PatientsAPIView(generics.ListCreateAPIView):
