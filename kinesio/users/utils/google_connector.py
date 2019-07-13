@@ -14,16 +14,16 @@ class GoogleConnector:
         try:
             self.account_information = id_token.verify_oauth2_token(google_token,
                                                                     requests.Request(),
-                                                                    '1093191472549-9gk2os2g3hm2qa1bhrhr1ab0cl7r5qkb.apps.googleusercontent.com')
+                                                                    '407408718192.apps.googleusercontent.com')
         except ValueError:
             raise InvalidTokenException
         else:
-            if not self._token_is_valid():
+            if not self._token_is_valid:
                 raise InvalidTokenException
 
     @property
     def _token_is_valid(self):
-        return 'iss' in self.account_information and 'sub' in self.account_information
+        return all(key in self.account_information for key in ['iss', 'sub', 'given_name', 'family_name'])
 
     @property
     def username_is_valid(self):
