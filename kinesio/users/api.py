@@ -1,4 +1,5 @@
-from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from .models import CustomUser, SecretQuestion
 from .serializers import CustomUserSerializer, SecretQuestionSerializer
@@ -24,17 +25,28 @@ class SecretQuestionAPIView(generics.ListCreateAPIView):
     serializer_class = SecretQuestionSerializer
 
 
+class SecretQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SecretQuestion.objects.all()
+    serializer_class = SecretQuestionSerializer
+
+
 class CheckAnswerAPIView(APIView):
 
     def post(self, request):
-        user_id = request.data.get('user_id', None)
-        answer = request.data.get('answer', None)
-        if Errors.is_invalid(user_id):
-            return Errors.missing_field_error('user_id')
-        elif Errors.is_invalid(answer):
-            return Errors.missing_field_error('answer')
-        else:
-            #storedSecretAnswer = .objects.filter(user_id=user_id).order_by('-id')[:1]).data
-            #print(storedSecretAnswer.id)
+        try:
+            user_id = request.data['user_id']
+            secret_question_id = request.data['secret_question_id']
+            answer = request.data['answer']
+        except KeyError:
+            return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'Status': 'a'}, status=HTTP_200_OK)
+        try:
+            user = CustomUser.objects.get(id=user_id, secret_question_id=secret_question_id)
+        except CustomUser.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        compare = user.check_password(answer)
+
+        return Response({'compare': compare}, status=status.HTTP_200_OK)
+
+        
