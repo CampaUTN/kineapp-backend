@@ -34,7 +34,7 @@ class TokenGoogleAPIView(APIView):
 
 class RegisterUserAPIView(APIView):
     def _get_google_user(self, google_token):
-        """ This exists as a method for testing """
+        """ This method is here to be patched with a mock a GoogleUser while testing """
         return GoogleUser(google_token)
 
     def post(self, request):
