@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#.idea
+kinesio.iml
+misc.xml
+modules.xml
+vcs.xml
+workspace.xml
+
 # C extensions
 *.so
 
@@ -82,6 +89,7 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
+.vscode
 .env
 .venv
 env/

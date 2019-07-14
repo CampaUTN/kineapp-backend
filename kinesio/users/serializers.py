@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Medic, Patient, CustomUser, CustomUserType
+from .models import Medic, Patient, CustomUser, CustomUserType, SecretQuestion
 
 
 class MedicSerializer(serializers.ModelSerializer):
@@ -25,7 +25,19 @@ class CustomUserTypeSerializer(serializers.ModelSerializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     user_type = CustomUserTypeSerializer()
+    password = serializers.CharField(
+        min_length=4,
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'})
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'user_type')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'user_type', 'secret_question', 'password')
+
+class SecretQuestionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SecretQuestion
+        fields = ('__all__')
+

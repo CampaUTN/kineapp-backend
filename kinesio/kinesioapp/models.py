@@ -68,3 +68,4 @@ class Image(models.Model):
     date = models.DateTimeField()
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
+

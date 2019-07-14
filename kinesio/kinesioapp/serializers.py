@@ -16,5 +16,7 @@ class ClinicalHistorySerializer(serializers.ModelSerializer):
     patient = PatientSerializer(read_only=True)
 
     class Meta:
-        model = ClinicalHistory
+        model = ClinicalHistory 
         fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
+
+
