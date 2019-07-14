@@ -6,7 +6,7 @@ class InvalidTokenException(Exception):
     pass
 
 
-class GoogleConnector:
+class GoogleUser:
     def __init__(self, google_token):
         self.google_token = self._validate_and_set_account_information(google_token)
 
@@ -23,7 +23,7 @@ class GoogleConnector:
 
     @property
     def _token_is_valid(self):
-        return all(key in self.account_information for key in ['iss', 'sub', 'given_name', 'family_name'])
+        return all(key in self.account_information for key in ['iss', 'sub', 'given_name', 'family_name', 'email'])
 
     @property
     def username_is_valid(self):
@@ -32,3 +32,15 @@ class GoogleConnector:
     @property
     def user_id(self):
         return self.account_information['sub']
+
+    @property
+    def first_name(self):
+        return self.account_information['given_name']
+
+    @property
+    def last_name(self):
+        return self.account_information['family_name']
+
+    @property
+    def email(self):
+        return self.account_information['email']
