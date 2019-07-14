@@ -33,7 +33,8 @@ class TokenGoogleAPIView(APIView):
 
 
 class RegisterUserAPIView(APIView):
-    def _get_google_user(self, google_token):
+    @staticmethod
+    def _get_google_user(google_token):
         """ This method is here to be patched with a mock a GoogleUser while testing """
         return GoogleUser(google_token)
 
@@ -48,7 +49,7 @@ class RegisterUserAPIView(APIView):
             response = Response({'error': 'Do not specify current_medic and license at the same time'},
                                 status=status.HTTP_400_BAD_REQUEST)
         else:
-            google_user = self._get_google_user(google_token=google_token)
+            google_user = RegisterUserAPIView._get_google_user(google_token=google_token)
             CustomUser.objects.create_user(username=google_user.user_id,
                                            first_name=google_user.first_name,
                                            last_name=google_user.last_name,
