@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 
 from . import models
 from .models import ClinicalHistory, ClinicalSession
-from users.models import CustomUser
+from users.models import User
 
 
 class TestPEP8(TestCase):
@@ -25,32 +25,32 @@ class TestPEP8(TestCase):
 
 class TestClinicalHistoryAPI(APITestCase):
     def setUp(self) -> None:
-        self.medic = CustomUser.objects.create_user(username='juan', password='1234', first_name='juan',
-                                                    last_name='gomez', license='matricula #15433')
-        self.patient = CustomUser.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
-                                                      password='12345', current_medic=self.medic, pk=1)
+        self.medic = User.objects.create_user(username='juan', password='1234', first_name='juan',
+                                              last_name='gomez', license='matricula #15433')
+        self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
+                                                password='12345', current_medic=self.medic)
         ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
                                        status=models.PENDING, patient=self.patient)
 
     def test_get_all_clinical_histories(self):
         response = self.client.get('/api/v1/clinical_histories/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.json()['data']), 1)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 1)
 
     def test_create_clinical_history(self):
         data = {'date': datetime.now(), 'description': 'first clinical history',
                 'status': 'P', 'patient_id': self.patient.pk}
         response = self.client.post('/api/v1/clinical_histories/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalHistory.objects.count(), 2)
 
 
 class TestClinicalSessionAPI(APITestCase):
     def setUp(self) -> None:
-        self.medic = CustomUser.objects.create_user(username='juan', password='1234', first_name='juan',
-                                                    last_name='gomez', license='matricula #15433')
-        self.patient = CustomUser.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
-                                                      password='12345', current_medic=self.medic, pk=1)
+        self.medic = User.objects.create_user(username='juan', password='1234', first_name='juan',
+                                              last_name='gomez', license='matricula #15433')
+        self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
+                                                password='12345', current_medic=self.medic)
         self.clinical_history = ClinicalHistory.objects.create(date=datetime.now(),
                                                                description='a clinical history',
                                                                status=models.PENDING,
@@ -61,22 +61,11 @@ class TestClinicalSessionAPI(APITestCase):
 
     def test_get_all_clinical_sessions(self):
         response = self.client.get('/api/v1/clinical_sessions/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.json()['data']), 1)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 1)
 
     def test_create_clinical_session(self):
         data = {'date': datetime.now(), 'status': 'P', 'clinical_history': self.clinical_history.pk}
         response = self.client.post('/api/v1/clinical_sessions/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalSession.objects.count(), 2)
-
-
-class TestGoogleToken(TestCase):
-    def test_missing_token(self):
-        response = self.client.post('/api/v1/login_google/')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_invalid_token(self):
-        data = {'google_token': 'asd123sd123sad'}
-        response = self.client.post('/api/v1/login_google/', data, content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

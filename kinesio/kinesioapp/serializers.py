@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import ClinicalHistory, ClinicalSession
-from users.serializers import PatientSerializer
+from users.serializers import UserSerializer
 
 
 class ClinicalSessionSerializer(serializers.ModelSerializer):
@@ -13,10 +13,8 @@ class ClinicalSessionSerializer(serializers.ModelSerializer):
 class ClinicalHistorySerializer(serializers.ModelSerializer):
     clinical_sessions = ClinicalSessionSerializer(many=True, required=False)
     patient_id = serializers.IntegerField(write_only=True)
-    patient = PatientSerializer(read_only=True)
+    patient = UserSerializer(read_only=True)
 
     class Meta:
-        model = ClinicalHistory 
+        model = ClinicalHistory
         fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
-
-

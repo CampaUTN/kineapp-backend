@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import CustomUser
+from users.models import User
 
 
 PENDING = 'pending'
@@ -33,7 +33,7 @@ class Exercise(models.Model):
 
 class Video(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, null=True)
 
 
@@ -47,7 +47,7 @@ class ClinicalHistory(models.Model):
     date = models.DateTimeField()
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
-    patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    patient = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class ClinicalSession(models.Model):
@@ -68,4 +68,3 @@ class Image(models.Model):
     date = models.DateTimeField()
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
-
