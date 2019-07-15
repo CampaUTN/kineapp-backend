@@ -41,26 +41,27 @@ class TestMedicsAPI(APITestCase):
 class TestPatientsAPI(TestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='maria22', license='matricula #44423')
-        User.objects.create_user(pk=1, username='facundo22', first_name='facundo')
+        self.patient = User.objects.create_user(username='facundo22', first_name='facundo')
         User.objects.create_user(username='martin', current_medic=self.medic)
 
     def test_get_one_patient(self):
-        response = self.client.get('/api/v1/patients/1')
-        self.assertEqual(response.json().get('first_name'), 'facundo')
+        response = self.client.get(f'/api/v1/patients/{self.patient.id}')
+        breakpoint()
+        self.assertEqual(response.json()['user']['first_name'], 'facundo')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_all_patients(self):
         response = self.client.get('/api/v1/patients/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json().get('data')), 2)
+        self.assertEqual(len(response.json()['data']), 2)
 
     def test_update_one_patient(self):
-        response = self.client.get('/api/v1/patients/1')
+        response = self.client.get(f'/api/v1/patients/{self.patient.id}')
         self.assertTrue(len(response.json().get('first_name')), 1)
         data = dumps({'first_name': 'facuUpdated'})
         response = self.client.patch('/api/v1/patients/1', data, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get('first_name'), 'facuUpdated')
+        self.assertEqual(response.json()['user']['first_name'], 'facuUpdated')
 
 
 class TestGoogleLogin(TestCase):
@@ -99,4 +100,4 @@ class TestGoogleRegistration(TestCase):
             response = self.client.post('/api/v1/registration_google/', data, content_type='application/json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.assertEqual(User.objects.get().first_name, GoogleUserMock('fake_token').first_name)
-            self.assertEqual(User.objects.get().user_type.medic.license, '1234')
+            self.assertEqual(User.objects.get().medic.license, '1234')
