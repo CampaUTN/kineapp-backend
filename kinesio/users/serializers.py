@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Medic, Patient, User
+from .models import Medic, Patient, User, SecretQuestion
 
 
 class MedicSerializer(serializers.ModelSerializer):
@@ -20,10 +20,15 @@ class PatientSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     medic = MedicSerializer()
     patient = PatientSerializer()
+    password = serializers.CharField(min_length=4,
+                                     write_only=True,
+                                     # required=True,
+                                     style={'input_type': 'password'})
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient',
+                  'secret_question', 'password')
 
     def _want_to_set_patient_data(self, validated_data):
         return 'patient' in validated_data.keys()
@@ -54,3 +59,10 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         self._update_user_type(instance, validated_data)
         return instance
+
+
+class SecretQuestionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SecretQuestion
+        fields = '__all__'

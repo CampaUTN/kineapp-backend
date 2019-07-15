@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 
-from .models import User
-from .serializers import UserSerializer
+from .models import User, SecretQuestion
+from .serializers import UserSerializer, SecretQuestionSerializer
 from .utils.google_user import GoogleUser, InvalidTokenException
 from django.utils.datastructures import MultiValueDictKeyError
 
@@ -71,3 +71,33 @@ class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 class MedicsAPIView(generics.ListCreateAPIView):
     queryset = User.objects.medics()
     serializer_class = UserSerializer
+
+
+class SecretQuestionAPIView(generics.ListCreateAPIView):
+    queryset = SecretQuestion.objects.all()
+    serializer_class = SecretQuestionSerializer
+
+
+class SecretQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SecretQuestion.objects.all()
+    serializer_class = SecretQuestionSerializer
+
+
+class CheckAnswerAPIView(APIView):
+
+    def post(self, request):
+        try:
+            user_id = request.data['user_id']
+            secret_question_id = request.data['secret_question_id']
+            answer = request.data['answer']
+        except KeyError:
+            return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id, secret_question_id=secret_question_id)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        compare = user.check_password(answer)
+
+        return Response({'compare': compare}, status=status.HTTP_200_OK)

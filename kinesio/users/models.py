@@ -1,5 +1,9 @@
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
-from django.db import models, transaction, IntegrityError
+from django.db import models, transaction
+
+
+class SecretQuestion(models.Model):
+    description = models.CharField(max_length=255)
 
 
 class UserQuerySet(models.QuerySet):
@@ -48,6 +52,7 @@ class UserManager(DjangoUserManager):
 class User(AbstractUser):
     # FIXME Sacar null true cuando el ISSUE 93 este terminado
     id_google = models.CharField(max_length=100, db_index=True, null=True, blank=True, default=None)
+    secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
 
     objects = UserManager()
 
