@@ -142,4 +142,4 @@ REST_FRAMEWORK = {
 
 
 # User system
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.User'

@@ -1,31 +1,24 @@
 from rest_framework import serializers
-from .models import Medic, Patient, CustomUser, CustomUserType
+from .models import Medic, Patient, User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active')
 
 
 class MedicSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
     class Meta:
         model = Medic
-        fields = ('license',)
+        fields = ('user', 'license')
 
 
 class PatientSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
     class Meta:
         model = Patient
-        fields = ('current_medic_id',)
-
-
-class CustomUserTypeSerializer(serializers.ModelSerializer):
-    patient = PatientSerializer()
-    medic = MedicSerializer()
-
-    class Meta:
-        model = CustomUserType
-        fields = ('patient', 'medic')
-
-
-class CustomUserSerializer(serializers.ModelSerializer):
-    user_type = CustomUserTypeSerializer()
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'user_type')
+        fields = ('user', )  # 'current_medic_id')

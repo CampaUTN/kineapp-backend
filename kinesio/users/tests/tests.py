@@ -3,34 +3,34 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from json import dumps
 
-from ..models import CustomUser
-from ..serializers import CustomUserSerializer
+from ..models import User
+from ..serializers import UserSerializer
 from .utils.mocks import GoogleUserMock
 from unittest import mock
 
 
 class TestObjectsSerializedInADictionary(TestCase):
     def setUp(self) -> None:
-        CustomUser.objects.create_user(username='juan', license='matricula #15433')
+        User.objects.create_user(username='juan', license='matricula #15433')
 
     def test_serializing_one_medic_returns_a_dictionary(self):
-        serialized_objects_data = CustomUserSerializer(CustomUser.objects.get(username='juan')).data
+        serialized_objects_data = UserSerializer(User.objects.get(username='juan')).data
         self.assertNotEquals(dict, type(serialized_objects_data))
 
     def test_serializing_one_medic_does_not_create_data_key(self):
-        serialized_objects_data = CustomUserSerializer(CustomUser.objects.get(username='juan')).data
+        serialized_objects_data = UserSerializer(User.objects.get(username='juan')).data
         self.assertTrue('data' not in serialized_objects_data)
 
     def test_serializing_multiple_medics_returns_a_dictionary(self):
-        CustomUser.objects.create_user(username='maria76', license='matricula #1342')
-        serialized_objects_data = CustomUserSerializer(CustomUser.objects.medics(), many=True).data
+        User.objects.create_user(username='maria76', license='matricula #1342')
+        serialized_objects_data = UserSerializer(User.objects.medics(), many=True).data
         self.assertNotEquals(dict, type(serialized_objects_data))
 
 
 class TestMedicsAPI(APITestCase):
     def setUp(self) -> None:
-        CustomUser.objects.create_user(username='juan', license='matricula #15433')
-        CustomUser.objects.create_user(username='maria22', license='matricula #44423')
+        User.objects.create_user(username='juan', license='matricula #15433')
+        User.objects.create_user(username='maria22', license='matricula #44423')
 
     def test_get_all_medics(self):
         response = self.client.get('/api/v1/medics/')
@@ -40,9 +40,9 @@ class TestMedicsAPI(APITestCase):
 
 class TestPatientsAPI(TestCase):
     def setUp(self) -> None:
-        self.medic = CustomUser.objects.create_user(username='maria22', license='matricula #44423')
-        CustomUser.objects.create_user(pk=1, username='facundo22', first_name='facundo')
-        CustomUser.objects.create_user(username='martin', current_medic=self.medic)
+        self.medic = User.objects.create_user(username='maria22', license='matricula #44423')
+        User.objects.create_user(pk=1, username='facundo22', first_name='facundo')
+        User.objects.create_user(username='martin', current_medic=self.medic)
 
     def test_get_one_patient(self):
         response = self.client.get('/api/v1/patients/1')
@@ -86,17 +86,17 @@ class TestGoogleRegistration(TestCase):
 
     def test_create_medic(self):
         with mock.patch('users.api.RegisterUserAPIView._get_google_user',
-                        new=lambda self, google_token: GoogleUserMock(google_token)):
+                        new=lambda google_token: GoogleUserMock(google_token)):
             data = {'google_token': 'i_am_a_working_token', 'license': '1234'}
             response = self.client.post('/api/v1/registration_google/', data, content_type='application/json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            self.assertEqual(CustomUser.objects.count(), 1)
+            self.assertEqual(User.objects.count(), 1)
 
     def test_medic_data_correctly_set(self):
         with mock.patch('users.api.RegisterUserAPIView._get_google_user',
-                        new=lambda self, google_token: GoogleUserMock(google_token)):
+                        new=lambda google_token: GoogleUserMock(google_token)):
             data = {'google_token': 'i_am_a_working_token', 'license': '1234'}
             response = self.client.post('/api/v1/registration_google/', data, content_type='application/json')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-            self.assertEqual(CustomUser.objects.get().first_name, GoogleUserMock('fake_token').first_name)
-            self.assertEqual(CustomUser.objects.get().user_type.medic.license, '1234')
+            self.assertEqual(User.objects.get().first_name, GoogleUserMock('fake_token').first_name)
+            self.assertEqual(User.objects.get().user_type.medic.license, '1234')
