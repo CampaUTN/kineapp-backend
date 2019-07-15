@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 
-from .models import User, Patient, Medic
-from .serializers import UserSerializer, PatientSerializer, MedicSerializer
+from .models import User
+from .serializers import UserSerializer
 from .utils.google_user import GoogleUser, InvalidTokenException
 from django.utils.datastructures import MultiValueDictKeyError
 
@@ -59,15 +59,15 @@ class RegisterUserAPIView(APIView):
 
 
 class PatientsAPIView(generics.ListCreateAPIView):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+    queryset = User.objects.patients()
+    serializer_class = UserSerializer
 
 
 class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
+    queryset = User.objects.patients()
+    serializer_class = UserSerializer
 
 
 class MedicsAPIView(generics.ListCreateAPIView):
-    queryset = Medic.objects.all()
-    serializer_class = MedicSerializer
+    queryset = User.objects.medics()
+    serializer_class = UserSerializer

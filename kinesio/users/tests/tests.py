@@ -1,7 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
-from json import dumps
 
 from ..models import User
 from ..serializers import UserSerializer
@@ -41,14 +40,14 @@ class TestMedicsAPI(APITestCase):
 class TestPatientsAPI(TestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='maria22', license='matricula #44423')
+        self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343')
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo')
         User.objects.create_user(username='martin', current_medic=self.medic)
 
     def test_get_one_patient(self):
         response = self.client.get(f'/api/v1/patients/{self.patient.id}')
-        breakpoint()
-        self.assertEqual(response.json()['user']['first_name'], 'facundo')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['first_name'], 'facundo')
 
     def test_get_all_patients(self):
         response = self.client.get('/api/v1/patients/')
@@ -56,12 +55,10 @@ class TestPatientsAPI(TestCase):
         self.assertEqual(len(response.json()['data']), 2)
 
     def test_update_one_patient(self):
-        response = self.client.get(f'/api/v1/patients/{self.patient.id}')
-        self.assertTrue(len(response.json().get('first_name')), 1)
-        data = dumps({'first_name': 'facuUpdated'})
-        response = self.client.patch('/api/v1/patients/1', data, content_type='application/json')
+        data = {'patient': {'current_medic_id': self.another_medic.id}, 'first_name': 'pepe'}
+        response = self.client.patch(f'/api/v1/patients/{self.patient.id}', data, content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['user']['first_name'], 'facuUpdated')
+        self.assertEqual(response.json()['patient']['current_medic_id'], self.another_medic.id)
 
 
 class TestGoogleLogin(TestCase):
