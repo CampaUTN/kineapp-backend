@@ -42,9 +42,8 @@ class CheckAnswerAPI(TestCase):
             "secret_question_id": self.question.id,
             "answer": "rojo"
         })
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get('compare'), True)
+        self.assertEqual(response.json().get('message'), 'Logged in')
 
     def test_check_wrong_question_answer(self):
         response = self.client.post('/api/v1/check_answer/', {
@@ -52,8 +51,7 @@ class CheckAnswerAPI(TestCase):
             "secret_question_id": self.question.id,
             "answer": "azul"
         })
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get('compare'), False)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_answer_not_found_user_id(self):
         response = self.client.post('/api/v1/check_answer/', {
@@ -71,4 +69,4 @@ class CheckAnswerAPI(TestCase):
             "answer": "rojo"
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.json().get("message"), "User not found")
+        self.assertEqual(response.json().get("message"), "Question not found")

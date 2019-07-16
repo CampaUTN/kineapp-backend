@@ -1,6 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
@@ -8,26 +13,28 @@ from .utils.google_user import GoogleUser, InvalidTokenException
 from django.utils.datastructures import MultiValueDictKeyError
 
 
-class TokenGoogleAPIView(APIView):
-    def post(self, request):
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def token_google_api_view(request):
+    try:
+        google_token = request.data['google_token']
+    except MultiValueDictKeyError:
+        response = Response({'error': 'Missing token'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
         try:
-            google_token = request.data['google_token']
-        except MultiValueDictKeyError:
-            response = Response({'error': 'Missing token'}, status=status.HTTP_400_BAD_REQUEST)
+            google_user = GoogleUser(google_token=google_token)
+        except InvalidTokenException:
+            response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            try:
-                google_user = GoogleUser(google_token=google_token)
-            except InvalidTokenException:
-                response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+            if not google_user.username_is_valid:
+                response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
+            elif User.objects.filter(id_google=google_user.user_id).exists():
+                response = Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
             else:
-                if not google_user.username_is_valid:
-                    response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
-                elif User.objects.filter(id_google=google_user.user_id).exists():
-                    response = Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
-                else:
-                    # FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
-                    response = Response({'questions': ['Question 1', 'Question 2', 'Question 3']}, status=status.HTTP_200_OK)
-        return response
+                # FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
+                response = Response({'questions': ['Question 1', 'Question 2', 'Question 3']}, status=status.HTTP_200_OK)
+    return response
 
 
 class RegisterUserAPIView(APIView):
@@ -83,21 +90,32 @@ class SecretQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SecretQuestionSerializer
 
 
-class CheckAnswerAPIView(APIView):
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def check_answer_view(request):
+    try:
+        user_id = int(request.data['user_id'])
+        secret_question_id = int(request.data['secret_question_id'])
+        answer = request.data['answer']
+    except KeyError:
+        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def post(self, request):
-        try:
-            user_id = request.data['user_id']
-            secret_question_id = request.data['secret_question_id']
-            answer = request.data['answer']
-        except KeyError:
-            return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user = User.objects.get(id=user_id)
+        SecretQuestion.objects.get(id=secret_question_id)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+    except SecretQuestion.DoesNotExist:
+        return Response({'message': 'Question not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            user = User.objects.get(id=user_id, secret_question_id=secret_question_id)
-        except User.DoesNotExist:
-            return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+    if user.secret_question.id != secret_question_id:
+        return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        compare = user.check_password(answer)
-
-        return Response({'compare': compare}, status=status.HTTP_200_OK)
+    compare = user.check_password(answer)
+    token, _ = Token.objects.get_or_create(user=user)
+    if compare:
+        authenticate(username=user.username, password=answer)
+        return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
+    else:
+        return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
