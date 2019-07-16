@@ -10,7 +10,7 @@ urlpatterns = [
     re_path(r'^api/v1/patients/(?P<pk>[0-9]+)$', api.PatientDetailAPIView.as_view(), name='patient_detail'),
     re_path(r'^api/v1/secret_questions/?$', api.SecretQuestionAPIView.as_view(), name='secret_questions'),
     re_path(r'^api/v1/secret_questions/(?P<pk>[0-9]+)$', api.SecretQuestionDetailAPIView.as_view(), name='secret_questions'),
-    re_path(r'^api/v1/check_answer/?$', api.CheckAnswerAPIView.as_view(), name='check_answer'),
+    re_path(r'^api/v1/login_secret_answer/?$', api.Login.as_view(), name='login_secret_question'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
