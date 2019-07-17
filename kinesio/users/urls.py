@@ -10,7 +10,7 @@ urlpatterns = [
     re_path(r'^api/v1/secret_questions/(?P<pk>[0-9]+)$', api.SecretQuestionDetailAPIView.as_view(), name='secret_questions'),
 
     # Registration related views
-    re_path(r'^api/v1/registration/?$', api.RegistrationAPIView.as_view(), name='registration'),
+    re_path(r'^api/v1/registration/?$', api.register, name='registration'),
 
     # Other views
     re_path(r'^api/v1/medics/?$', api.MedicsAPIView.as_view(), name='medics'),

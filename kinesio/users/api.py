@@ -9,7 +9,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
-from .utils.google_user import GoogleUser, InvalidTokenException
+from .utils.google_user import InvalidTokenException
+from .tests.utils.testing_detection import is_testing_mode
+if not is_testing_mode():
+    from .utils.google_user import GoogleUser
+else:
+    from .tests.utils.mocks import GoogleUser
 from django.utils.datastructures import MultiValueDictKeyError
 from drf_yasg import openapi
 from drf_yasg.app_settings import swagger_settings
@@ -117,31 +122,29 @@ def login(request):
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class RegistrationAPIView(APIView):
-    def _get_google_user(self, google_token):
-        """ This method is here to be patched with a mock a GoogleUser while testing """
-        return GoogleUser(google_token)
-
-    def post(self, request):
-        google_token = request.data.get('google_token', None)
-        license = request.data.get('license', None)
-        current_medic = request.data.get('current_medic', None)
-        if google_token is None:
-            response = Response({'error': 'Missing token'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        elif license is not None and current_medic is not None:
-            response = Response({'error': 'Do not specify current_medic and license at the same time'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        else:
-            google_user = self._get_google_user(google_token=google_token)
-            User.objects.create_user(username=google_user.user_id,
-                                     first_name=google_user.first_name,
-                                     last_name=google_user.last_name,
-                                     email=google_user.email,
-                                     license=license,
-                                     current_medic=current_medic)
-            response = Response(status=status.HTTP_201_CREATED)
-        return response
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def register(request):
+    google_token = request.data.get('google_token', None)
+    license = request.data.get('license', None)
+    current_medic = request.data.get('current_medic', None)
+    if google_token is None:
+        response = Response({'error': 'Missing token'},
+                            status=status.HTTP_400_BAD_REQUEST)
+    elif license is not None and current_medic is not None:
+        response = Response({'error': 'Do not specify current_medic and license at the same time'},
+                            status=status.HTTP_400_BAD_REQUEST)
+    else:
+        google_user = GoogleUser(google_token)
+        User.objects.create_user(username=google_user.user_id,
+                                 first_name=google_user.first_name,
+                                 last_name=google_user.last_name,
+                                 email=google_user.email,
+                                 license=license,
+                                 current_medic=current_medic)
+        response = Response(status=status.HTTP_201_CREATED)
+    return response
 
 
 class PatientsAPIView(generics.ListCreateAPIView):
