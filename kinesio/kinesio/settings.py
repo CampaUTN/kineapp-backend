@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'drf_yasg',
+    'rest_framework',
+    'rest_framework.authtoken',
     'users.apps.UsersConfig',  # To use a custom User model.
     'kinesioapp'
 ]
@@ -135,10 +137,18 @@ STATIC_URL = '/static/'
 django_heroku.settings(locals())
 
 
+# Rest framework settings
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'kinesioapp.renderers.CustomJSONRenderer',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+    ),
+    # fixme: uncomment on production, not on testing
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    # 'rest_framework.permissions.IsAuthenticated', )
 }
 
 
