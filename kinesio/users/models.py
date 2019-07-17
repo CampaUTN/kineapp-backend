@@ -53,7 +53,7 @@ class User(AbstractUser):
     # FIXME Sacar null true cuando el ISSUE 93 este terminado
     id_google = models.CharField(max_length=100, db_index=True, null=True, blank=True, default=None)
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
-
+    tries = models.IntegerField(default=0)
     objects = UserManager()
 
     def __str__(self):
