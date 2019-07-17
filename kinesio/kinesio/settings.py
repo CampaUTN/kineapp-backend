@@ -176,3 +176,7 @@ LOGGING = {
         },
     },
 }
+
+
+# Application Configuration
+MAX_PASSWORD_TRIES = 6

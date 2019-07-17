@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework import status
 from json import dumps
-
+from kinesio import settings
 from ..models import User, SecretQuestion
 
 
@@ -70,3 +70,13 @@ class CheckAnswerAPI(TestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json().get("message"), "Question not found")
+
+    def test_login_fail_max_times(self):
+        for x in range(0, int(settings.MAX_PASSWORD_TRIES) + 1):
+            response = self.client.post('/api/v1/login/', {
+                "username": self.user.username,
+                "secret_question_id": self.question.id,
+                "answer": "negro"
+            })
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json().get("message"), "Your account has been blocked due to many access errors")

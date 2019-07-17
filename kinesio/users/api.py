@@ -1,4 +1,3 @@
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from django.contrib.auth import authenticate
@@ -6,18 +5,16 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.datastructures import MultiValueDictKeyError
 from drf_yasg import openapi
-from drf_yasg.app_settings import swagger_settings
-from drf_yasg.inspectors import CoreAPICompatInspector, FieldInspector, NotHandled, SwaggerAutoSchema
-from drf_yasg.utils import no_body, swagger_auto_schema
-from rest_framework.decorators import action
+from drf_yasg.utils import swagger_auto_schema
+
+from django.utils.datastructures import MultiValueDictKeyError
+from kinesio import settings
 
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
-from .utils.google_user import InvalidTokenException
-from .utils.google_user import GoogleUser
 from .tests.utils.mock_decorators import mock_google_user_on_tests
+from .utils.google_user import GoogleUser, InvalidTokenException
 
 
 @swagger_auto_schema(
@@ -68,28 +65,28 @@ def users_exists(request):
     return response
 
 
-@swagger_auto_schema(method='post',
-                     operation_id='login (2FA)',
-                     request_body=openapi.Schema(
-                         type=openapi.TYPE_OBJECT,
-                         properties={
-                             'username': openapi.Schema(type=openapi.TYPE_INTEGER),
-                             'secret_question_id': openapi.Schema(type=openapi.TYPE_INTEGER),
-                             'answer': openapi.Schema(type=openapi.TYPE_STRING)
-                         },
-                         required=['username', 'secret_question_id', 'answer']
-                     ),
-                     responses={
-                         status.HTTP_400_BAD_REQUEST: openapi.Response(
-                             description="Missing or invalid user id."
-                         ),
-                         status.HTTP_404_NOT_FOUND: openapi.Response(
-                             description="Invalid google username or nonexistent user."
-                         ),
-                         status.HTTP_200_OK: openapi.Response(
-                             description="User exists.",
-                             schema=SecretQuestionSerializer(many=True)
-                         )})
+@swagger_auto_schema(
+    method='post',
+    operation_id='login (2FA)',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'username': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'secret_question_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'answer': openapi.Schema(type=openapi.TYPE_STRING)
+        },
+        required=['username', 'secret_question_id', 'answer']
+    ),
+    responses={
+        status.HTTP_400_BAD_REQUEST: openapi.Response(
+            description="Missing or invalid user id."
+        ),
+        status.HTTP_404_NOT_FOUND: openapi.Response(
+            description="Invalid google username or nonexistent user."
+        ),
+        status.HTTP_200_OK: openapi.Response(
+            description="User exists.",
+        )})
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
@@ -109,15 +106,24 @@ def login(request):
     except SecretQuestion.DoesNotExist:
         return Response({'message': 'Question not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+    if user.tries >= settings.MAX_PASSWORD_TRIES:
+        return Response({'message': 'Your account has been blocked due to many access errors'}, status=status.HTTP_401_UNAUTHORIZED)
+
     if user.secret_question.id != secret_question_id:
+        user.tries = user.tries + 1
+        user.save()
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
     compare = user.check_password(answer)
     token, _ = Token.objects.get_or_create(user=user)
     if compare:
         authenticate(username=user.username, password=answer)
+        user.tries = 0
+        user.save()
         return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
     else:
+        user.tries = user.tries + 1
+        user.save()
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
