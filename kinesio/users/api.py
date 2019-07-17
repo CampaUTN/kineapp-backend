@@ -17,7 +17,7 @@ from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
 from .utils.google_user import InvalidTokenException
 from .utils.google_user import GoogleUser
-from .tests.utils.mock_decorators import mock_google_user
+from .tests.utils.mock_decorators import mock_google_user_on_tests
 
 
 @swagger_auto_schema(
@@ -119,7 +119,7 @@ def login(request):
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@mock_google_user
+@mock_google_user_on_tests
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
