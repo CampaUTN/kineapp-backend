@@ -4,3 +4,4 @@ class GoogleUser:
         self.first_name = 'Matias'
         self.last_name = 'Gomez'
         self.email = 'test@gmail.com'
+        self.username_is_valid = True
