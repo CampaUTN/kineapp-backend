@@ -28,7 +28,8 @@ from .tests.utils.mock_decorators import mock_google_user_on_tests
         properties={
             'google_token': openapi.Schema(type=openapi.TYPE_STRING,
                                            description="google token that allows the back-end to obtain: given_name, family_name, iss, sub and email"),
-        }
+        },
+        required=['google_token']
     ),
     responses={
         status.HTTP_400_BAD_REQUEST: openapi.Response(
@@ -72,10 +73,11 @@ def users_exists(request):
                      request_body=openapi.Schema(
                          type=openapi.TYPE_OBJECT,
                          properties={
-                             'user_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                             'username': openapi.Schema(type=openapi.TYPE_INTEGER),
                              'secret_question_id': openapi.Schema(type=openapi.TYPE_INTEGER),
                              'answer': openapi.Schema(type=openapi.TYPE_STRING)
-                         }
+                         },
+                         required=['username', 'secret_question_id', 'answer']
                      ),
                      responses={
                          status.HTTP_400_BAD_REQUEST: openapi.Response(
@@ -119,10 +121,37 @@ def login(request):
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@mock_google_user_on_tests
+@swagger_auto_schema(
+    method='post',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        description="""To register any kind of user. If license and current_medic are both null or omitted,
+                       the user will be patient. If only current_medic is not null, the usuer will be a patient
+                       of that medic. If only the license is not null, the user will be a patient.
+                       If you set not-null values to both current_medic and license, the response will be status 400.""",
+        properties={
+            'google_token': openapi.Schema(type=openapi.TYPE_STRING,
+                                           description="google token that allows the back-end to obtain: given_name, family_name, iss, sub and email"),
+            'license': openapi.Schema(type=openapi.TYPE_STRING,
+                                      description="Medic's license."),
+            'current_medic': openapi.Schema(type=openapi.TYPE_INTEGER,
+                                            description="Current medic ID of the patient.")
+        },
+        required=['google_token']
+    ),
+    responses={
+        status.HTTP_400_BAD_REQUEST: openapi.Response(
+            description="Missing parameter or license and current_medic specified at the same time."
+        ),
+        status.HTTP_201_CREATED: openapi.Response(
+            description="User registrated."
+        )
+    }
+)
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
+@mock_google_user_on_tests
 def register(request, google_user_class=GoogleUser):
     google_token = request.data.get('google_token', None)
     license = request.data.get('license', None)
