@@ -95,14 +95,14 @@ class SecretQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes((AllowAny,))
 def check_answer_view(request):
     try:
-        user_id = int(request.data['user_id'])
+        username = request.data['username']
         secret_question_id = int(request.data['secret_question_id'])
         answer = request.data['answer']
     except KeyError:
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        user = User.objects.get(id=user_id)
+        user = User.objects.get(username=username)
         SecretQuestion.objects.get(id=secret_question_id)
     except User.DoesNotExist:
         return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)

@@ -32,13 +32,13 @@ class TestQuestionsAPI(TestCase):
 class CheckAnswerAPI(TestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Cual es tu color favorito?')
-        self.user = User.objects.create_user(username='usernameexample', secret_question_id=self.question.id)
+        self.user = User.objects.create_user(username='user', secret_question_id=self.question.id)
         self.user.set_password('rojo')
         self.user.save()
 
     def test_check_valid_question_answer(self):
         response = self.client.post('/api/v1/check_answer/', {
-            "user_id": self.user.id,
+            "username": self.user.username,
             "secret_question_id": self.question.id,
             "answer": "rojo"
         })
@@ -47,7 +47,7 @@ class CheckAnswerAPI(TestCase):
 
     def test_check_wrong_question_answer(self):
         response = self.client.post('/api/v1/check_answer/', {
-            "user_id": self.user.id,
+            "username": self.user.username,
             "secret_question_id": self.question.id,
             "answer": "azul"
         })
@@ -55,7 +55,7 @@ class CheckAnswerAPI(TestCase):
 
     def test_answer_not_found_user_id(self):
         response = self.client.post('/api/v1/check_answer/', {
-            "user_id": 89879,
+            "username": "anotherUser",
             "secret_question_id": self.question.id,
             "answer": "rojo"
         })
@@ -64,7 +64,7 @@ class CheckAnswerAPI(TestCase):
 
     def test_answer_not_found_question_id(self):
         response = self.client.post('/api/v1/check_answer/', {
-            "user_id": self.user.id,
+            "username": self.user.username,
             "secret_question_id": 879879,
             "answer": "rojo"
         })
