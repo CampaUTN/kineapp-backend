@@ -11,7 +11,7 @@ from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
 from .utils.google_user import GoogleUser, InvalidTokenException
 from django.utils.datastructures import MultiValueDictKeyError
-
+from kinesio import settings
 
 @csrf_exempt
 @api_view(["POST"])
@@ -109,13 +109,22 @@ def check_answer_view(request):
     except SecretQuestion.DoesNotExist:
         return Response({'message': 'Question not found'}, status=status.HTTP_400_BAD_REQUEST)
 
+    if user.tries >= settings.MAX_PASSWORD_TRIES:
+        return Response({'message': 'Your account has been blocked due to many access errors'}, status=status.HTTP_401_UNAUTHORIZED)
+
     if user.secret_question.id != secret_question_id:
+        user.tries = user.tries + 1
+        user.save()
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
     compare = user.check_password(answer)
     token, _ = Token.objects.get_or_create(user=user)
     if compare:
         authenticate(username=user.username, password=answer)
+        user.tries = 0
+        user.save()
         return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
     else:
+        user.tries = user.tries + 1
+        user.save()
         return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)

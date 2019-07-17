@@ -153,3 +153,4 @@ REST_FRAMEWORK = {
 
 # User system
 AUTH_USER_MODEL = 'users.User'
+MAX_PASSWORD_TRIES = 6
