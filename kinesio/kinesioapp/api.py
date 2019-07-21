@@ -1,7 +1,10 @@
-from rest_framework import generics
-
-from .models import ClinicalHistory, ClinicalSession
-from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer
+from rest_framework import generics, status
+from .models import ClinicalHistory, ClinicalSession, Image
+from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer, ImageSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
 
 
 class ClinicalHistoryAPIView(generics.ListCreateAPIView):
@@ -12,3 +15,28 @@ class ClinicalHistoryAPIView(generics.ListCreateAPIView):
 class ClinicalSessionAPIView(generics.ListCreateAPIView):
     queryset = ClinicalSession.objects.all()
     serializer_class = ClinicalSessionSerializer
+
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def upload_image(request):
+    description = request.data.get('description', '')
+    try:
+        content = request.data['content']
+        date = request.data['date']
+        clinical_session_id = request.data['clinical_session_id']
+    except KeyError:
+        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        Image.objects.create(content=content, description=description, date=date, clinical_session_id = clinical_session_id)
+    except Exception as e:  
+        return Response({'message': 'Error: ' + str(e) }, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response({'message': 'Image created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class ImageDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer

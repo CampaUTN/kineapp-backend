@@ -5,7 +5,7 @@ from datetime import datetime
 from rest_framework.test import APITestCase
 
 from . import models
-from .models import ClinicalHistory, ClinicalSession
+from .models import ClinicalHistory, ClinicalSession, Image
 from users.models import User
 
 
@@ -55,7 +55,7 @@ class TestClinicalSessionAPI(APITestCase):
                                                                description='a clinical history',
                                                                status=models.PENDING,
                                                                patient=self.patient)
-        ClinicalSession.objects.create(date=datetime.now(),
+        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
                                        status=models.PENDING,
                                        clinical_history=self.clinical_history)
 
@@ -69,3 +69,17 @@ class TestClinicalSessionAPI(APITestCase):
         response = self.client.post('/api/v1/clinical_sessions/', data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalSession.objects.count(), 2)
+
+    def test_upload_image(self):
+        data = { 'content': 'reemplazarconunblob', 'date': datetime.now(), 'clinical_session_id': self.clinical_session.pk}
+        response = self.client.post('/api/v1/image/', data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Image.objects.count(), 1)
+
+    def test_delete_image(self):
+        data = { 'content': 'reemplazarconunblob', 'date': datetime.now(), 'clinical_session_id': self.clinical_session.pk}
+        self.client.post('/api/v1/image/', data, format='json')
+        image_created = Image.objects.get()
+        self.assertEquals(Image.objects.count(), 1)
+        response = self.client.delete('/api/v1/image/' + str(image_created.id), None, format='json')
+        self.assertEquals(Image.objects.count(), 0)

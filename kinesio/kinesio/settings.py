@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'encrypted_model_fields',
     'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
@@ -154,6 +155,8 @@ REST_FRAMEWORK = {
 
 # User system
 AUTH_USER_MODEL = 'users.User'
+MAX_PASSWORD_TRIES = 6
+FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5yh4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
 
 # Logs
@@ -176,7 +179,3 @@ LOGGING = {
         },
     },
 }
-
-
-# Application Configuration
-MAX_PASSWORD_TRIES = 6
