@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ClinicalHistory, ClinicalSession
+from .models import ClinicalHistory, ClinicalSession, Image
 from users.serializers import UserSerializer
 
 
@@ -18,3 +18,11 @@ class ClinicalHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ClinicalHistory
         fields = ('date', 'description', 'status', 'patient_id', 'patient', 'clinical_sessions')
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    clinical_session = ClinicalSessionSerializer(required=True)
+
+    class Meta:
+        model: Image
+        field = ('__all__')

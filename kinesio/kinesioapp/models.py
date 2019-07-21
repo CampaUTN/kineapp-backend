@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import User
-
+from encrypted_model_fields.fields import EncryptedCharField
 
 PENDING = 'pending'
 FINISHED = 'finished'
@@ -63,8 +63,7 @@ class ClinicalSession(models.Model):
 
 
 class Image(models.Model):
-    content = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
+    content = EncryptedCharField(max_length=9000000)
+    description = models.CharField(max_length=255, null=True)
     date = models.DateTimeField()
-    homework = models.OneToOneField(Homework, on_delete=models.CASCADE)
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
