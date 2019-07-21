@@ -37,7 +37,7 @@ class CheckAnswerAPI(TestCase):
         self.user.save()
 
     def test_check_valid_question_answer(self):
-        response = self.client.post('/api/v1/check_answer/', {
+        response = self.client.post('/api/v1/login/', {
             "username": self.user.username,
             "secret_question_id": self.question.id,
             "answer": "rojo"
@@ -46,7 +46,7 @@ class CheckAnswerAPI(TestCase):
         self.assertEqual(response.json().get('message'), 'Logged in')
 
     def test_check_wrong_question_answer(self):
-        response = self.client.post('/api/v1/check_answer/', {
+        response = self.client.post('/api/v1/login/', {
             "username": self.user.username,
             "secret_question_id": self.question.id,
             "answer": "azul"
@@ -54,7 +54,7 @@ class CheckAnswerAPI(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_answer_not_found_user_id(self):
-        response = self.client.post('/api/v1/check_answer/', {
+        response = self.client.post('/api/v1/login/', {
             "username": "anotherUser",
             "secret_question_id": self.question.id,
             "answer": "rojo"
@@ -63,7 +63,7 @@ class CheckAnswerAPI(TestCase):
         self.assertEqual(response.json().get("message"), "User not found")
 
     def test_answer_not_found_question_id(self):
-        response = self.client.post('/api/v1/check_answer/', {
+        response = self.client.post('/api/v1/login/', {
             "username": self.user.username,
             "secret_question_id": 879879,
             "answer": "rojo"
@@ -72,8 +72,8 @@ class CheckAnswerAPI(TestCase):
         self.assertEqual(response.json().get("message"), "Question not found")
 
     def test_login_fail_max_times(self):
-        for x in range(0, int(settings.MAX_PASSWORD_TRIES)+1):
-            response = self.client.post('/api/v1/check_answer/', {
+        for x in range(0, int(settings.MAX_PASSWORD_TRIES) + 1):
+            response = self.client.post('/api/v1/login/', {
                 "username": self.user.username,
                 "secret_question_id": self.question.id,
                 "answer": "negro"

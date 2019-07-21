@@ -42,7 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< HEAD
     'encrypted_model_fields',
+=======
+    'drf_yasg',
+>>>>>>> master
     'rest_framework',
     'rest_framework.authtoken',
     'users.apps.UsersConfig',  # To use a custom User model.
@@ -144,11 +148,11 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
-    #    'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
     ),
     # fixme: uncomment on production, not on testing
     # 'DEFAULT_PERMISSION_CLASSES': (
-    #    'rest_framework.permissions.IsAuthenticated', )
+    # 'rest_framework.permissions.IsAuthenticated', )
 }
 
 
@@ -156,3 +160,25 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 MAX_PASSWORD_TRIES = 6
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5yh4Xq8u-wBwPcb15sIYS2CN6d69zueM='
+
+
+# Logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
