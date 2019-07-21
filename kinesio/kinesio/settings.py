@@ -42,11 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
     'encrypted_model_fields',
-=======
     'drf_yasg',
->>>>>>> master
     'rest_framework',
     'rest_framework.authtoken',
     'users.apps.UsersConfig',  # To use a custom User model.
