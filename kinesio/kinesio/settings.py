@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'kinesioapp'
 ]
 
+CLIENT_ID_ANDROID = '1093191472549-9gk2os2g3hm2qa1bhrhr1ab0cl7r5qkb.apps.googleusercontent.com'
+CLIENT_ID_WEB = '989785370858-vo6q8dpnjs4d5gr08k6s0to4opp1repi.apps.googleusercontent.com'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -132,7 +135,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'kinesio/static/')
+
+STATIC_URL = 'kinesio/static/'
+
+STATICFILES_DIRS = (
+  'kinesio/static/',
+)
 
 # Heroku Configurations
 django_heroku.settings(locals())
