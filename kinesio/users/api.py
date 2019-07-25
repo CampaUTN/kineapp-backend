@@ -91,7 +91,8 @@ def users_exists(request):
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
-def login(request):
+@mock_google_user_on_tests
+def login(request, google_user_class=GoogleUser):
     try:
         google_token = request.data['google_token']
         secret_question_id = int(request.data['secret_question_id'])
@@ -100,7 +101,7 @@ def login(request):
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        google_user = GoogleUser(google_token)
+        google_user = google_user_class(google_token)
         user = User.objects.get(username=google_user.user_id)
         SecretQuestion.objects.get(id=secret_question_id)
     except User.DoesNotExist:
@@ -132,7 +133,6 @@ def login(request):
         user.tries = user.tries + 1
         user.save()
         return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 
 @swagger_auto_schema(

@@ -14,6 +14,7 @@ class ClinicalHistoryAPIView(generics.ListCreateAPIView):
     queryset = ClinicalHistory.objects.all()
     serializer_class = ClinicalHistorySerializer
 
+
 @swagger_auto_schema(
     method='get',
     operation_id='get_clinical_histories',
@@ -21,7 +22,7 @@ class ClinicalHistoryAPIView(generics.ListCreateAPIView):
         type=openapi.TYPE_OBJECT,
         properties={
             'token': openapi.Schema(type=openapi.TYPE_STRING,
-                                           description="token that generates when the user is logged"),
+                                    description="token that generates when the user is logged"),
         },
         required=['token']
     ),
@@ -69,12 +70,12 @@ def upload_image(request):
         clinical_session_id = request.data['clinical_session_id']
     except KeyError:
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
-
     try:
-        Image.objects.create(content=content, description=description, date=date, clinical_session_id = clinical_session_id)
-    except Exception as e:  
-        return Response({'message': 'Error: ' + str(e) }, status=status.HTTP_400_BAD_REQUEST)
-    
+        Image.objects.create(content=content, description=description, date=date,
+                             clinical_session_id=clinical_session_id)
+    except Exception as e:
+        return Response({'message': 'Error: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     return Response({'message': 'Image created successfully'}, status=status.HTTP_201_CREATED)
 
 

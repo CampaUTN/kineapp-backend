@@ -32,13 +32,13 @@ class TestQuestionsAPI(TestCase):
 class CheckAnswerAPI(TestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Cual es tu color favorito?')
-        self.user = User.objects.create_user(username='user', secret_question_id=self.question.id)
+        self.user = User.objects.create_user(username='2429231164242114344333', secret_question_id=self.question.id)
         self.user.set_password('rojo')
         self.user.save()
 
     def test_check_valid_question_answer(self):
         response = self.client.post('/api/v1/login/', {
-            "username": self.user.username,
+            "google_token": self.user.username,
             "secret_question_id": self.question.id,
             "answer": "rojo"
         })
@@ -47,15 +47,16 @@ class CheckAnswerAPI(TestCase):
 
     def test_check_wrong_question_answer(self):
         response = self.client.post('/api/v1/login/', {
-            "username": self.user.username,
+            "google_token": self.user.username,
             "secret_question_id": self.question.id,
             "answer": "azul"
         })
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_answer_not_found_user_id(self):
+        self.user.delete()
         response = self.client.post('/api/v1/login/', {
-            "username": "anotherUser",
+            "google_token": "anotherUser",
             "secret_question_id": self.question.id,
             "answer": "rojo"
         })
@@ -64,7 +65,7 @@ class CheckAnswerAPI(TestCase):
 
     def test_answer_not_found_question_id(self):
         response = self.client.post('/api/v1/login/', {
-            "username": self.user.username,
+            "google_token": self.user.username,
             "secret_question_id": 879879,
             "answer": "rojo"
         })
@@ -74,7 +75,7 @@ class CheckAnswerAPI(TestCase):
     def test_login_fail_max_times(self):
         for x in range(0, int(settings.MAX_PASSWORD_TRIES) + 1):
             response = self.client.post('/api/v1/login/', {
-                "username": self.user.username,
+                "google_token": self.user.username,
                 "secret_question_id": self.question.id,
                 "answer": "negro"
             })

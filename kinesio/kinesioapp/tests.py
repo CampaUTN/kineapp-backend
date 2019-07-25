@@ -3,6 +3,7 @@ from django.test import TestCase
 from rest_framework import status
 from datetime import datetime
 from rest_framework.test import APITestCase
+from rest_framework.authtoken.models import Token
 
 from . import models
 from .models import ClinicalHistory, ClinicalSession, Image
@@ -31,6 +32,7 @@ class TestClinicalHistoryAPI(APITestCase):
                                                 password='12345', current_medic=self.medic)
         ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
                                        status=models.PENDING, patient=self.patient)
+        self.token, _ = Token.objects.get_or_create(user=self.patient)
 
     def test_get_all_clinical_histories(self):
         response = self.client.get('/api/v1/clinical_histories/')
@@ -44,6 +46,16 @@ class TestClinicalHistoryAPI(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalHistory.objects.count(), 2)
 
+    def test_get_clinical_history(self):
+        response = self.client.get('/api/v1/get_clinical_histories/?token=' + self.token.key)
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['clinical_histories']), 1)
+
+    def test_get_clinical_history_missing_token(self):
+        response = self.client.get('/api/v1/get_clinical_histories/')
+        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEquals(response.json()['message'], 'Missing token')
+
 
 class TestClinicalSessionAPI(APITestCase):
     def setUp(self) -> None:
@@ -56,8 +68,8 @@ class TestClinicalSessionAPI(APITestCase):
                                                                status=models.PENDING,
                                                                patient=self.patient)
         self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
-                                       status=models.PENDING,
-                                       clinical_history=self.clinical_history)
+                                                               status=models.PENDING,
+                                                               clinical_history=self.clinical_history)
 
     def test_get_all_clinical_sessions(self):
         response = self.client.get('/api/v1/clinical_sessions/')
@@ -71,13 +83,15 @@ class TestClinicalSessionAPI(APITestCase):
         self.assertEquals(ClinicalSession.objects.count(), 2)
 
     def test_upload_image(self):
-        data = { 'content': 'reemplazarconunblob', 'date': datetime.now(), 'clinical_session_id': self.clinical_session.pk}
+        data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
+                'clinical_session_id': self.clinical_session.pk}
         response = self.client.post('/api/v1/image/', data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
 
     def test_delete_image(self):
-        data = { 'content': 'reemplazarconunblob', 'date': datetime.now(), 'clinical_session_id': self.clinical_session.pk}
+        data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
+                'clinical_session_id': self.clinical_session.pk}
         self.client.post('/api/v1/image/', data, format='json')
         image_created = Image.objects.get()
         self.assertEquals(Image.objects.count(), 1)
