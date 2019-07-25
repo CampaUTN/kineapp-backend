@@ -68,13 +68,17 @@ ROOT_URLCONF = 'kinesio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'kinesioapp/templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -97,7 +101,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -166,7 +169,6 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 MAX_PASSWORD_TRIES = 6
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5yh4Xq8u-wBwPcb15sIYS2CN6d69zueM='
-
 
 # Logs
 LOGGING = {
