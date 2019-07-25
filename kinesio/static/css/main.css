@@ -1,0 +1,63 @@
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background: honeydew;
+}
+
+nav {
+  background: lightcoral;
+}
+
+.container {
+    min-height: 100%;
+    margin: 0;
+    background:transparent
+}
+
+.logo_image_index {
+    width: 300px;
+    height: 300px;
+}
+
+.logo_title_index {
+    color: #1063AF;
+}
+
+.popover {
+    background: lightcoral;
+    border-color: lightcoral;
+}
+
+.popover .arrow:after {
+    border-right-color: lightcoral;
+}
+
+.google_center {
+  margin: auto;
+  width: 200px;
+  height: 50px;
+}
+
+.fa-google-play {
+  color: #1da1f2;
+}
+
+.fa-accessible-icon {
+  color: #1da1f2;
+}
+
+.button_honey {
+    background: honeydew;
+}
+
+.card {
+    width: 95%;
+    margin-top: 10px;
+}
+
+.card-header {
+    background: lightcoral;
+}

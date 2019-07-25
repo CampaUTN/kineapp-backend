@@ -1,15 +1,31 @@
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <a class="navbar-brand" href="#">Dr. {{ request.user }}</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="mb-1 navbar navbar-expand-lg navbar-dark">
+    {% if user.is_authenticated %}
+        {% if user.license %}
+            <a class="navbar-brand disabled">Dr. {{ user.last_name }} {{ user.first_name }}</a>
+        {% else %}
+            <a class="navbar-brand disabled">Pt. {{ user.last_name }} {{ user.first_name }}</a>
+        {% endif %}
+    {% else %}
+        <a class="navbar-brand disabled">KinesioApp</a>
+    {% endif %}
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4"
+            aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <!-- we need this empty section to align the rest to the right -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
+        <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-md"></i> Profile </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
+                        <a class="dropdown-item text-center" href="#">My account</a>
+                        <a class="dropdown-item text-center" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                    </div>
+                </li>
+            {% endif %}
         </ul>
-        <a class="nav-link disabled" href="#">icon 1</a>
-        <a class="nav-link disabled" href="#">icon 2</a>
-        <a class="nav-link disabled" href="#">icon 3</a>
     </div>
 </nav>

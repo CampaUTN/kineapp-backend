@@ -1,20 +1,18 @@
 from rest_framework.response import Response
 from rest_framework import status, generics
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
+from django.contrib import auth
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-
 from django.utils.datastructures import MultiValueDictKeyError
-from kinesio import settings
-
+from django.conf import settings
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
+from rest_framework.authtoken.models import Token
 
 
 @swagger_auto_schema(
@@ -57,11 +55,14 @@ def users_exists(request):
         else:
             if not google_user.username_is_valid:
                 response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
-            elif User.objects.filter(id_google=google_user.user_id).exists():
+            elif not User.objects.filter(username=google_user.user_id).exists():
                 response = Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
             else:
-                # FIXME Cambiar para que devuelva las preguntas cuando el ISSUE 94 este terminado
-                response = Response({'questions': ['Question 1', 'Question 2', 'Question 3']}, status=status.HTTP_200_OK)
+                questions = SecretQuestion.objects.all()
+                questions_serializer = SecretQuestionSerializer(questions, many=True)
+                response = Response({'questions': questions_serializer.data, 'user': google_user.user_id},
+                                    status=status.HTTP_200_OK)
+
     return response
 
 
@@ -90,16 +91,18 @@ def users_exists(request):
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
-def login(request):
+@mock_google_user_on_tests
+def login(request, google_user_class=GoogleUser):
     try:
-        username = request.data['username']
+        google_token = request.data['google_token']
         secret_question_id = int(request.data['secret_question_id'])
         answer = request.data['answer']
     except KeyError:
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        user = User.objects.get(username=username)
+        google_user = google_user_class(google_token)
+        user = User.objects.get(username=google_user.user_id)
         SecretQuestion.objects.get(id=secret_question_id)
     except User.DoesNotExist:
         return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
@@ -112,19 +115,24 @@ def login(request):
     if user.secret_question.id != secret_question_id:
         user.tries = user.tries + 1
         user.save()
-        return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
-
+        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
     compare = user.check_password(answer)
-    token, _ = Token.objects.get_or_create(user=user)
     if compare:
-        authenticate(username=user.username, password=answer)
-        user.tries = 0
-        user.save()
-        return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
+        if user.is_active:
+            auth.authenticate(username=user.username, password=answer)
+            token, _ = Token.objects.get_or_create(user=user)
+            auth.login(request, user)
+            user.tries = 0
+            user.save()
+            return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
+        else:
+            user.tries = user.tries + 1
+            user.save()
+            return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
     else:
         user.tries = user.tries + 1
         user.save()
-        return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @swagger_auto_schema(

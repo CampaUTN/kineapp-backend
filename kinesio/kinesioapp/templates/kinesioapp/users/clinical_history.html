@@ -1,0 +1,22 @@
+<div class="card animated slideInRight">
+    <h5 class="card-header">Historia Clinica {{ clinical_history.pk }}</h5>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-8 ">
+                <h5 class="card-title">{{ clinical_history.description }}</h5>
+                <p class="card-text">Fecha: {{ clinical_history.date }}</p>
+                <p class="card-text">Estado: {{ clinical_history.status }}</p>
+            </div>
+            <div class="col-sm-4">
+                <h6 class="card-text ">Sesiones:</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">Cras justo odio</li>
+                    {% for session in cliclinal_history.clinical_sessions %}
+                        <li class="list-group-item">{{ session.date }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>

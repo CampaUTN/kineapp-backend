@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'kinesioapp'
 ]
 
+CLIENT_ID_ANDROID = '1093191472549-9gk2os2g3hm2qa1bhrhr1ab0cl7r5qkb.apps.googleusercontent.com'
+CLIENT_ID_WEB = '989785370858-vo6q8dpnjs4d5gr08k6s0to4opp1repi.apps.googleusercontent.com'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -65,13 +68,17 @@ ROOT_URLCONF = 'kinesio.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'kinesioapp/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -94,7 +101,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -132,7 +138,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'kinesio/static/')
+
+STATIC_URL = 'kinesio/static/'
+
+STATICFILES_DIRS = (
+  'kinesio/static/',
+)
 
 # Heroku Configurations
 django_heroku.settings(locals())
@@ -157,7 +169,6 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 MAX_PASSWORD_TRIES = 6
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5yh4Xq8u-wBwPcb15sIYS2CN6d69zueM='
-
 
 # Logs
 LOGGING = {
