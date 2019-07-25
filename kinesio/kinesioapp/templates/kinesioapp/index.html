@@ -1,66 +1,29 @@
 {% extends "layout/base.html" %}
+{% load static %}
 
 {% block title %}
-    KinesioApp Login
-{% endblock %}
-
-{% block head %}
-    <!-- Google Api -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <meta name="google-signin-client_id" content="989785370858-vo6q8dpnjs4d5gr08k6s0to4opp1repi.apps.googleusercontent.com">
+    KinesioApp
 {% endblock %}
 
 {% block body %}
-    <div class="col-md-4 center-block">
-        <div class="g-signin2" data-onsuccess="onSignIn"></div>
-
-        {% if user.is_authenticated %}
-            <a href="{% url "index" %}" onclick="signOut()">Sign out</a>
-        {% endif %}
-
-    </div>
-{% endblock %}
-
-{% block javascript %}
-    <script>
-        function onSignIn(googleUser) {
-            var id_token = googleUser.getAuthResponse().id_token;
-
-            sessionStorage.setItem('google_token', id_token);
-
-            $.ajax({
-                type: 'POST',
-                url: '{% url "user_exists" %}',
-                data: {
-                    'google_token': id_token
-                },
-                success: function(response, textStatus, xhr) {
-                    if(xhr.status == 200 ){
-                        $('.modal-content').load('{% url "secret_questions_view" %}',function(){
-                            $('#modalGeneric').modal({show:true});
-                        });
-                    } else {
-                        $('.modal-content').html("<label>Actualmente no contas con un usuario. Descargate la app para regitrarte</label>")
-                        $('#modalGeneric').modal({show:true});
-                    }
-
-                },
-                error: function(){
-
-
-                }});
-        }
-    </script>
-
-    <script>
-        function signOut() {
-            var auth2 = gapi.auth2.getAuthInstance();
-            auth2.signOut().then(function () {
-                console.log("Deslogear de Django al user")
-            });
-            auth2.disconnect();
-        }
-    </script>
+    {% if not user.is_authenticated %}
+        <div class="text-center animated fadeInUp">
+            <img src="{% static "images/logo.png" %}" class="img-fluid logo_image_index" alt="Temporal Logo" >
+            <div style="margin-bottom: 15px">
+                <h1 class="display-3 logo_title_index" ><strong>KinesioApp</strong></h1>
+                <h1 class="display-5 logo_title_index">Temporal Slogan</h1>
+            </div>
+            <div class="google_center">
+                <div id="my-signin2"></div>
+            </div>
+        </div>
+        <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    {% else %}
+        <div class="row">
+            <div class="col-md-4" style="padding-left: 25px">{% include "kinesioapp/users/sidebar.html" %}</div>
+            <div id="data_content" class="col-md-8 data" ></div>
+        </div>
+    {% endif %}
 
 {% endblock %}
 

@@ -2,38 +2,49 @@
 <!doctype html>
 
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="description" content="Kinesioapp Webpage">
-        <meta name="author" content="kinesioappteam">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Kinesioapp Webpage">
+    <meta name="author" content="kinesioappteam">
 
-        <title>{% block title %}<<< Insert title on any template that extends base.html! >>>{% endblock %}</title>
+    <title>{% block title %}<<< Insert title on any template that extends base.html! >>>{% endblock %}</title>
 
-        <!-- Jquery and PopperJS (Bootstrap 4 requirements) -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <!-- Jquery and PopperJS (Bootstrap 4 requirements) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
-        <!-- Bootstrap 4 -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
 
-    {% block head %}{% endblock %}
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    </head>
+    <!-- Google Api -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="989785370858-vo6q8dpnjs4d5gr08k6s0to4opp1repi.apps.googleusercontent.com">
 
-    <body data-spy="scroll" data-target="#header">
-    {% include 'layout/navbar.html' %}
-    <div class="container">
-        {% block body %}{% endblock %}
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.7/css/mdb.min.css" rel="stylesheet">
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.7/js/mdb.min.js"></script>
 
-    </div>
+    <link  rel="stylesheet" href="{% static "css/main.css" %}">
+    <script src="{% static "js/index.js" %}"></script>
+</head>
 
-    <div class="modal fade" id="modalGeneric" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            </div>
+<body data-spy="scroll" data-target="#header" class="">
+
+{% include 'layout/navbar.html' %}
+<div>
+    {% block body %}{% endblock %}
+
+</div>
+<div id="modalGeneric" class="modal fade" role="dialog" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
         </div>
     </div>
-    {% block javascript %}{% endblock %}
-    </body>
+</div>
+</body>
 </html>
