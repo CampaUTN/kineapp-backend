@@ -1,18 +1,18 @@
 from rest_framework.response import Response
 from rest_framework import status, generics
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
+from django.contrib import auth
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.datastructures import MultiValueDictKeyError
-from kinesio.kinesio import settings
+from django.conf import settings
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
+from rest_framework.authtoken.models import Token
 
 
 @swagger_auto_schema(
@@ -114,19 +114,25 @@ def login(request):
     if user.secret_question.id != secret_question_id:
         user.tries = user.tries + 1
         user.save()
-        return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
-
+        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
     compare = user.check_password(answer)
-    token, _ = Token.objects.get_or_create(user=user)
     if compare:
-        authenticate(username=user.username, password=answer)
-        user.tries = 0
-        user.save()
-        return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
+        if user.is_active:
+            auth.authenticate(username=user.username, password=answer)
+            token, _ = Token.objects.get_or_create(user=user)
+            auth.login(request, user)
+            user.tries = 0
+            user.save()
+            return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
+        else:
+            user.tries = user.tries + 1
+            user.save()
+            return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
     else:
         user.tries = user.tries + 1
         user.save()
-        return Response({'message': 'invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 @swagger_auto_schema(
@@ -205,4 +211,3 @@ class SecretQuestionAPIView(generics.ListCreateAPIView):
 class SecretQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer
-
