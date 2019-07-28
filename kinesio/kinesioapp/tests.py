@@ -50,7 +50,15 @@ class TestClinicalHistoryAPI(APITestCase):
         self.assertEquals(ClinicalHistory.objects.count(), 2)
 
     def test_get_clinical_history(self):
+        response = self.client.get('/api/v1/clinical_histories/')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 1)
 
+    def test_only_get_clinical_history_from_the_current_patient(self):
+        patient = User.objects.create_user(first_name='raul', last_name='gomez', username='rgomez',
+                                           password='aaaaaaa', current_medic=self.medic)
+        ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
+                                       status=models.PENDING, patient=patient)
         response = self.client.get('/api/v1/clinical_histories/')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.json()['data']), 1)
