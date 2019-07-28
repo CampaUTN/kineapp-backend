@@ -5,20 +5,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
-from rest_framework import authentication
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 
-class AuthMixin:
-    authentication_classes = (authentication.TokenAuthentication,
-                              authentication.SessionAuthentication)
-    permission_classes = (IsAuthenticated,)
-
-
-class ClinicalHistoryAPIView(AuthMixin, generics.ListCreateAPIView):
+class ClinicalHistoryAPIView(generics.ListCreateAPIView):
     queryset = ClinicalHistory.objects.all()
     serializer_class = ClinicalHistorySerializer
 
