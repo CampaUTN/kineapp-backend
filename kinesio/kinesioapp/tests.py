@@ -38,7 +38,7 @@ class TestClinicalHistoryAPI(APITestCase):
         self.token, _ = Token.objects.get_or_create(user=self.patient)
         self._log_in(self.patient, '12345')
 
-    def _log_in(self, user, password):
+    def _log_in(self, user: User, password: str) -> None:
         logged_in = self.client.login(username=user.username, password=password)
         self.assertTrue(logged_in)
 
