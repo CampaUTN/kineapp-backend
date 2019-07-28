@@ -2,14 +2,11 @@ import subprocess
 from django.test import TestCase
 from rest_framework import status
 from datetime import datetime
-from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APIRequestFactory, APIClient
+from .utils.test_utils import APITestCase
 
 from . import models
 from .models import ClinicalHistory, ClinicalSession, Image
 from users.models import User
-from . import api
 
 
 class TestPEP8(TestCase):
@@ -32,15 +29,9 @@ class TestClinicalHistoryAPI(APITestCase):
                                               last_name='gomez', license='matricula #15433')
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
                                                 password='12345', current_medic=self.medic)
-        self.patient.save()
         ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
                                        status=models.PENDING, patient=self.patient)
-        self.token, _ = Token.objects.get_or_create(user=self.patient)
         self._log_in(self.patient, '12345')
-
-    def _log_in(self, user: User, password: str) -> None:
-        logged_in = self.client.login(username=user.username, password=password)
-        self.assertTrue(logged_in)
 
     def test_create_clinical_history(self):
         data = {'date': datetime.now(), 'description': 'first clinical history',
