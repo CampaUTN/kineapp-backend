@@ -68,6 +68,7 @@ class TestClinicalSessionAPI(APITestCase):
         self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
                                                                status=models.PENDING,
                                                                clinical_history=self.clinical_history)
+        self._log_in(self.patient, '12345')
 
     def test_get_all_clinical_sessions(self):
         response = self.client.get('/api/v1/clinical_sessions/')
@@ -83,15 +84,17 @@ class TestClinicalSessionAPI(APITestCase):
     def test_upload_image(self):
         data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
-        response = self.client.post('/api/v1/image/', data, format='json')
+        response = self.client.post('/api/v1/image/', data)
+        breakpoint()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
 
     def test_delete_image(self):
         data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
-        self.client.post('/api/v1/image/', data, format='json')
+        self.client.post('/api/v1/image/', data)
+        breakpoint()
         image_created = Image.objects.get()
         self.assertEquals(Image.objects.count(), 1)
-        response = self.client.delete('/api/v1/image/' + str(image_created.id), None, format='json')
+        response = self.client.delete(f'/api/v1/image/{image_created.id}')
         self.assertEquals(Image.objects.count(), 0)

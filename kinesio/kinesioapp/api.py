@@ -25,9 +25,7 @@ class ClinicalSessionAPIView(generics.ListCreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
 
-@csrf_exempt
 @api_view(["POST"])
-@permission_classes((AllowAny,))
 def upload_image(request):
     description = request.data.get('description', '')
     try:
