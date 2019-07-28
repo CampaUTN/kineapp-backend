@@ -5,53 +5,27 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
+from rest_framework import authentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 
-class ClinicalHistoryAPIView(generics.ListCreateAPIView):
+class AuthMixin:
+    authentication_classes = (authentication.TokenAuthentication,
+                              authentication.SessionAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+
+class ClinicalHistoryAPIView(AuthMixin, generics.ListCreateAPIView):
     queryset = ClinicalHistory.objects.all()
     serializer_class = ClinicalHistorySerializer
 
-
-@swagger_auto_schema(
-    method='get',
-    operation_id='get_clinical_histories',
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'token': openapi.Schema(type=openapi.TYPE_STRING,
-                                    description="token that generates when the user is logged"),
-        },
-        required=['token']
-    ),
-    responses={
-        status.HTTP_400_BAD_REQUEST: openapi.Response(
-            description="Missing or invalid token."
-        ),
-        status.HTTP_200_OK: openapi.Response(
-            description="Clinical Histories",
-            schema=ClinicalHistorySerializer(many=True)
-        )
-    }
-)
-@api_view(["GET"])
-def get_clinical_histories(request):
-    token = request.GET.get('token', None)
-    if token is None:
-        return Response({'message': 'Missing token'}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-
-        try:
-            user = Token.objects.get(key=token).user
-            clinical_histories = ClinicalHistory.objects.filter(patient=user)
-            clinical_serializer = ClinicalHistorySerializer(clinical_histories, many=True)
-            return Response({'clinical_histories': clinical_serializer.data}, status=status.HTTP_200_OK)
-        except Token.DoesNotExist:
-            return Response({'message': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
-        except ClinicalHistory.DoesNotExist:
-            return Response({'message': 'This user does not have clinical histories'}, status=status.HTTP_400_BAD_REQUEST)
+    def list(self, request):
+        queryset = self.get_queryset().filter(patient=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ClinicalSessionAPIView(generics.ListCreateAPIView):
