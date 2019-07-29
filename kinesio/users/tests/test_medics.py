@@ -1,4 +1,4 @@
-from rest_framework.test import APITestCase
+from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
 
 from ..models import User
@@ -6,8 +6,9 @@ from ..models import User
 
 class TestMedicsAPI(APITestCase):
     def setUp(self) -> None:
-        User.objects.create_user(username='juan', license='matricula #15433')
+        self.user = User.objects.create_user(username='juan', password='1234', license='matricula #15433')
         User.objects.create_user(username='maria22', license='matricula #44423')
+        self._log_in(self.user, '1234')
 
     def test_get_all_medics(self):
         response = self.client.get('/api/v1/medics/')

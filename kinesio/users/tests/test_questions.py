@@ -1,35 +1,21 @@
-from django.test import TestCase
+from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
-from json import dumps
 from kinesio import settings
 from ..models import User, SecretQuestion
 
 
-class TestQuestionsAPI(TestCase):
+class TestQuestionsAPI(APITestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Cual es tu comida favorita?')
         SecretQuestion.objects.create(description='Como se llama tu perro?')
-
-    def test_get_one_question(self):
-        response = self.client.get(f'/api/v1/secret_questions/{self.question.id}')
-        self.assertEqual(response.json().get('description'), 'Cual es tu comida favorita?')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_all_questions(self):
         response = self.client.get('/api/v1/secret_questions/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json().get('data')), 2)
 
-    def test_update_one_questions(self):
-        response = self.client.get(f'/api/v1/secret_questions/{self.question.id}')
-        self.assertTrue(len(response.json().get('description')), 1)
-        data = dumps({'description': 'Updated comida favorita?'})
-        response = self.client.patch(f'/api/v1/secret_questions/{self.question.id}', data, content_type='application/json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get('description'), 'Updated comida favorita?')
 
-
-class CheckAnswerAPI(TestCase):
+class CheckAnswerAPI(APITestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Cual es tu color favorito?')
         self.user = User.objects.create_user(username='2429231164242114344333', secret_question_id=self.question.id)

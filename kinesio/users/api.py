@@ -45,7 +45,7 @@ from rest_framework.authtoken.models import Token
 def users_exists(request):
     try:
         google_token = request.data['google_token']
-    except MultiValueDictKeyError:
+    except KeyError:
         response = Response({'error': 'Missing token'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         try:
@@ -206,8 +206,4 @@ class MedicsAPIView(generics.ListCreateAPIView):
 class SecretQuestionAPIView(generics.ListCreateAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer
-
-
-class SecretQuestionDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = SecretQuestion.objects.all()
-    serializer_class = SecretQuestionSerializer
+    permission_classes = (AllowAny,)

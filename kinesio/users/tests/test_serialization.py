@@ -1,10 +1,10 @@
-from django.test import TestCase
+from kinesioapp.utils.test_utils import APITestCase
 
 from ..models import User
 from ..serializers import UserSerializer
 
 
-class TestObjectsSerializedInADictionary(TestCase):
+class TestObjectsSerializedInADictionary(APITestCase):
     def setUp(self) -> None:
         User.objects.create_user(username='juan', license='matricula #15433')
 
