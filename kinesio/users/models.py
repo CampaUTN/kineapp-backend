@@ -52,10 +52,23 @@ class UserManager(DjangoUserManager):
 class User(AbstractUser):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
+
     objects = UserManager()
 
+    @property
+    def is_patient(self):
+        try:
+            self.patient
+            return True
+        except Patient.DoesNotExist:
+            return False
+
+    @property
+    def is_medic(self):
+        return not self.is_patient
+
     def __str__(self):
-        return f'{self.last_name}, {self.first_name}'
+        return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
 
 class Medic(models.Model):

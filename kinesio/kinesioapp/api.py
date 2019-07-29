@@ -1,9 +1,7 @@
 from rest_framework import generics, status
 from .models import ClinicalHistory, ClinicalSession, Image
 from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer, ImageSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
@@ -15,19 +13,14 @@ class ClinicalHistoryAPIView(generics.ListCreateAPIView):
     serializer_class = ClinicalHistorySerializer
 
     def list(self, request):
-        queryset = self.get_queryset().filter(patient=request.user)
+        patients = [request.user] if request.user.is_patient else request.user.patients.values_list('user')
+        queryset = self.get_queryset().filter(patient__in=patients)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
 
-class ClinicalSessionAPIView(generics.ListCreateAPIView):
-    queryset = ClinicalSession.objects.all()
+class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
-
-    def list(self, request):
-        queryset = self.get_queryset().filter(clinical_history__patient=request.user)
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
 
 
 @api_view(["POST"])

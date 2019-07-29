@@ -6,7 +6,6 @@ from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from django.utils.datastructures import MultiValueDictKeyError
 from django.conf import settings
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer
@@ -62,7 +61,6 @@ def users_exists(request):
                 questions_serializer = SecretQuestionSerializer(questions, many=True)
                 response = Response({'questions': questions_serializer.data, 'user': google_user.user_id},
                                     status=status.HTTP_200_OK)
-
     return response
 
 
@@ -203,7 +201,7 @@ class MedicsAPIView(generics.ListCreateAPIView):
     serializer_class = UserSerializer
 
 
-class SecretQuestionAPIView(generics.ListCreateAPIView):
+class SecretQuestionAPIView(generics.ListAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer
     permission_classes = (AllowAny,)
