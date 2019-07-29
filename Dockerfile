@@ -15,4 +15,4 @@ RUN apt-get clean && \
 apt-get update
 
 
-RUN pip install -r /kinesio/pip_requirements.txt
+RUN pip install -r /kinesio/requirements.txt
