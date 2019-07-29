@@ -25,7 +25,7 @@ class ClinicalSessionAPIView(generics.ListCreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
     def list(self, request):
-        queryset = self.get_queryset().filter(patient=request.user)
+        queryset = self.get_queryset().filter(clinical_history__patient=request.user)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 

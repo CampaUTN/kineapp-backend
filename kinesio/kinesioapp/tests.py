@@ -85,7 +85,6 @@ class TestClinicalSessionAPI(APITestCase):
         data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
         response = self.client.post('/api/v1/image/', data)
-        breakpoint()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
 
@@ -93,7 +92,6 @@ class TestClinicalSessionAPI(APITestCase):
         data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
         self.client.post('/api/v1/image/', data)
-        breakpoint()
         image_created = Image.objects.get()
         self.assertEquals(Image.objects.count(), 1)
         response = self.client.delete(f'/api/v1/image/{image_created.id}')
