@@ -2,8 +2,7 @@ import subprocess
 from django.test import TestCase
 from rest_framework import status
 from datetime import datetime
-from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
+from .utils.test_utils import APITestCase
 
 from . import models
 from .models import ClinicalHistory, ClinicalSession, Image
@@ -26,35 +25,71 @@ class TestPEP8(TestCase):
 
 class TestClinicalHistoryAPI(APITestCase):
     def setUp(self) -> None:
-        self.medic = User.objects.create_user(username='juan', password='1234', first_name='juan',
+        self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
                                               last_name='gomez', license='matricula #15433')
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
                                                 password='12345', current_medic=self.medic)
-        ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
-                                       status=models.PENDING, patient=self.patient)
-        self.token, _ = Token.objects.get_or_create(user=self.patient)
+        self.clinical_history = ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
+                                                               status=models.PENDING, patient=self.patient)
 
-    def test_get_all_clinical_histories(self):
+    def test_create_clinical_history(self):
+        self._log_in(self.patient, '12345')
+        data = {'date': datetime.now(), 'description': 'first clinical history',
+                'status': 'P', 'patient_id': self.patient.pk}
+        response = self.client.post('/api/v1/clinical_histories/', data)
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(ClinicalHistory.objects.count(), 2)
+
+    def test_get_clinical_history_for_a_patient(self):
+        self._log_in(self.patient, '12345')
         response = self.client.get('/api/v1/clinical_histories/')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.json()['data']), 1)
 
-    def test_create_clinical_history(self):
-        data = {'date': datetime.now(), 'description': 'first clinical history',
-                'status': 'P', 'patient_id': self.patient.pk}
-        response = self.client.post('/api/v1/clinical_histories/', data, format='json')
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(ClinicalHistory.objects.count(), 2)
-
-    def test_get_clinical_history(self):
-        response = self.client.get('/api/v1/get_clinical_histories/?token=' + self.token.key)
+    def test_get_clinical_history_for_a_medic(self):
+        self._log_in(self.medic, '12345')
+        response = self.client.get('/api/v1/clinical_histories/')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.json()['clinical_histories']), 1)
+        self.assertEquals(len(response.json()['data']), 1)
 
-    def test_get_clinical_history_missing_token(self):
-        response = self.client.get('/api/v1/get_clinical_histories/')
-        self.assertEquals(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEquals(response.json()['message'], 'Missing token')
+    def test_get_multiple_clinical_histories_for_a_medic(self):
+        self._log_in(self.medic, '12345')
+        # Assign another patient to the medic from the fixture
+        patient = User.objects.create_user(first_name='facundo', last_name='perez', username='another_patient',
+                                           current_medic=self.medic)
+        # Create a history for that patient
+        ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
+                                       status=models.PENDING, patient=patient)
+        response = self.client.get('/api/v1/clinical_histories/')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        # The medic should be able to access to the histories of both of their patients
+        self.assertEquals(len(response.json()['data']), 2)
+
+    def test_only_get_clinical_history_from_the_current_patient(self):
+        self._log_in(self.patient, '12345')
+        patient = User.objects.create_user(first_name='raul', last_name='gomez', username='rgomez',
+                                           password='aaaaaaa', current_medic=self.medic)
+        ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
+                                       status=models.PENDING, patient=patient)
+        response = self.client.get('/api/v1/clinical_histories/')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 1)
+
+    def test_get_all_clinical_sessions_of_a_given_history(self):
+        self._log_in(self.patient, '12345')
+        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
+                                                               status=models.PENDING,
+                                                               clinical_history=self.clinical_history)
+        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
+                                                               status=models.PENDING,
+                                                               clinical_history=self.clinical_history)
+        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
+                                                               status=models.PENDING,
+                                                               clinical_history=self.clinical_history)
+        response = self.client.get('/api/v1/clinical_histories/')
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data'][0]['clinical_sessions']), 3)
 
 
 class TestClinicalSessionAPI(APITestCase):
@@ -70,14 +105,10 @@ class TestClinicalSessionAPI(APITestCase):
         self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
                                                                status=models.PENDING,
                                                                clinical_history=self.clinical_history)
-
-    def test_get_all_clinical_sessions(self):
-        response = self.client.get('/api/v1/clinical_sessions/')
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.json()['data']), 1)
+        self._log_in(self.patient, '12345')
 
     def test_create_clinical_session(self):
-        data = {'date': datetime.now(), 'status': 'P', 'clinical_history': self.clinical_history.pk}
+        data = {'date': datetime.now(), 'status': 'P', 'clinical_history_id': self.clinical_history.id}
         response = self.client.post('/api/v1/clinical_sessions/', data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalSession.objects.count(), 2)
@@ -85,15 +116,15 @@ class TestClinicalSessionAPI(APITestCase):
     def test_upload_image(self):
         data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
-        response = self.client.post('/api/v1/image/', data, format='json')
+        response = self.client.post('/api/v1/image/', data)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
 
     def test_delete_image(self):
         data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
-        self.client.post('/api/v1/image/', data, format='json')
+        self.client.post('/api/v1/image/', data)
         image_created = Image.objects.get()
         self.assertEquals(Image.objects.count(), 1)
-        response = self.client.delete('/api/v1/image/' + str(image_created.id), None, format='json')
+        response = self.client.delete(f'/api/v1/image/{image_created.id}')
         self.assertEquals(Image.objects.count(), 0)

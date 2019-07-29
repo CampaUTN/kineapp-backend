@@ -8,7 +8,6 @@ urlpatterns = [
     re_path(r'^api/v1/user_exists/?$', api.users_exists, name='user_exists'),
     re_path(r'^api/v1/login/?$', api.login, name='login_view'),
     re_path(r'^api/v1/secret_questions/?$', api.SecretQuestionAPIView.as_view(), name='secret_questions'),
-    re_path(r'^api/v1/secret_questions/(?P<pk>[0-9]+)$', api.SecretQuestionDetailAPIView.as_view(), name='secret_questions'),
 
     # Registration related views
     re_path(r'^api/v1/registration/?$', api.register, name='registration'),

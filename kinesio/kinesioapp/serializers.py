@@ -4,10 +4,11 @@ from users.serializers import UserSerializer
 
 
 class ClinicalSessionSerializer(serializers.ModelSerializer):
+    clinical_history_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = ClinicalSession
-        fields = ('date', 'status', 'clinical_history')
+        fields = ('date', 'status', 'clinical_history_id')
 
 
 class ClinicalHistorySerializer(serializers.ModelSerializer):
@@ -24,5 +25,5 @@ class ImageSerializer(serializers.ModelSerializer):
     clinical_session = ClinicalSessionSerializer(required=True)
 
     class Meta:
-        model: Image
+        model = Image
         fields = '__all__'

@@ -2,7 +2,7 @@ version: '3'
 services:
   api:
     build: .
-    command: bash -c "pip --retries 10 install -r /kinesio/pip_requirements.txt && python3 /kinesio/kinesio/manage.py runserver 0.0.0.0:80"
+    command: bash -c "pip --retries 10 install -r /kinesio/requirements.txt && python3 /kinesio/kinesio/manage.py collectstatic --no-input && python3 /kinesio/kinesio/manage.py runserver 0.0.0.0:80"
     volumes:
       - .:/kinesio
     ports:
