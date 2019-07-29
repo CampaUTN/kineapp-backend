@@ -58,7 +58,7 @@ class ClinicalSession(models.Model):
     ]
     date = models.DateTimeField()
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
-    homework = models.OneToOneField(Homework, on_delete=models.CASCADE, default=True, blank=True, null=True)
+    homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     clinical_history = models.ForeignKey(ClinicalHistory, related_name='clinical_sessions', on_delete=models.CASCADE)
 
 

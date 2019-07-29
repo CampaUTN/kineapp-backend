@@ -24,6 +24,11 @@ class ClinicalSessionAPIView(generics.ListCreateAPIView):
     queryset = ClinicalSession.objects.all()
     serializer_class = ClinicalSessionSerializer
 
+    def list(self, request):
+        queryset = self.get_queryset().filter(patient=request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
 
 @api_view(["POST"])
 def upload_image(request):
