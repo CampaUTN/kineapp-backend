@@ -25,5 +25,5 @@ class ImageSerializer(serializers.ModelSerializer):
     clinical_session = ClinicalSessionSerializer(required=True)
 
     class Meta:
-        model: Image
+        model = Image
         fields = '__all__'
