@@ -1,6 +1,11 @@
 from django.db import models
 from users.models import User
-from encrypted_model_fields.fields import EncryptedCharField
+from encrypted_model_fields.fields import EncryptedMixin
+
+
+class EncryptedBinaryField(EncryptedMixin, models.BinaryField):
+    pass
+
 
 PENDING = 'pending'
 FINISHED = 'finished'
@@ -63,7 +68,7 @@ class ClinicalSession(models.Model):
 
 
 class Image(models.Model):
-    content = EncryptedCharField(max_length=9000000)
+    content = EncryptedBinaryField()
     description = models.CharField(max_length=255, null=True)
     date = models.DateTimeField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)

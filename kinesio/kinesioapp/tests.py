@@ -7,6 +7,9 @@ from .utils.test_utils import APITestCase
 from . import models
 from .models import ClinicalHistory, ClinicalSession, Image
 from users.models import User
+from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 
 
 class TestPEP8(TestCase):
@@ -114,14 +117,18 @@ class TestClinicalSessionAPI(APITestCase):
         self.assertEquals(ClinicalSession.objects.count(), 2)
 
     def test_upload_image(self):
-        data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
+        file = open('/kinesio/kinesio/static/images/logo.png', 'rb')
+        data = {'content': file, 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
         response = self.client.post('/api/v1/image/', data)
+        file.close()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
+        breakpoint()
+        self.assertEquals(Image.objects.get().content, data['content'])
 
     def test_delete_image(self):
-        data = {'content': 'reemplazarconunblob', 'date': datetime.now(),
+        data = {'content': b'reemplazarconunblob', 'date': datetime.now(),
                 'clinical_session_id': self.clinical_session.pk}
         self.client.post('/api/v1/image/', data)
         image_created = Image.objects.get()

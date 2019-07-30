@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.parsers import MultiPartParser
+from rest_framework.views import APIView
 
 
 class ClinicalHistoryAPIView(generics.ListCreateAPIView):
@@ -23,22 +25,22 @@ class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
 
-@api_view(["POST"])
-def upload_image(request):
-    description = request.data.get('description', '')
-    try:
-        content = request.data['content']
-        date = request.data['date']
-        clinical_session_id = request.data['clinical_session_id']
-    except KeyError:
-        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
-    try:
+class ImageAPIView(APIView):
+    parser_classes = (MultiPartParser,)
+
+    def post(self, request):
+        description = request.data.get('description', '')
+        try:
+            uploaded_file = request.data.get('content')
+            content = uploaded_file.read()
+            date = request.data['date']
+            clinical_session_id = request.data['clinical_session_id']
+        except KeyError:
+            return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
         Image.objects.create(content=content, description=description, date=date,
                              clinical_session_id=clinical_session_id)
-    except Exception as e:
-        return Response({'message': 'Error: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({'message': 'Image created successfully'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Image created successfully'}, status=status.HTTP_201_CREATED)
 
 
 class ImageDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
