@@ -126,7 +126,12 @@ class TestClinicalSessionAPI(APITestCase):
             content = file.read()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
-        self.assertEquals(Image.objects.get().content.tobytes(), content)
+        self.assertEquals(Image.objects.get().content, content)
+
+    def test_image_data_on_database_is_different_than_input(self):
+        content = b'content'
+        image = Image.objects.create(content=content, date=datetime.now(), clinical_session=self.clinical_session)
+        self.assertNotEquals(image._content, content)
 
     def test_delete_image(self):
         image = Image.objects.create(content=b'content', date=datetime.now(), clinical_session=self.clinical_session)

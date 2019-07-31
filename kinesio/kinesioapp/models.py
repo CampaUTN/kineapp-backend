@@ -1,10 +1,13 @@
 from django.db import models
 from users.models import User
 from encrypted_model_fields.fields import EncryptedMixin
-
+from datetime import datetime
+from cryptography.fernet import Fernet
 
 class EncryptedBinaryField(EncryptedMixin, models.BinaryField):
     pass
+
+
 
 
 PENDING = 'pending'
@@ -67,8 +70,22 @@ class ClinicalSession(models.Model):
     clinical_history = models.ForeignKey(ClinicalHistory, related_name='clinical_sessions', on_delete=models.CASCADE)
 
 
+class ImageQuerySet(models.QuerySet):
+    def create(self, content: bytes, **kwargs):
+        key = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
+        encrypted_content = Fernet(key).encrypt(content)
+        return super().create(_content=encrypted_content, **kwargs)
+
+
 class Image(models.Model):
-    content = models.BinaryField()
+    _content = models.BinaryField()
     description = models.CharField(max_length=255, null=True)
     date = models.DateTimeField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
+
+    objects = ImageQuerySet.as_manager()
+
+    @property
+    def content(self):
+        key = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
+        return Fernet(key).decrypt(self._content.tobytes())
