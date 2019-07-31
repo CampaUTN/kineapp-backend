@@ -7,9 +7,6 @@ from .utils.test_utils import APITestCase
 from . import models
 from .models import ClinicalHistory, ClinicalSession, Image
 from users.models import User
-from django.core.files import File
-from django.core.files.uploadedfile import SimpleUploadedFile
-
 
 
 class TestPEP8(TestCase):
