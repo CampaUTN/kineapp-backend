@@ -72,8 +72,6 @@ class ImageQuerySet(models.QuerySet):
 
 class Image(models.Model):
     _content = models.BinaryField()
-    description = models.CharField(max_length=255, null=True)
-    date = models.DateTimeField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
 
     objects = ImageQuerySet.as_manager()
