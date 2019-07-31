@@ -68,7 +68,7 @@ class ClinicalSession(models.Model):
 
 
 class Image(models.Model):
-    content = EncryptedBinaryField()
+    content = models.BinaryField()
     description = models.CharField(max_length=255, null=True)
     date = models.DateTimeField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)

@@ -117,21 +117,19 @@ class TestClinicalSessionAPI(APITestCase):
         self.assertEquals(ClinicalSession.objects.count(), 2)
 
     def test_upload_image(self):
-        file = open('/kinesio/kinesio/static/images/logo.png', 'rb')
-        data = {'content': file, 'date': datetime.now(),
-                'clinical_session_id': self.clinical_session.pk}
-        response = self.client.post('/api/v1/image/', data)
-        file.close()
+        with open('/kinesio/kinesio/static/images/logo.png', 'rb') as file:
+            data = {'content': file, 'date': datetime.now(),
+                    'clinical_session_id': self.clinical_session.pk}
+            response = self.client.post('/api/v1/image/', data)
+        # Open the file again
+        with open('/kinesio/kinesio/static/images/logo.png', 'rb') as file:
+            content = file.read()
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
-        breakpoint()
-        self.assertEquals(Image.objects.get().content, data['content'])
+        self.assertEquals(Image.objects.get().content.tobytes(), content)
 
     def test_delete_image(self):
-        data = {'content': b'reemplazarconunblob', 'date': datetime.now(),
-                'clinical_session_id': self.clinical_session.pk}
-        self.client.post('/api/v1/image/', data)
-        image_created = Image.objects.get()
-        self.assertEquals(Image.objects.count(), 1)
-        response = self.client.delete(f'/api/v1/image/{image_created.id}')
+        image = Image.objects.create(content=b'content', date=datetime.now(), clinical_session=self.clinical_session)
+        response = self.client.delete(f'/api/v1/image/{image.id}')
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Image.objects.count(), 0)
