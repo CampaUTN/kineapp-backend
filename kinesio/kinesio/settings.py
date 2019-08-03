@@ -148,6 +148,7 @@ STATICFILES_DIRS = (
 # Heroku Configurations
 django_heroku.settings(locals())
 
+FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5rt4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
 # Rest framework settings
 REST_FRAMEWORK = {
@@ -188,5 +189,5 @@ LOGGING = {
 }
 
 # Custom Fields
-MAX_PASSWORD_TRIES = 6
+MAX_PASSWORD_TRIES = 10
 IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='

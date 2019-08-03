@@ -52,14 +52,16 @@ def users_exists(request):
         except InvalidTokenException:
             response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
         else:
+            questions = SecretQuestion.objects.all()
+            questions_serializer = SecretQuestionSerializer(questions, many=True)
             if not google_user.username_is_valid:
                 response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
             elif not User.objects.filter(username=google_user.user_id).exists():
-                response = Response({'warning': 'User do not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                response = Response({'warning': 'User do not exist.', 'questions': questions_serializer.data}, status=status.HTTP_406_NOT_ACCEPTABLE)
             else:
-                questions = SecretQuestion.objects.all()
-                questions_serializer = SecretQuestionSerializer(questions, many=True)
-                response = Response({'questions': questions_serializer.data, 'user': google_user.user_id},
+                user = User.objects.get(username=google_user.user_id)
+                user_serializer = UserSerializer(user)
+                response = Response({'questions': questions_serializer.data, 'user': user_serializer.data},
                                     status=status.HTTP_200_OK)
     return response
 
@@ -99,6 +101,7 @@ def login(request, google_user_class=GoogleUser):
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
+        print("TOKEN" + str(google_token))
         google_user = google_user_class(google_token)
         user = User.objects.get(username=google_user.user_id)
         SecretQuestion.objects.get(id=secret_question_id)
@@ -106,7 +109,7 @@ def login(request, google_user_class=GoogleUser):
         return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
     except SecretQuestion.DoesNotExist:
         return Response({'message': 'Question not found'}, status=status.HTTP_400_BAD_REQUEST)
-
+    
     if user.tries >= settings.MAX_PASSWORD_TRIES:
         return Response({'message': 'Your account has been blocked due to many access errors'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -126,11 +129,11 @@ def login(request, google_user_class=GoogleUser):
         else:
             user.tries = user.tries + 1
             user.save()
-            return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_406_NOT_ACCEPTABLE)
     else:
         user.tries = user.tries + 1
         user.save()
-        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 @swagger_auto_schema(
@@ -168,6 +171,8 @@ def login(request, google_user_class=GoogleUser):
 def register(request, google_user_class=GoogleUser):
     google_token = request.data.get('google_token', None)
     license = request.data.get('license', None)
+    secret_question_id = request.data.get('secret_question_id', None)
+    answer = request.data.get('answer', None)
     current_medic = request.data.get('current_medic', None)
     if google_token is None:
         response = Response({'error': 'Missing token'},
@@ -177,13 +182,17 @@ def register(request, google_user_class=GoogleUser):
                             status=status.HTTP_400_BAD_REQUEST)
     else:
         google_user = google_user_class(google_token)
-        User.objects.create_user(username=google_user.user_id,
+        user_created = User.objects.create_user(username=google_user.user_id,
                                  first_name=google_user.first_name,
                                  last_name=google_user.last_name,
                                  email=google_user.email,
                                  license=license,
-                                 current_medic=current_medic)
-        response = Response(status=status.HTTP_201_CREATED)
+                                 current_medic=current_medic,
+                                 secret_question_id=secret_question_id)
+        user_created.set_password(answer)
+        user_created.save()
+        user_serializer = UserSerializer(user_created)
+        response = Response({'user': user_serializer.data}, status=status.HTTP_201_CREATED)
     return response
 
 
