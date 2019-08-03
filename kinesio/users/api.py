@@ -101,7 +101,6 @@ def login(request, google_user_class=GoogleUser):
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        print("TOKEN" + str(google_token))
         google_user = google_user_class(google_token)
         user = User.objects.get(username=google_user.user_id)
         SecretQuestion.objects.get(id=secret_question_id)
@@ -109,7 +108,7 @@ def login(request, google_user_class=GoogleUser):
         return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
     except SecretQuestion.DoesNotExist:
         return Response({'message': 'Question not found'}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     if user.tries >= settings.MAX_PASSWORD_TRIES:
         return Response({'message': 'Your account has been blocked due to many access errors'}, status=status.HTTP_401_UNAUTHORIZED)
 
