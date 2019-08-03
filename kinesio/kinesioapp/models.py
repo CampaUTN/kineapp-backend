@@ -94,4 +94,4 @@ class Image(models.Model):
         return Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(self._content.tobytes())
 
     def can_access(self, user: User) -> bool:
-        return self.clinical_session.anyone_has_access(user)
+        return self.clinical_session.can_access(user)

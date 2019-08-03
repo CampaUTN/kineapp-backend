@@ -25,7 +25,7 @@ class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
 
-class ImageDetailsAPIView(APIView):
+class ImageDetailsAndDeleteAPIView(APIView):
     @swagger_auto_schema(
         operation_id='image_details',
         operation_description='You will not get the image if the current user does not have access.',
@@ -58,6 +58,40 @@ class ImageDetailsAPIView(APIView):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         return download(f'image_{image.pk}.jpg', image.content)
+
+    @swagger_auto_schema(
+        operation_id='image_delete',
+        operation_description='You will not be able to delete the image if the current user does not have access.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Image's ID.",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to access that image. Only the patient and its medic can access the image."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid image id: Image not found"
+            ),
+            status.HTTP_204_NO_CONTENT: openapi.Response(
+                description="Image deleted successfully."
+            ),
+        }
+    )
+    def delete(self, request, id):
+        try:
+            image = Image.objects.get(id=id)
+        except Image.DoesNotExist:
+            return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        if not image.can_access(request.user):
+            return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        image.delete()
+        return Response({'message': 'Image deleted successfully', 'id': id}, status=status.HTTP_204_NO_CONTENT)
 
 
 class ImageCreateAPIView(APIView):

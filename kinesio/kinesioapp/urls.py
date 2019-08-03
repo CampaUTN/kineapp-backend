@@ -13,8 +13,8 @@ urlpatterns = [
     # API
     re_path(r'^api/v1/clinical_histories/?$', api.ClinicalHistoryAPIView.as_view(), name='clinical_history'),
     re_path(r'^api/v1/clinical_sessions/?$', api.ClinicalSessionAPIView.as_view(), name='clinical_session'),
-    re_path(r'^api/v1/image/?$', api.ImageCreateAPIView.as_view(), name='image'),
-    re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', api.ImageDetailsAPIView.as_view(), name='image_details'),
+    re_path(r'^api/v1/image/?$', api.ImageCreateAPIView.as_view(), name='image_create'),
+    re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', api.ImageDetailsAndDeleteAPIView.as_view(), name='image'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
