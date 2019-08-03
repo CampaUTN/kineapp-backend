@@ -86,7 +86,7 @@ class Medic(models.Model):
     objects = MedicManager()
 
     @property
-    def related_patients(self):
+    def related_patients(self) -> [User]:
         return [patient.user for patient in self.user.patients.all()]
 
 
@@ -96,5 +96,5 @@ class Patient(models.Model):
                                       default=None, blank=True, null=True)
 
     @property
-    def related_patients(self):
+    def related_patients(self) -> [User]:
         return [self.user]

@@ -39,6 +39,11 @@ class Video(models.Model):
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, null=True)
 
 
+class ClinicalHistoryQuerySet(models.QuerySet):
+    def accessible_by(self, user: User) -> models.QuerySet:
+        return self.filter(patient__in=user.related_patients)
+
+
 class ClinicalHistory(models.Model):
     CLINICAL_HISTORY_STATUS_CHOICES = [
         ('P', 'PENDING'),
@@ -51,6 +56,11 @@ class ClinicalHistory(models.Model):
     status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
     patient = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    objects = ClinicalHistoryQuerySet.as_manager()
+
+    def can_access(self, user: User) -> bool:
+        return self.patient in user.related_patients
+
 
 class ClinicalSession(models.Model):
     SESSION_STATUS_CHOICES = [
@@ -62,6 +72,9 @@ class ClinicalSession(models.Model):
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
     homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     clinical_history = models.ForeignKey(ClinicalHistory, related_name='clinical_sessions', on_delete=models.CASCADE)
+
+    def can_access(self, user: User) -> bool:
+        return self.clinical_history.can_access(user)
 
 
 class ImageQuerySet(models.QuerySet):
@@ -77,5 +90,8 @@ class Image(models.Model):
     objects = ImageQuerySet.as_manager()
 
     @property
-    def content(self):
+    def content(self) -> bytes:
         return Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(self._content.tobytes())
+
+    def can_access(self, user: User) -> bool:
+        return self.clinical_session.anyone_has_access(user)

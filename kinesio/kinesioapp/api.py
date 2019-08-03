@@ -16,8 +16,7 @@ class ClinicalHistoryAPIView(generics.ListCreateAPIView):
     serializer_class = ClinicalHistorySerializer
 
     def list(self, request):
-        patients = [request.user] if request.user.is_patient else request.user.patients.values_list('user')
-        queryset = self.get_queryset().filter(patient__in=patients)
+        queryset = self.get_queryset().accessible_by(request.user)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -26,16 +25,35 @@ class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
 
-class ImageAPIView(generics.DestroyAPIView):
-    queryset = Image.objects.all()
-    parser_classes = (MultiPartParser,)
-
-    def get(self, request, pk):
+class ImageDetailsAPIView(APIView):
+    @swagger_auto_schema(
+        operation_id='image_details',
+        operation_description='You will not get the image if the current user does not have access.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="id of the image (you get all images' ids when retrieving clinical sessions)",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid image id: Image not found"
+            )
+        }
+    )
+    def get(self, request, id):
         try:
-            image = Image.objects.get(pk=pk)
+            image = Image.objects.get(id=id)
         except Image.DoesNotExist:
             return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        #if image.clinical_session.clinical_history
         return download(f'image_{image.pk}.jpg', image.content)
+
+
+class ImageCreateAPIView(APIView):
+    parser_classes = (MultiPartParser,)
 
     def post(self, request):
         try:
