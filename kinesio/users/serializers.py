@@ -22,7 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
     patient = PatientSerializer()
     password = serializers.CharField(min_length=4,
                                      write_only=True,
-                                     # required=True,
                                      style={'input_type': 'password'})
 
     class Meta:
@@ -36,28 +35,21 @@ class UserSerializer(serializers.ModelSerializer):
     def _want_to_set_medic_data(self, validated_data):
         return 'medic' in validated_data.keys()
 
-    def _update_user_type(self, instance, validated_data):
-        if self._want_to_set_patient_data(validated_data) and self._want_to_set_medic_data(validated_data):
-            raise serializers.ValidationError('Do not set medic and patient for the same user')
-        elif self._want_to_set_patient_data(validated_data):
-            new_medic_id = validated_data.get('patient').get('current_medic_id', None)
-            if new_medic_id is not None:
-                instance.patient.current_medic = User.objects.get(id=new_medic_id)
-        elif self._want_to_set_medic_data(validated_data):
-            instance.medic.set_license(validated_data.get('medic').get('license', instance.medic.license))
+    def update(self, instance, validated_data):
+        # Remove nested field information from validated_data
+        medic_data = validated_data.pop('medic') if self._want_to_set_medic_data(validated_data) else None
+        patient_data = validated_data.pop('patient') if self._want_to_set_patient_data(validated_data) else None
+
+        # Update User
+        super().update(instance, validated_data)
+
+        # Update User's type.
+        if patient_data is not None:
+            PatientSerializer().update(instance.patient, patient_data)
+        elif medic_data is not None:
+            MedicSerializer().update(instance.medic, medic_data)
         else:
             pass
-
-    def update(self, instance, validated_data):
-        """
-            We need to write a custom 'update' method instead of just setting read_only=True
-            because by default the framework will not update nested fields
-        """
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
-        instance.save()
-        self._update_user_type(instance, validated_data)
         return instance
 
 

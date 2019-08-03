@@ -12,6 +12,7 @@ from .serializers import UserSerializer, SecretQuestionSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
 from rest_framework.authtoken.models import Token
+from .utils.api_mixins import LoggedUserPatchAPIViewMixin
 
 
 @swagger_auto_schema(
@@ -187,17 +188,17 @@ def register(request, google_user_class=GoogleUser):
     return response
 
 
-class PatientsAPIView(generics.ListCreateAPIView):
+class PatientsAPIView(LoggedUserPatchAPIViewMixin, generics.ListCreateAPIView):
     queryset = User.objects.patients()
     serializer_class = UserSerializer
 
 
-class PatientDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+class PatientDetailAPIView(generics.RetrieveAPIView):
     queryset = User.objects.patients()
     serializer_class = UserSerializer
 
 
-class MedicsAPIView(generics.ListCreateAPIView):
+class MedicsAPIView(generics.ListCreateAPIView, LoggedUserPatchAPIViewMixin):
     queryset = User.objects.medics()
     serializer_class = UserSerializer
 

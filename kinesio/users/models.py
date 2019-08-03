@@ -65,11 +65,21 @@ class User(AbstractUser):
 
     @property
     def is_medic(self):
-        return not self.is_patient
+        # We can not do "return not self.is_patient" because during the first save, the user doesn't have a type.
+        try:
+            self.medic
+            return True
+        except Medic.DoesNotExist:
+            return False
 
     @property
     def type(self):
-        return self.patient if self.is_patient else self.medic
+        if self.is_patient:
+            return self.patient
+        elif self.is_medic:
+            return self.medic
+        else:
+            return None
 
     @property
     def related_patients(self):
