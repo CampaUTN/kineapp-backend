@@ -166,8 +166,6 @@ REST_FRAMEWORK = {
 
 # User system
 AUTH_USER_MODEL = 'users.User'
-MAX_PASSWORD_TRIES = 6
-FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5yh4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
 # Logs
 LOGGING = {
@@ -189,3 +187,7 @@ LOGGING = {
         },
     },
 }
+
+# Custom Fields
+MAX_PASSWORD_TRIES = 6
+IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='

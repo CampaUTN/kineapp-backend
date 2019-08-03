@@ -135,6 +135,7 @@ def login(request, google_user_class=GoogleUser):
 
 @swagger_auto_schema(
     method='post',
+    operation_id='Register',
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         description="""To register any kind of user. If license and current_medic are both null or omitted,

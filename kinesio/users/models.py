@@ -67,6 +67,14 @@ class User(AbstractUser):
     def is_medic(self):
         return not self.is_patient
 
+    @property
+    def type(self):
+        return self.patient if self.is_patient else self.medic
+
+    @property
+    def related_patients(self):
+        return self.type.related_patients
+
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
@@ -77,8 +85,16 @@ class Medic(models.Model):
 
     objects = MedicManager()
 
+    @property
+    def related_patients(self) -> [User]:
+        return [patient.user for patient in self.user.patients.all()]
+
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='patient')
     current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
+
+    @property
+    def related_patients(self) -> [User]:
+        return [self.user]
