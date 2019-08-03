@@ -55,7 +55,7 @@ def users_exists(request):
             if not google_user.username_is_valid:
                 response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
             elif not User.objects.filter(username=google_user.user_id).exists():
-                response = Response({'warning': 'User do not exist.'}, status=status.HTTP_206_PARTIAL_CONTENT)
+                response = Response({'warning': 'User do not exist.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
             else:
                 questions = SecretQuestion.objects.all()
                 questions_serializer = SecretQuestionSerializer(questions, many=True)
