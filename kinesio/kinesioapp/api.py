@@ -33,14 +33,20 @@ class ImageDetailsAPIView(APIView):
             openapi.Parameter(
                 name='id', in_=openapi.IN_PATH,
                 type=openapi.TYPE_INTEGER,
-                description="id of the image (you get all images' ids when retrieving clinical sessions)",
+                description="Image's ID.",
                 required=True
             ),
         ],
         responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to access that image. Only the patient and its medic can access the image."
+            ),
             status.HTTP_404_NOT_FOUND: openapi.Response(
                 description="Invalid image id: Image not found"
-            )
+            ),
+            status.HTTP_200_OK: openapi.Response(
+                description="Downloads the image. Content type: application/octet-stream"
+            ),
         }
     )
     def get(self, request, id):
@@ -48,13 +54,30 @@ class ImageDetailsAPIView(APIView):
             image = Image.objects.get(id=id)
         except Image.DoesNotExist:
             return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
-        #if image.clinical_session.clinical_history
+        if not image.can_access(request.user):
+            return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
         return download(f'image_{image.pk}.jpg', image.content)
 
 
 class ImageCreateAPIView(APIView):
     parser_classes = (MultiPartParser,)
 
+    @swagger_auto_schema(
+        operation_id='image_create',
+        operation_description="Set 'clinical_session_id' and upload the image as a file under 'content'.",
+        responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description="Missing or invalid token."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid google username or nonexistent user."
+            ),
+            status.HTTP_200_OK: openapi.Response(
+                description="User exists."
+            )
+        }
+    )
     def post(self, request):
         try:
             clinical_session_id = request.data['clinical_session_id']
