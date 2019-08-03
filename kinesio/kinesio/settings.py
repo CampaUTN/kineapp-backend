@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'encrypted_model_fields',
     'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
