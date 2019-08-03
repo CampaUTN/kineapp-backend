@@ -191,7 +191,10 @@ def register(request, google_user_class=GoogleUser):
         user_created.set_password(answer)
         user_created.save()
         user_serializer = UserSerializer(user_created)
-        response = Response({'user': user_serializer.data}, status=status.HTTP_201_CREATED)
+        auth.authenticate(username=user_created.username, password=answer)
+        token, _ = Token.objects.get_or_create(user=user_created)
+        auth.login(request, user_created)
+        response = Response({'user': user_serializer.data, 'token': token.key}, status=status.HTTP_201_CREATED)
     return response
 
 
