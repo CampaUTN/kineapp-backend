@@ -95,6 +95,10 @@ class Patient(models.Model):
     current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
 
+    @property #Just for Lean until he fixes something
+    def videos(self):
+        return []
+
     @property
     def related_patients(self) -> [User]:
         return [self.user]

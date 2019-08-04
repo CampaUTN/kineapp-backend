@@ -14,7 +14,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('current_medic_id',)
+        fields = ('current_medic_id', 'videos')
 
 
 class UserSerializer(serializers.ModelSerializer):
