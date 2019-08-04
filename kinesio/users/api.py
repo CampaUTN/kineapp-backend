@@ -198,7 +198,7 @@ class PatientDetailAPIView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
 
 
-class MedicsAPIView(generics.ListCreateAPIView, LoggedUserPatchAPIViewMixin):
+class MedicsAPIView(LoggedUserPatchAPIViewMixin, generics.ListCreateAPIView):
     queryset = User.objects.medics()
     serializer_class = UserSerializer
 

@@ -11,9 +11,6 @@ class TestPatientsAPI(APITestCase):
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234')
         User.objects.create_user(username='martin', current_medic=self.medic)
 
-    def _load_latest_patient_data_from_db(self):
-        self.patient = User.objects.get(id=self.patient.id)
-
     def test_get_one_patient(self):
         self._log_in(self.medic, '1234')
         response = self.client.get(f'/api/v1/patients/{self.patient.id}')
@@ -32,15 +29,9 @@ class TestPatientsAPI(APITestCase):
         response = self.client.patch(f'/api/v1/patients/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Check the response
-        self.assertEqual(User.objects.count(), 4)
-        self.assertEqual(Patient.objects.count(), 2)
-        self.assertEqual(Medic.objects.count(), 2)
         self.assertEqual(response.json()['first_name'], 'raul')
         # Check whether the db was properly updated or not
-        self.assertEqual(User.objects.count(), 4)
-        self.assertEqual(Patient.objects.count(), 2)
-        self.assertEqual(Medic.objects.count(), 2)
-        self._load_latest_patient_data_from_db()
+        self.patient.refresh_from_db()
         self.assertEqual(self.patient.first_name, 'raul')
 
     def test_update_one_patient_current_medic_id(self):
@@ -49,13 +40,7 @@ class TestPatientsAPI(APITestCase):
         response = self.client.patch(f'/api/v1/patients/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Check the response
-        self.assertEqual(User.objects.count(), 4)
-        self.assertEqual(Patient.objects.count(), 2)
-        self.assertEqual(Medic.objects.count(), 2)
         self.assertEqual(response.json()['patient']['current_medic_id'], self.another_medic.id)
         # Check whether the db was properly updated or not
-        self.assertEqual(User.objects.count(), 4)
-        self.assertEqual(Patient.objects.count(), 2)
-        self.assertEqual(Medic.objects.count(), 2)
-        self._load_latest_patient_data_from_db()
+        self.patient.refresh_from_db()
         self.assertEqual(self.patient.patient.current_medic, self.another_medic)
