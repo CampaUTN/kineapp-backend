@@ -3,6 +3,7 @@ from .models import Medic, Patient, User, SecretQuestion
 
 
 class MedicSerializer(serializers.ModelSerializer):
+    license = serializers.CharField(required=False)  # otherwise the drf-yasg detects it as required
 
     class Meta:
         model = Medic
@@ -10,7 +11,7 @@ class MedicSerializer(serializers.ModelSerializer):
 
 
 class PatientSerializer(serializers.ModelSerializer):
-    current_medic_id = serializers.IntegerField()
+    current_medic_id = serializers.IntegerField(required=False)  # otherwise the drf-yasg detects it as required
 
     class Meta:
         model = Patient
@@ -18,10 +19,14 @@ class PatientSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    medic = MedicSerializer()
-    patient = PatientSerializer()
+    username = serializers.CharField(read_only=True, required=False)  # otherwise the drf-yasg detects it as required. fixme: same as password
+    is_active = serializers.BooleanField(read_only=True, required=False)
+    email = serializers.BooleanField(read_only=True, required=False)
+    medic = MedicSerializer(required=False)
+    patient = PatientSerializer(required=False)
     password = serializers.CharField(min_length=4,
                                      write_only=True,
+                                     required=False,  # otherwise the drf-yasg detects it as required. fixme: change auth method on drf-yasg, because the detection of HTTP Authorization scheme as "basic" is requestion for user and password even if write_only=True.
                                      style={'input_type': 'password'})
 
     class Meta:

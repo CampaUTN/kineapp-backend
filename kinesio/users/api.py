@@ -188,7 +188,7 @@ def register(request, google_user_class=GoogleUser):
     return response
 
 
-class PatientsAPIView(LoggedUserPatchAPIViewMixin, generics.ListCreateAPIView):
+class PatientsAPIView(LoggedUserPatchAPIViewMixin, generics.ListAPIView):
     queryset = User.objects.patients()
     serializer_class = UserSerializer
 
@@ -198,7 +198,7 @@ class PatientDetailAPIView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
 
 
-class MedicsAPIView(LoggedUserPatchAPIViewMixin, generics.ListCreateAPIView):
+class MedicsAPIView(LoggedUserPatchAPIViewMixin, generics.ListAPIView):
     queryset = User.objects.medics()
     serializer_class = UserSerializer
 
