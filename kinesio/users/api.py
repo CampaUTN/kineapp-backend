@@ -89,6 +89,7 @@ def users_exists(request):
         status.HTTP_200_OK: openapi.Response(
             description="User exists.",
         )})
+        
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
