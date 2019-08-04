@@ -37,7 +37,7 @@ class CheckAnswerAPI(APITestCase):
             "secret_question_id": self.question.id,
             "answer": "azul"
         })
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_answer_not_found_user_id(self):
         self.user.delete()
