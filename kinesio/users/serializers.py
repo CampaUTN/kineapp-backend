@@ -21,7 +21,7 @@ class PatientSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True, required=False)  # otherwise the drf-yasg detects it as required. fixme: same as password
     is_active = serializers.BooleanField(read_only=True, required=False)
-    email = serializers.BooleanField(read_only=True, required=False)
+    email = serializers.CharField(read_only=True, required=False)
     medic = MedicSerializer(required=False)
     patient = PatientSerializer(required=False)
     password = serializers.CharField(min_length=4,
