@@ -2,16 +2,15 @@
 {% load static %}
 
 {% block title %}
-    KinesioApp
+    KineApp
 {% endblock %}
 
 {% block body %}
     {% if not user.is_authenticated %}
-        <div class="text-center animated fadeInUp">
+        <div id="logo_index" class="text-center animated fadeInUp">
             <img src="{% static "images/logo.png" %}" class="img-fluid logo_image_index" alt="Temporal Logo" >
             <div style="margin-bottom: 15px">
-                <h1 class="display-3 logo_title_index" ><strong>KinesioApp</strong></h1>
-                <h1 class="display-5 logo_title_index">Temporal Slogan</h1>
+                <h1 class="display-2 logo_title_index" ><strong>KineApp</strong></h1>
             </div>
             <div class="google_center">
                 <div id="my-signin2"></div>
@@ -19,7 +18,7 @@
         </div>
         <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
     {% else %}
-        <div class="row">
+        <div id="sidebar_row" class="row">
             <div class="col-md-4" style="padding-left: 25px">{% include "kinesioapp/users/sidebar.html" %}</div>
             <div id="data_content" class="col-md-8 data" ></div>
         </div>
