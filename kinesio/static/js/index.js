@@ -7,9 +7,6 @@ function signOut() {
 function onSuccess(googleUser) {
     var id_token = googleUser.getAuthResponse().id_token;
 
-    //For test purpose
-    console.log('google_token: ' + id_token)
-
     sessionStorage.setItem('google_token', id_token);
 
     $.ajax({
@@ -24,14 +21,16 @@ function onSuccess(googleUser) {
                     $('#modalGeneric').modal();
 
                 });
-            } else {
+            }
+        },
+        error: function(response){
+            if(response.status == 406) {
                 $('.modal-content').load('no_user/', function(){
                     $('#modalGeneric').modal({show:true});
                 });
+            } else {
+                console.log("There was an error.")
             }
-        },
-        error: function(){
-            console.log("There was an error. ")
         }});
 }
 
@@ -49,4 +48,13 @@ function renderButton() {
         'onsuccess': onSuccess,
         'onfailure': onFailure
     });
+}
+
+function get_session(clinical_session_id) {
+    $.get('clinical_session/?clinical_session_id=' + clinical_session_id).then(function (data) {
+        $('#card_history').append(data).one("animationend", function(){
+            $('#card_session').removeClass('animated slideInRight')
+        });
+
+    })
 }

@@ -9,6 +9,7 @@ urlpatterns = [
     re_path(r'^secret_questions/?$', views.SecretQuestionView.as_view(), name='secret_questions_view'),
     re_path(r'^no_user/?$', views.NoUserView.as_view(), name='no_user_view'),
     re_path(r'^clinical_history/?$', views.ClinicalHistoryView.as_view(), name='clinical_history_view'),
+    re_path(r'^clinical_session/?$', views.ClinicalSessionView.as_view(), name='clinical_session_view'),
 
     # API
     re_path(r'^api/v1/clinical_histories/?$', api.ClinicalHistoryAPIView.as_view(), name='clinical_history'),

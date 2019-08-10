@@ -1,14 +1,44 @@
 html {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  min-height: 100%;
-  background: honeydew;
+    height: 100%;
+    background: #355C7D;
+}
+
+.box {
+    height: 100%;
+}
+
+#sidebar_row {
+    height: 100%;
+}
+
+.data {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.white-text {
+    color: white;
+}
+
+#card_session {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#card_history {
+    margin-top: 10px;
 }
 
 nav {
-  background: lightcoral;
+    background: #355C7D;
 }
 
 .container {
@@ -23,7 +53,7 @@ nav {
 }
 
 .logo_title_index {
-    color: #1063AF;
+    color: lightcoral;
 }
 
 .popover {
@@ -35,29 +65,93 @@ nav {
     border-right-color: lightcoral;
 }
 
+.popover-body {
+    color: white;
+}
+
 .google_center {
-  margin: auto;
-  width: 200px;
-  height: 50px;
+    margin: auto;
+    width: 200px;
+    height: 50px;
 }
 
 .fa-google-play {
-  color: #1da1f2;
+    color: #1da1f2;
 }
 
 .fa-accessible-icon {
-  color: #1da1f2;
+    color: #1da1f2;
 }
 
-.button_honey {
-    background: honeydew;
+.button_lightcoral {
+    background: lightcoral;
 }
 
 .card {
     width: 95%;
-    margin-top: 10px;
+    min-height: 500px;
+    height: auto;
+    display:inline-block;
 }
 
 .card-header {
     background: lightcoral;
+}
+
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
+    background: lightcoral;
+    border-color: lightcoral;
+}
+
+
+div.col > .form-control::placeholder {
+    color: whitesmoke;
+    opacity: 0.5;
+}
+
+.fa-search {
+    color: white;
+}
+
+.fa-key, .fa-question {
+    color: #355C7D;
+}
+
+.md-form input[type="text"]:focus:not([readonly]),
+.md-form input[type="password"]:focus:not([readonly]){
+    -webkit-box-shadow: 0 1px 0 0 lightcoral;
+    box-shadow: 0 1px 0 0 lightcoral;
+    border-bottom: 1px solid lightcoral;
+}
+
+.custom-select:focus {
+    border-color: lightcoral;
+    outline: 0;
+    box-shadow: 0 0 0 .2rem #f0c3c8;
+}
+
+.slick-slide {
+    margin-left:10px;
+}
+
+.slick-list {
+    margin-left:-10px;
+}
+
+.fa-arrow-circle-right,
+.fa-arrow-circle-left {
+    color: #355C7D;
+    top: 45%;
+    left: 45%;
+    position:absolute;
+}
+
+.fa-arrow-left {
+    color: white;
+}
+
+.loader {
+    min-height: 50px;
+    min-width: 50px;
+    background: url("../images/loader.gif") no-repeat;
 }
