@@ -54,7 +54,8 @@ class ClinicalHistory(models.Model):
     date = models.DateTimeField()
     description = models.CharField(max_length=255)
     status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
-    patient = models.ForeignKey(User, on_delete=models.CASCADE)
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="patient_owner", null=True)
+    medic = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medic_owner", null=True)
 
     objects = ClinicalHistoryQuerySet.as_manager()
 
