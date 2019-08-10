@@ -22,7 +22,7 @@ from users.models import User
 
 #         assert len(output.strip()) == 0, f'There should be no pep-8 errors!\n{output.strip()}'
 
-
+# TODO: arreglar estos tests, que ahora deberian ir en paciente
 class TestClinicalHistoryAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
@@ -31,14 +31,6 @@ class TestClinicalHistoryAPI(APITestCase):
                                                 password='12345', current_medic=self.medic)
         self.clinical_history = ClinicalHistory.objects.create(date=datetime.now(), description='a clinical history',
                                                                status=models.PENDING, patient=self.patient)
-
-    def test_create_clinical_history(self):
-        self._log_in(self.patient, '12345')
-        data = {'date': datetime.now(), 'description': 'first clinical history',
-                'status': 'P', 'patient_id': self.patient.pk}
-        response = self.client.post('/api/v1/clinical_histories/', data)
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(ClinicalHistory.objects.count(), 2)
 
     def test_get_clinical_history_for_a_patient(self):
         self._log_in(self.patient, '12345')
@@ -94,24 +86,29 @@ class TestClinicalHistoryAPI(APITestCase):
 
 class TestClinicalSessionAPI(APITestCase):
     def setUp(self) -> None:
-        self.medic = User.objects.create_user(username='juan', password='1234', first_name='juan',
+        self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
                                               last_name='gomez', license='matricula #15433')
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
                                                 password='12345', current_medic=self.medic)
-        self.clinical_history = ClinicalHistory.objects.create(date=datetime.now(),
-                                                               description='a clinical history',
-                                                               status=models.PENDING,
-                                                               patient=self.patient)
-        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
-                                                               status=models.PENDING,
-                                                               clinical_history=self.clinical_history)
-        self._log_in(self.patient, '12345')
+        self._log_in(self.medic, '12345')
 
     def test_create_clinical_session(self):
-        data = {'date': datetime.now(), 'status': 'P', 'clinical_history_id': self.clinical_history.id}
+        data = {'date': datetime.now(), 'status': 'P', 'patient_id': self.patient.id}
         response = self.client.post('/api/v1/clinical_sessions/', data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(ClinicalSession.objects.count(), 2)
+        self.assertEquals(ClinicalSession.objects.count(), 1)
+
+
+class TestImageAPI(APITestCase):
+    def setUp(self) -> None:
+        self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
+                                              last_name='gomez', license='matricula #15433')
+        self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
+                                                password='12345', current_medic=self.medic)
+        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
+                                                               status=models.PENDING,
+                                                               patient=self.patient)
+        self._log_in(self.medic, '12345')
 
     def test_image_data_on_database_is_different_than_input(self):
         content = b'content'

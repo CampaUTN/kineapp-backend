@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Medic, Patient, User, SecretQuestion
+from kinesioapp.serializers import ClinicalSessionSerializer
 
 
 class MedicSerializer(serializers.ModelSerializer):
@@ -12,10 +13,11 @@ class MedicSerializer(serializers.ModelSerializer):
 
 class PatientSerializer(serializers.ModelSerializer):
     current_medic_id = serializers.IntegerField(required=False)  # otherwise the drf-yasg detects it as required
+    sessions = ClinicalSessionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Patient
-        fields = ('current_medic_id', 'videos')
+        fields = ('current_medic_id', 'videos', 'sessions')
 
 
 class UserSerializer(serializers.ModelSerializer):

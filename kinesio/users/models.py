@@ -105,7 +105,7 @@ class Patient(models.Model):
     current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
 
-    @property #Just for Lean until he fixes something
+    @property  # Just for Lean until he fixes something
     def videos(self):
         return []
 
