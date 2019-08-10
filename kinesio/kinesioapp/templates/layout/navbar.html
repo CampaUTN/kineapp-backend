@@ -1,12 +1,12 @@
 <nav class="mb-1 navbar navbar-expand-lg navbar-dark">
     {% if user.is_authenticated %}
-        {% if user.license %}
-            <a class="navbar-brand disabled">Dr. {{ user.last_name }} {{ user.first_name }}</a>
+        {% if user.is_medic %}
+            <a class="navbar-brand disabled white-text">Dr. {{ user.last_name }} {{ user.first_name }}</a>
         {% else %}
-            <a class="navbar-brand disabled">Pt. {{ user.last_name }} {{ user.first_name }}</a>
+            <a class="navbar-brand disabled white-text">Pt. {{ user.last_name }} {{ user.first_name }}</a>
         {% endif %}
     {% else %}
-        <a class="navbar-brand disabled">KinesioApp</a>
+        <a class="navbar-brand disabled white-text">KineApp</a>
     {% endif %}
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4"

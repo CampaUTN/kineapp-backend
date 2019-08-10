@@ -1,21 +1,27 @@
+$(function(){
 
-$('#search_list').on("change keyup paste", function(){
-    let current_query = $('#search_list').val();
-    console.log("holaa");
-    let list_data = $("#list_data li")
-    if (current_query !== "") {
-        list_data.hide();
-        list_data.each(function(){
-            var current_keyword = $(this).text();
-            if (current_keyword.indexOf(current_query) >=0) {
-                $(this).show();
-            };
+    $('.list-group a').click(function(e) {
+        e.preventDefault()
+
+        $that = $(this);
+
+        $that.parent().find('a').removeClass('active');
+        $that.addClass('active').addClass("white-text");
+    });
+
+    $('#search_clinical').bind("change keyup paste", function(){
+        event.preventDefault();
+        let value = $(this).val().toLowerCase();
+        $("#list_data a").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
-    } else {
-        list_data.show();
-    };
+    });
 });
 
-function get_clinical_history(id_clinical_history){
-    $('.data').load('clinical_history/?id_clinical_history=' + id_clinical_history)
+function get_clinical_history(clinical_history_id){
+    $('.data').load('clinical_history/?clinical_history_id=' + clinical_history_id)
+}
+
+function get_clinical_history_by_patient(patient_id){
+    $('.data').load('clinical_history/?patient_id=' + patient_id)
 }

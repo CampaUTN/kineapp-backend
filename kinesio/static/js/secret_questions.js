@@ -1,15 +1,16 @@
-answer_input = $('#answer');
-answer_button = $('#answer_button');
-
-answer_input.on("change keyup paste", function(){
-    answer_input.popover('hide');
-    answer_button.popover('hide');
-    answer_input.removeClass('animated bounce')
-})
+$(function(){
+    $('#answer').on("change keyup paste", function(){
+        $('#answer').popover('hide');
+        $('#answer_button').popover('hide');
+    })
+});
 
 function check_answer(){
+    let answer_input = $('#answer');
     if (answer_input.val() == "") {
-        answer_input.addClass('animated bounce');
+        answer_input.addClass('animated bounce').one("animationend", function () {
+            answer_input.removeClass('animated bounce')
+        });
         answer_input.popover('show');
 
     } else {
@@ -26,8 +27,11 @@ function check_answer(){
             success: function(response) {
                 sessionStorage.setItem('token', response.token);
                 console.log('Log In Successfuly Summited ' + response.token);
-                $('#modalGeneric').modal('hide');
-                location.reload()
+
+                $('#modalGeneric').modal('hide').then(
+                    $('#logo_index').addClass('animated fadeOutDown').one('animationend', function () {
+                        location.reload()
+                    }));
             },
             error: function(response){
                 answer_input.addClass('animated bounce');
