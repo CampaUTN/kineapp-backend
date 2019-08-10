@@ -1,3 +1,9 @@
+$(document).ready(function () {
+    <!-- Sometimes Google Api charge slow and the button does not render -->
+    <!-- This is the solution -->
+    renderButton()
+});
+
 function signOut() {
     $.get('logout/').then(function () {
         location.href = '/';
