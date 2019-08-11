@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
-from users.models import SecretQuestion, UserQuerySet
+from users.models import SecretQuestion
+from .models import ClinicalSession
 from django.http import HttpResponse
 from django.contrib.auth import logout
 
@@ -14,8 +15,8 @@ class IndexView(generic.View):
 
                 return render(request, 'kinesioapp/index.html', {'patients': user.related_patients})
             else:
-                clinical_histories = ClinicalHistory.objects.filter(patient=user)
-                return render(request, 'kinesioapp/index.html', {'clinical_histories': clinical_histories})
+                sessions = ClinicalSession.objects.accessible_by(user=user)
+                return render(request, 'kinesioapp/index.html', {'sessions': sessions})
         else:
             return render(request, 'kinesioapp/index.html')
 
@@ -40,18 +41,9 @@ def logout_view(request):
 
 class ClinicalHistoryView(generic.View):
     def get(self, request):
-        clinical_history_id = request.GET.get("clinical_history_id", None)
-        try:
-            if clinical_history_id is None:
-                patient_id = request.GET.get("patient_id", None)
-                clinical_history = ClinicalHistory.objects.get(patient_id=patient_id, medic_id=request.user.pk)
-            else:
-                clinical_history = ClinicalHistory.objects.get(pk=clinical_history_id)
-
-        except ClinicalHistory.DoesNotExist:
-            return render(request, 'kinesioapp/users/clinical_history.html')
-
-        return render(request, 'kinesioapp/users/clinical_history.html', {'clinical_history': clinical_history})
+        patient_id = request.GET.get("patient_id", None)
+        sessions = ClinicalSession.objects.filter(patient_id=patient_id)
+        return render(request, 'kinesioapp/users/clinical_history.html', {'sessions': sessions})
 
 
 class ClinicalSessionView(generic.View):
