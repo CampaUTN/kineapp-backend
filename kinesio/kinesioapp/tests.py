@@ -30,14 +30,11 @@ class TestClinicalSessionOnPatientAPI(APITestCase):
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
                                                 password='12345', current_medic=self.medic)
         User.objects.create_user(first_name='maria', last_name='gomez', username='mgomez')
-        ClinicalSession.objects.create(date=datetime.now(),
-                                       status=models.PENDING,
+        ClinicalSession.objects.create(status=models.PENDING,
                                        patient=self.patient.patient)
-        ClinicalSession.objects.create(date=datetime.now(),
-                                       status=models.PENDING,
+        ClinicalSession.objects.create(status=models.PENDING,
                                        patient=self.patient.patient)
-        ClinicalSession.objects.create(date=datetime.now(),
-                                       status=models.PENDING,
+        ClinicalSession.objects.create(status=models.PENDING,
                                        patient=self.patient.patient)
 
     def test_get_clinical_sessions_for_a_patient(self):
@@ -74,8 +71,7 @@ class TestImageAPI(APITestCase):
                                               last_name='gomez', license='matricula #15433')
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
                                                 password='12345', current_medic=self.medic)
-        self.clinical_session = ClinicalSession.objects.create(date=datetime.now(),
-                                                               status=models.PENDING,
+        self.clinical_session = ClinicalSession.objects.create(status=models.PENDING,
                                                                patient=self.patient.patient)
         self._log_in(self.medic, '12345')
 

@@ -51,9 +51,9 @@ class ClinicalSession(models.Model):
         ('F', 'FINISHED'),
         ('C', 'CANCELLED')
     ]
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
-    homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
+    # Fixme: uncomment when necessary: homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
 
     objects = ClinicalSessionQuerySet.as_manager()
