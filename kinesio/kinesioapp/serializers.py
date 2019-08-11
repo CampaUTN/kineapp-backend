@@ -12,6 +12,7 @@ class ImageSerializer(serializers.ModelSerializer):
 class ClinicalSessionSerializer(serializers.ModelSerializer):
     images = ImageSerializer(many=True, read_only=True)
     patient_id = serializers.IntegerField(write_only=True)
+    date = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = ClinicalSession
