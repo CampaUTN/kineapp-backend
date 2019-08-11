@@ -89,7 +89,6 @@ def users_exists(request):
         status.HTTP_200_OK: openapi.Response(
             description="User exists.",
         )})
-        
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
@@ -184,12 +183,12 @@ def register(request, google_user_class=GoogleUser):
     else:
         google_user = google_user_class(google_token)
         user_created = User.objects.create_user(username=google_user.user_id,
-                                 first_name=google_user.first_name,
-                                 last_name=google_user.last_name,
-                                 email=google_user.email,
-                                 license=license,
-                                 current_medic=current_medic,
-                                 secret_question_id=secret_question_id)
+                                                first_name=google_user.first_name,
+                                                last_name=google_user.last_name,
+                                                email=google_user.email,
+                                                license=license,
+                                                current_medic=current_medic,
+                                                secret_question_id=secret_question_id)
         user_created.set_password(answer)
         user_created.save()
         user_serializer = UserSerializer(user_created)

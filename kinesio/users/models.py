@@ -20,8 +20,8 @@ class MedicManager(models.Manager):
             license = license.strip() if license.strip() != '' else None
         return license
 
-    def create(self, user, license):
-        return super().create(user=user, license=self._fixed_license(license))
+    def create(self, user, license, **kwargs):
+        return super().create(user=user, license=self._fixed_license(license), **kwargs)
 
 
 class UserManager(DjangoUserManager):
@@ -37,9 +37,9 @@ class UserManager(DjangoUserManager):
         with transaction.atomic():
             user = super().create_user(username,  **kwargs)
             if license is not None:
-                Medic.objects.create(user=user, license=license)
+                Medic.objects.create(pk=user.pk, id=user.id, user=user, license=license)
             else:
-                Patient.objects.create(user=user, current_medic=current_medic)
+                Patient.objects.create(pk=user.pk, id=user.id, user=user, current_medic=current_medic)
         return user
 
     def patients(self):

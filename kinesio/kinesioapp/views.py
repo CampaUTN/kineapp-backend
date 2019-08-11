@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.views import generic
-from .models import ClinicalHistory
 from users.models import SecretQuestion, UserQuerySet
 from django.http import HttpResponse
 from django.contrib.auth import logout
