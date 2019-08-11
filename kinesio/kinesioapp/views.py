@@ -42,12 +42,11 @@ def logout_view(request):
 class ClinicalHistoryView(generic.View):
     def get(self, request):
         patient_id = request.GET.get("patient_id", None)
-        sessions = ClinicalSession.objects.filter(patient_id=patient_id)
+        sessions = ClinicalSession.objects.filter(patient_id=patient_id).order_by('-id')
         return render(request, 'kinesioapp/users/clinical_history.html', {'sessions': sessions})
 
 
 class ClinicalSessionView(generic.View):
     def get(self, request):
-
         clinical_session_id = request.GET.get("clinical_session_id", None)
         return render(request, 'kinesioapp/users/clinical_session.html')

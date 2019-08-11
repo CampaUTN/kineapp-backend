@@ -42,7 +42,7 @@ class Video(models.Model):
 
 class ClinicalSessionQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
-        return self.filter(patient__in=user.related_patients)
+        return self.filter(patient__user__in=user.related_patients)
 
 
 class ClinicalSession(models.Model):
