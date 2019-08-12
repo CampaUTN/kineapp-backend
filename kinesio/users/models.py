@@ -108,7 +108,7 @@ class Medic(models.Model):
 
     @property
     def related_patients(self) -> [User]:
-        return [patient.user for patient in self.user.patients.all()]
+        return User.objects.filter(id__in=self.user.patients.values('id'))
 
 
 class Patient(models.Model):
@@ -122,4 +122,4 @@ class Patient(models.Model):
 
     @property
     def related_patients(self) -> [User]:
-        return [self.user]
+        return User.objects.filter(id=self.user.id)

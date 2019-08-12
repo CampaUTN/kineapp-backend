@@ -1,13 +1,12 @@
 from rest_framework import generics, status
-from .models import ClinicalSession, Image
-from .serializers import ClinicalSessionSerializer
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser
 from rest_framework.views import APIView
+
+from .models import Image
+from .serializers import ClinicalSessionSerializer
 from .utils.download import download
 
 

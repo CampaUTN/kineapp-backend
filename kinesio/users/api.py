@@ -6,12 +6,14 @@ from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
+
 from .models import User, SecretQuestion
-from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer
+from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
-from rest_framework.authtoken.models import Token
-from .utils.api_mixins import LoggedUserPatchAPIViewMixin
+from .utils.api_mixins import LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin
 
 
 @swagger_auto_schema(
@@ -199,21 +201,114 @@ def register(request, google_user_class=GoogleUser):
     return response
 
 
-class PatientsAPIView(LoggedUserPatchAPIViewMixin, generics.ListAPIView):
-    queryset = User.objects.patients()
-    serializer_class = UserSerializer
+# Patients
+class PatientListAPIView(APIView):
+    @swagger_auto_schema(
+        operation_id='get_related_patients',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Data from patients of the current medic. If used as a patient, return a list containing only its own data.",
+                schema=PatientSerializer(many=True),
+            )
+        }
+    )
+    def get(self, request):
+        return Response(PatientSerializer(request.user.related_patients, many=True).data, status=status.HTTP_200_OK)
 
 
-class PatientDetailAPIView(generics.RetrieveAPIView):
-    queryset = User.objects.patients()
-    serializer_class = UserSerializer
+class PatientDetailAPIView(APIView):
+    @swagger_auto_schema(
+        operation_id='get_patient',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Current patient data",
+                schema=PatientSerializer(),
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Patient not related to the logged in medic."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Patient with the given id not found."
+            )
+        }
+    )
+    def get(self, request, pk):
+        try:
+            patient = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            response = Response({'message': 'Patient does not exists'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            if patient in request.user.related_patients:
+                response = Response(PatientSerializer(patient).data, status=status.HTTP_200_OK)
+            else:
+                response = Response({'message': 'Patient not related to the logged in medic.'}, status=status.HTTP_401_UNAUTHORIZED)
+        finally:
+            return response
 
 
-class MedicsAPIView(LoggedUserPatchAPIViewMixin, generics.ListAPIView):
+class CurrentPatientDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):
+    serializer_class = PatientSerializer
+
+    @swagger_auto_schema(
+        operation_id='get_current_patient',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Current patient data",
+                schema=PatientSerializer(),
+            )
+        }
+    )
+    def get(self, request):
+        return super().get(request)
+
+    @swagger_auto_schema(
+        operation_id='patch_current_patient',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Current patient data",
+                schema=PatientSerializer(),
+            )
+        }
+    )
+    def patch(self, request):
+        return super().patch(request)
+
+
+# Medics
+class MedicListAPIView(generics.ListAPIView):
     queryset = User.objects.medics()
-    serializer_class = UserSerializer
+    serializer_class = MedicSerializer
 
 
+class CurrentMedicDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):
+    serializer_class = MedicSerializer
+
+    @swagger_auto_schema(
+        operation_id='get_current_medic',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Current medic data",
+                schema=MedicSerializer(),
+            )
+        }
+    )
+    def get(self, request):
+        return super().get(request)
+
+    @swagger_auto_schema(
+        operation_id='patch_current_medic',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Current patient data",
+                schema=MedicSerializer(),
+            )
+        }
+    )
+    def patch(self, request):
+        return super().patch(request)
+
+
+# Questions. Fixme: remove this view if there is no use for it.
 class SecretQuestionAPIView(generics.ListAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer

@@ -10,9 +10,6 @@ class TestIntegration(APITestCase):
         self.question = SecretQuestion.objects.create(description='Cual es tu color favorito?')
         self.medic = User.objects.create_user(username='juan', password='1234', license='matricula #15433')
 
-    def _get_user_id(self):
-        return User.objects.get(username=GoogleUserMock('').user_id).id
-
     def test_integration_patient_registration_loging_and_information_update(self):
         # Register the user
         registration_data = {'google_token': 'i_am_a_working_token',
@@ -35,7 +32,7 @@ class TestIntegration(APITestCase):
 
         # Try to update the user's personal information, but fail due to user not being logged in.
         update_data = {'first_name': 'raul'}
-        response = self.client.patch(f'/api/v1/patients/',
+        response = self.client.patch(f'/api/v1/patients/detail/',
                                      update_data,
                                      format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -46,13 +43,13 @@ class TestIntegration(APITestCase):
 
         # Try to update the user's personal information again and assign a medic. Now it should be working
         update_data = {'first_name': 'raul', 'patient': {'current_medic_id': self.medic.id}}
-        response = self.client.patch(f'/api/v1/patients/',
+        response = self.client.patch(f'/api/v1/patients/detail/',
                                      update_data,
                                      format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Get the user data and check whether it is updated or not
-        response = self.client.get(f'/api/v1/patients/{self._get_user_id()}')
+        response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['first_name'], 'raul')
         self.assertEqual(response.json()['patient']['current_medic_id'], self.medic.id)
