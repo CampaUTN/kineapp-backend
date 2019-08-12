@@ -12,7 +12,7 @@ class TokenSerializer(serializers.ModelSerializer):
         fields = ('token',)
 
 
-class MedicSerializer(serializers.ModelSerializer):
+class MedicTypeSerializer(serializers.ModelSerializer):
     license = serializers.CharField(required=False)  # otherwise the drf-yasg detects it as required
 
     class Meta:
@@ -20,7 +20,7 @@ class MedicSerializer(serializers.ModelSerializer):
         fields = ('license',)
 
 
-class PatientSerializer(serializers.ModelSerializer):
+class PatientTypeSerializer(serializers.ModelSerializer):
     current_medic_id = serializers.IntegerField(required=False)  # otherwise the drf-yasg detects it as required
     sessions = ClinicalSessionSerializer(many=True, read_only=True)
 
@@ -33,8 +33,10 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True, required=False)  # otherwise the drf-yasg detects it as required. fixme: same as password
     is_active = serializers.BooleanField(read_only=True, required=False)
     email = serializers.CharField(read_only=True, required=False)
-    medic = MedicSerializer(required=False)
-    patient = PatientSerializer(required=False)
+    # We need the specific fields on the superclass because sometimes we want to return an user but we don't know
+    # whether is a patient or a medic. The options are the current one or multiple type tests on different places.
+    medic = MedicTypeSerializer(required=False)
+    patient = PatientTypeSerializer(required=False)
     password = serializers.CharField(min_length=4,
                                      write_only=True,
                                      required=False,  # otherwise the drf-yasg detects it as required. fixme: change auth method on drf-yasg, because the detection of HTTP Authorization scheme as "basic" is requestion for user and password even if write_only=True.
@@ -61,12 +63,26 @@ class UserSerializer(serializers.ModelSerializer):
 
         # Update User's type.
         if patient_data is not None:
-            PatientSerializer().update(instance.patient, patient_data)
+            PatientTypeSerializer().update(instance.patient, patient_data)
         elif medic_data is not None:
-            MedicSerializer().update(instance.medic, medic_data)
+            MedicTypeSerializer().update(instance.medic, medic_data)
         else:
             pass
         return instance
+
+
+class PatientSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'patient',
+                  'secret_question', 'password')
+
+
+class MedicSerializer(UserSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic',
+                  'secret_question', 'password')
 
 
 class SecretQuestionSerializer(serializers.ModelSerializer):
