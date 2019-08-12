@@ -12,10 +12,14 @@ urlpatterns = [
     # Registration related views
     re_path(r'^api/v1/registration/?$', api.register, name='registration'),
 
-    # Other views
-    re_path(r'^api/v1/medics/?$', api.MedicsAPIView.as_view(), name='medics'),
-    re_path(r'^api/v1/patients/?$', api.PatientsAPIView.as_view(), name='patients'),
-    re_path(r'^api/v1/patients/(?P<pk>[0-9]+)$', api.PatientDetailAPIView.as_view(), name='patient_detail'),
+    # Medics
+    re_path(r'^api/v1/medics/?$', api.MedicListAPIView.as_view(), name='medics'),
+    re_path(r'^api/v1/medics/detail/?', api.CurrentMedicDetailUpdateAPIView.as_view(), name='current_medic_detail'),
+
+    # Patients
+    re_path(r'^api/v1/patients/?$', api.PatientListAPIView.as_view(), name='patients'),
+    re_path(r'^api/v1/patients/detail/(?P<pk>[0-9]+)/?', api.PatientDetailAPIView.as_view(), name='patient_detail'),
+    re_path(r'^api/v1/patients/detail/?', api.CurrentPatientDetailUpdateAPIView.as_view(), name='current_patient_detail'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

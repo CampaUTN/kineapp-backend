@@ -11,7 +11,8 @@ from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializ
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
 from rest_framework.authtoken.models import Token
-from .utils.api_mixins import LoggedUserPatchAPIViewMixin
+from .utils.api_mixins import LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin
+from rest_framework.views import APIView
 
 
 @swagger_auto_schema(
@@ -199,21 +200,42 @@ def register(request, google_user_class=GoogleUser):
     return response
 
 
-class PatientsAPIView(LoggedUserPatchAPIViewMixin, generics.ListAPIView):
+# Patients
+class PatientListAPIView(APIView):
+    def get(self, request):
+        return Response(UserSerializer(request.user.related_patients, many=True).data, status=status.HTTP_200_OK)
+
+
+class PatientDetailAPIView(APIView):
+    def get(self, request, pk):
+        try:
+            patient = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            response = Response({'message': 'Patient does not exists'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            if patient in request.user.related_patients:
+                response = Response(UserSerializer(patient).data, status=status.HTTP_200_OK)
+            else:
+                response = Response({'message': 'Not accesible. It is not your patient'}, status=status.HTTP_401_UNAUTHORIZED)
+        finally:
+            return response
+
+
+class CurrentPatientDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):
     queryset = User.objects.patients()
-    serializer_class = UserSerializer
 
 
-class PatientDetailAPIView(generics.RetrieveAPIView):
-    queryset = User.objects.patients()
-    serializer_class = UserSerializer
-
-
-class MedicsAPIView(LoggedUserPatchAPIViewMixin, generics.ListAPIView):
+# Medics
+class MedicListAPIView(generics.ListAPIView):
     queryset = User.objects.medics()
     serializer_class = UserSerializer
 
 
+class CurrentMedicDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):
+    queryset = User.objects.medics()
+
+
+# Questions. Fixme: remove this view if there is no use for it.
 class SecretQuestionAPIView(generics.ListAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer
