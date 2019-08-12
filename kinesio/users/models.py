@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models, transaction
+from django.conf import settings
 
 
 class SecretQuestion(models.Model):
@@ -54,6 +55,16 @@ class User(AbstractUser):
     tries = models.IntegerField(default=0)
 
     objects = UserManager()
+
+    def log_valid_try(self):
+        self.tries = 0
+        self.save()
+
+    def log_invalid_try(self):
+        self.tries += 1
+        if self.tries >= settings.MAX_PASSWORD_TRIES:
+            self.is_active = False
+        self.save()
 
     @property
     def is_patient(self):
