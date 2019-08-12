@@ -1,10 +1,6 @@
 <nav class="mb-1 navbar navbar-expand-lg navbar-dark">
     {% if user.is_authenticated %}
-        {% if user.is_medic %}
-            <a class="navbar-brand disabled white-text">Dr. {{ user.last_name }} {{ user.first_name }}</a>
-        {% else %}
-            <a class="navbar-brand disabled white-text">Pt. {{ user.last_name }} {{ user.first_name }}</a>
-        {% endif %}
+        <a class="navbar-brand disabled white-text">{{ user }}</a>
     {% else %}
         <a class="navbar-brand disabled white-text">KineApp</a>
     {% endif %}

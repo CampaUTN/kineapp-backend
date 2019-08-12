@@ -12,7 +12,6 @@ urlpatterns = [
     re_path(r'^clinical_session/?$', views.ClinicalSessionView.as_view(), name='clinical_session_view'),
 
     # API
-    re_path(r'^api/v1/clinical_histories/?$', api.ClinicalHistoryAPIView.as_view(), name='clinical_history'),
     re_path(r'^api/v1/clinical_sessions/?$', api.ClinicalSessionAPIView.as_view(), name='clinical_session'),
     re_path(r'^api/v1/image/?$', api.ImageCreateAPIView.as_view(), name='image_create'),
     re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', api.ImageDetailsAndDeleteAPIView.as_view(), name='image'),

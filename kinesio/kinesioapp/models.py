@@ -1,7 +1,8 @@
 from django.db import models
-from users.models import User
+from users.models import User, Patient
 from cryptography.fernet import Fernet
 from django.conf import settings
+from django.db.models import Q
 
 
 PENDING = 'pending'
@@ -39,28 +40,9 @@ class Video(models.Model):
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, null=True)
 
 
-class ClinicalHistoryQuerySet(models.QuerySet):
+class ClinicalSessionQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
-        return self.filter(patient__in=user.related_patients)
-
-
-class ClinicalHistory(models.Model):
-    CLINICAL_HISTORY_STATUS_CHOICES = [
-        ('P', 'PENDING'),
-        ('F', 'FINISHED'),
-        ('C', 'CANCELLED')
-    ]
-
-    date = models.DateTimeField()
-    description = models.CharField(max_length=255)
-    status = models.CharField(max_length=100, choices=CLINICAL_HISTORY_STATUS_CHOICES, default='PENDING')
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="patient_owner", null=True)
-    medic = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medic_owner", null=True)
-
-    objects = ClinicalHistoryQuerySet.as_manager()
-
-    def can_access(self, user: User) -> bool:
-        return self.patient in user.related_patients
+        return self.filter(patient__user__in=user.related_patients)
 
 
 class ClinicalSession(models.Model):
@@ -69,13 +51,15 @@ class ClinicalSession(models.Model):
         ('F', 'FINISHED'),
         ('C', 'CANCELLED')
     ]
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
-    homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
-    clinical_history = models.ForeignKey(ClinicalHistory, related_name='clinical_sessions', on_delete=models.CASCADE)
+    # Fixme: uncomment when necessary: homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
+    patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
+
+    objects = ClinicalSessionQuerySet.as_manager()
 
     def can_access(self, user: User) -> bool:
-        return self.clinical_history.can_access(user)
+        return self.patient.user in user.related_patients
 
 
 class ImageQuerySet(models.QuerySet):
