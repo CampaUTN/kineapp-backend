@@ -55,5 +55,4 @@ class TestIntegration(APITestCase):
         response = self.client.get(f'/api/v1/patients/{self._get_user_id()}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['first_name'], 'raul')
-        breakpoint()
         self.assertEqual(response.json()['patient']['current_medic_id'], self.medic.id)
