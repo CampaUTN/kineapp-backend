@@ -14,6 +14,10 @@ class TestQuestionsAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json().get('data')), 2)
 
+    def test_dont_see_id_on_get(self):
+        response = self.client.get('/api/v1/secret_questions/')
+        self.assertEqual(response.json().get('data')[0].get('id', None), None)
+
 
 class CheckAnswerAPI(APITestCase):
     def setUp(self) -> None:
