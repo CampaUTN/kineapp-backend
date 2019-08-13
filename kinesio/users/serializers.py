@@ -88,4 +88,4 @@ class MedicSerializer(UserSerializer):
 class SecretQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SecretQuestion
-        fields = ('description',)
+        fields = '__all__'
