@@ -133,6 +133,7 @@ def login(request, google_user_class=GoogleUser):
     if user.check_password(answer):
         auth.authenticate(username=user.username, password=answer)
         token, _ = Token.objects.get_or_create(user=user)
+        auth.login(request, user)
         user.log_valid_try()
         return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
     else:
