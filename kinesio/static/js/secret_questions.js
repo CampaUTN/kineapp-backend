@@ -35,7 +35,6 @@ function check_answer(){
             },
             error: function(response){
                 answer_input.addClass('animated bounce');
-                console.log(response);
                 let popover= answer_button.popover(
                     {content: response.responseJSON.message}
                 );

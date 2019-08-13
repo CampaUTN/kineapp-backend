@@ -1,13 +1,19 @@
 <div id="card_history" class="card animated slideInRight">
-    <h5 class="card-header white-text">Historia Clinica</h5>
+    <h5 class="card-header white-text">Historia Clinica de {{ patient.last_name }} {{ patient.first_name }}</h5>
     <div class="card-body">
         <div class="row">
             <div class="col-sm-6 ">
-                {% if sessions %}
-                <p class="card-text">Fecha: -- no iria mas porque no hay historial clinico -- </p>
-                <p class="card-text">Estado: -- no iria mas porque no hay historial clinico -- </p>
-                {%  else %}
-                    <h5 class="card-title">Actualmente no posees historial clinico con este paciente</h5>
+                <div class="text-center" style="margin-bottom: 20px;">
+                    {% if patient.photo %}
+                        <img src="data:image/jpeg;base64, {{ patient.photo }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block">
+                    {% else %}
+                        <i class="fas fa-user-md fa-8x" style="color: #355C7D; horiz-align: center"></i>
+                    {% endif %}
+                </div>
+                <p class="card-text">Fecha de Nacimiento: {{ patient.birth_day }} </p>
+                <p class="card-text">DNI: {{ patient.dni }} </p>
+                {% if not sessions %}
+                    <h5 class="card-title">Actualmente no posees información clinica con este paciente/medico</h5>
                 {% endif %}
             </div>
             <div class="col-sm-6">
