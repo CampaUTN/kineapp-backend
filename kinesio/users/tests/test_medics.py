@@ -35,3 +35,7 @@ class TestMedicsAPI(APITestCase):
         # Check whether the db was properly updated or not
         self.medic.refresh_from_db()
         self.assertEqual(self.medic.medic.license, 'new license')
+
+    # def test_dont_see_id_on_get(self): Set question on SetUp and fix this test (get secret_question, not *_id)
+    #     response = self.client.get('/api/v1/medics/')
+    #     self.assertEqual(response.json().get('data')[0].get('id', None), None)
