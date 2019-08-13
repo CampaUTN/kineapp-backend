@@ -53,6 +53,10 @@ class UserManager(DjangoUserManager):
 class User(AbstractUser):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
+    birth_day = models.DateTimeField(default=None, null=True)
+    gender = models.CharField(max_length=1, default=None, null=True)
+    photo = models.BinaryField(default=None, null=True)
+    dni = models.CharField(max_length=10, default=None, null=True)
 
     objects = UserManager()
 
