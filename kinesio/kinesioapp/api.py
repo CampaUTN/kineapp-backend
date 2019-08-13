@@ -1,24 +1,13 @@
 from rest_framework import generics, status
-from .models import ClinicalHistory, ClinicalSession, Image
-from .serializers import ClinicalHistorySerializer, ClinicalSessionSerializer
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser
 from rest_framework.views import APIView
+
+from .models import Image
+from .serializers import ClinicalSessionSerializer
 from .utils.download import download
-
-
-class ClinicalHistoryAPIView(generics.ListCreateAPIView):
-    queryset = ClinicalHistory.objects.all()
-    serializer_class = ClinicalHistorySerializer
-
-    def list(self, request):
-        queryset = self.get_queryset().accessible_by(request.user)
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
 
 
 class ClinicalSessionAPIView(generics.CreateAPIView):

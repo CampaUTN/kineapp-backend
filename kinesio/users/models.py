@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models, transaction
+from django.conf import settings
 
 
 class SecretQuestion(models.Model):
@@ -20,8 +21,8 @@ class MedicManager(models.Manager):
             license = license.strip() if license.strip() != '' else None
         return license
 
-    def create(self, user, license):
-        return super().create(user=user, license=self._fixed_license(license))
+    def create(self, user, license, **kwargs):
+        return super().create(user=user, license=self._fixed_license(license), **kwargs)
 
 
 class UserManager(DjangoUserManager):
@@ -37,9 +38,9 @@ class UserManager(DjangoUserManager):
         with transaction.atomic():
             user = super().create_user(username,  **kwargs)
             if license is not None:
-                Medic.objects.create(user=user, license=license)
+                Medic.objects.create(pk=user.pk, id=user.id, user=user, license=license)
             else:
-                Patient.objects.create(user=user, current_medic=current_medic)
+                Patient.objects.create(pk=user.pk, id=user.id, user=user, current_medic=current_medic)
         return user
 
     def patients(self):
@@ -52,8 +53,22 @@ class UserManager(DjangoUserManager):
 class User(AbstractUser):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
+    birth_day = models.DateTimeField(default=None, null=True)
+    gender = models.CharField(max_length=1, default=None, null=True)
+    photo = models.BinaryField(default=None, null=True)
+    dni = models.CharField(max_length=10, default=None, null=True)
 
     objects = UserManager()
+
+    def log_valid_try(self):
+        self.tries = 0
+        self.save()
+
+    def log_invalid_try(self):
+        self.tries += 1
+        if self.tries >= settings.MAX_PASSWORD_TRIES:
+            self.is_active = False
+        self.save()
 
     @property
     def is_patient(self):
@@ -97,7 +112,7 @@ class Medic(models.Model):
 
     @property
     def related_patients(self) -> [User]:
-        return [patient.user for patient in self.user.patients.all()]
+        return User.objects.filter(id__in=self.user.patients.values('id'))
 
 
 class Patient(models.Model):
@@ -105,10 +120,10 @@ class Patient(models.Model):
     current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
 
-    @property #Just for Lean until he fixes something
+    @property  # Just for Lean until he fixes something
     def videos(self):
         return []
 
     @property
     def related_patients(self) -> [User]:
-        return [self.user]
+        return User.objects.filter(id=self.user.id)

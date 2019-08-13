@@ -17,12 +17,10 @@
     <div id="list_data" class="list-group list-group-flush scrollbar scrollbar-primary" style="margin-top: 10px">
         {% if user.is_medic %}
             {% for patient in patients %}
-                <a onclick="get_clinical_history_by_patient({{ patient.pk }})" class="list-group-item list-group-item-action waves-effect"> Pt. {{ patient.last_name }} {{ patient.first_name }}</a>
+                <a onclick="get_clinical_history_by_patient({{ patient.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ patient }}</a>
             {% endfor %}
         {% else %}
-            {% for clinical_history in clinical_histories %}
-                <a onclick="get_clinical_history({{ clinical_history.pk }})" class="list-group-item list-group-item-action waves-effect"> Dr. {{ clinical_history.medic.last_name }} {{ clinical_history.medic.first_name }}</a>
-            {% endfor %}
+            <a onclick="get_clinical_history_by_patient({{ user.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ user.patient.current_medic }}</a>
         {%  endif %}
     </div>
 </div>

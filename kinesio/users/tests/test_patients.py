@@ -1,24 +1,31 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
 
-from ..models import User, Patient, Medic
+from ..models import User
 
 
 class TestPatientsAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423')
         self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343')
-        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234')
+        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234', current_medic=self.medic)
         User.objects.create_user(username='martin', current_medic=self.medic)
 
     def test_get_one_patient(self):
         self._log_in(self.medic, '1234')
-        response = self.client.get(f'/api/v1/patients/{self.patient.id}')
+        response = self.client.get(f'/api/v1/patients/detail/{self.patient.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['first_name'], 'facundo')
 
-    def test_get_all_patients(self):
+    def test_get_all_patients_of_the_current_medic(self):
         self._log_in(self.medic, '1234')
+        response = self.client.get('/api/v1/patients/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()['data']), 2)
+
+    def test_do_not_get_patients_from_other_medics(self):
+        self._log_in(self.medic, '1234')
+        User.objects.create_user(username='pepe23')
         response = self.client.get('/api/v1/patients/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['data']), 2)
@@ -26,7 +33,7 @@ class TestPatientsAPI(APITestCase):
     def test_update_one_patient_first_name(self):
         self._log_in(self.patient, '1234')
         data = {'first_name': 'raul'}
-        response = self.client.patch(f'/api/v1/patients/', data, format='json')
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Check the response
         self.assertEqual(response.json()['first_name'], 'raul')
@@ -37,7 +44,7 @@ class TestPatientsAPI(APITestCase):
     def test_update_one_patient_current_medic_id(self):
         self._log_in(self.patient, '1234')
         data = {'patient': {'current_medic_id': self.another_medic.id}}
-        response = self.client.patch(f'/api/v1/patients/', data, format='json')
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Check the response
         self.assertEqual(response.json()['patient']['current_medic_id'], self.another_medic.id)

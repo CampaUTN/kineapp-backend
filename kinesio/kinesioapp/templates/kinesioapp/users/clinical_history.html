@@ -1,12 +1,11 @@
 <div id="card_history" class="card animated slideInRight">
-    <h5 class="card-header white-text">Historia Clinica {{ clinical_history.pk }}</h5>
+    <h5 class="card-header white-text">Historia Clinica</h5>
     <div class="card-body">
         <div class="row">
             <div class="col-sm-6 ">
-                {% if clinical_history %}
-                <h5 class="card-title">{{ clinical_history.description }}</h5>
-                <p class="card-text">Fecha: {{ clinical_history.date }}</p>
-                <p class="card-text">Estado: {{ clinical_history.status }}</p>
+                {% if sessions %}
+                <p class="card-text">Fecha: -- no iria mas porque no hay historial clinico -- </p>
+                <p class="card-text">Estado: -- no iria mas porque no hay historial clinico -- </p>
                 {%  else %}
                     <h5 class="card-title">Actualmente no posees historial clinico con este paciente</h5>
                 {% endif %}
@@ -15,7 +14,7 @@
                 <h6 class="card-text ">Sesiones:</h6>
                 <ul class="list-group">
                     <li onclick="get_session(1)" class="list-group-item list-group-item-action waves-effect" >Cras justo odio</li>
-                    {% for session in cliclinal_history.clinical_sessions %}
+                    {% for session in sessions %}
                         <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date }}</li>
                     {% endfor %}
                 </ul>
