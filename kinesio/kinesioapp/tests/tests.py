@@ -2,13 +2,12 @@ import subprocess
 from django.test import TestCase
 from rest_framework import status
 from datetime import datetime
-from .utils.test_utils import APITestCase
-
-from . import models
-from .models import ClinicalSession, Image
-from users.models import User, SecretQuestion
-
 from django.urls import reverse
+
+from ..utils.test_utils import APITestCase
+from .. import models
+from ..models import ClinicalSession, Image
+from users.models import User, SecretQuestion
 
 
 class TestPEP8(TestCase):
