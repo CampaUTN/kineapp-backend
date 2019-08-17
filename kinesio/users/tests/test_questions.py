@@ -1,6 +1,7 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
 from kinesio import settings
+
 from ..models import User, SecretQuestion
 
 

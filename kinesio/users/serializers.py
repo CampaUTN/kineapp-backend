@@ -44,8 +44,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient',
-                  'secret_question', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password')
 
     def _want_to_set_patient_data(self, validated_data):
         return 'patient' in validated_data.keys()
@@ -74,15 +73,13 @@ class UserSerializer(serializers.ModelSerializer):
 class PatientSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'patient',
-                  'secret_question', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'patient', 'password')
 
 
 class MedicSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic',
-                  'secret_question', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'password')
 
 
 class SecretQuestionSerializer(serializers.ModelSerializer):
