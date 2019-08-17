@@ -125,6 +125,6 @@ class ImageCreateAPIView(APIView):
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def image_hardcoded(request, id):
-    with open('/kinesio/kinesio/static/images/logo.png', 'rb') as file:
+    with open('/kinesio/kinesio/static/images/tmp.jpg', 'rb') as file:
         content = file.read()
-    return download(f'image_{id}.png', content)
+    return download(f'image_{id}.jpg', content)
