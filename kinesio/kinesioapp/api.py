@@ -4,6 +4,10 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser
 from rest_framework.views import APIView
+# For the hardcoded image only:
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Image
 from .serializers import ClinicalSessionSerializer
@@ -115,3 +119,12 @@ class ImageCreateAPIView(APIView):
         image = Image.objects.create(content=content, clinical_session_id=clinical_session_id)
 
         return Response({'message': 'Image created successfully', 'id': image.id}, status=status.HTTP_201_CREATED)
+
+
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def image_hardcoded(request, id):
+    with open('/kinesio/kinesio/static/images/logo.png', 'rb') as file:
+        content = file.read()
+    return download(f'image_{id}.png', content)
