@@ -1,10 +1,12 @@
-version: '3'
+version: '3.5'
 services:
   api:
     build: .
     command: bash -c "pip --retries 10 install -r /kinesio/requirements.txt && python3 /kinesio/kinesio/manage.py collectstatic --no-input && python3 /kinesio/kinesio/manage.py runserver 0.0.0.0:80"
     volumes:
       - .:/kinesio
+    tmpfs:
+      - /tmpfs
     ports:
       - "80:80"
     depends_on:
