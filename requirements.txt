@@ -19,3 +19,4 @@ drf-yasg==1.16.0
 google-auth==1.6.3
 fernet==1.0.1
 cryptography==2.3
+Pillow

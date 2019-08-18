@@ -4,6 +4,10 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser
 from rest_framework.views import APIView
+# For the hardcoded image only:
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Image
 from .serializers import ClinicalSessionSerializer
@@ -25,6 +29,11 @@ class ImageDetailsAndDeleteAPIView(APIView):
                 description="Image's ID.",
                 required=True
             ),
+            openapi.Parameter(
+                name='thumbnail',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_BOOLEAN,
+                description="Set it to true if you want to get the thumbnail instead of the full size image")
         ],
         responses={
             status.HTTP_401_UNAUTHORIZED: openapi.Response(
@@ -41,12 +50,13 @@ class ImageDetailsAndDeleteAPIView(APIView):
     def get(self, request, id):
         try:
             image = Image.objects.get(id=id)
+            thumbnail = request.GET.get('thumbnail', 'false').lower() == 'true'
         except Image.DoesNotExist:
             return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
-        return download(f'image_{image.pk}.jpg', image.content)
+        return download(f'image_{image.pk}.jpg', image.content) if not thumbnail else download(f'thumbnail_{image.pk}.jpg', image.thumbnail)
 
     @swagger_auto_schema(
         operation_id='image_delete',
@@ -115,3 +125,12 @@ class ImageCreateAPIView(APIView):
         image = Image.objects.create(content=content, clinical_session_id=clinical_session_id)
 
         return Response({'message': 'Image created successfully', 'id': image.id}, status=status.HTTP_201_CREATED)
+
+
+@csrf_exempt
+@api_view(["GET"])
+@permission_classes((AllowAny,))
+def image_hardcoded(request, id):
+    with open('/kinesio/kinesio/kinesioapp/tests/resources/kinesio.jpg', 'rb') as file:
+        content = file.read()
+    return download(f'image_{id}.jpg', content)

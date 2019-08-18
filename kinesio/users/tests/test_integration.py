@@ -1,7 +1,6 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
 from ..models import User, SecretQuestion
-from .utils.mocks import GoogleUser as GoogleUserMock
 from rest_framework.authtoken.models import Token
 
 
@@ -24,18 +23,18 @@ class TestIntegration(APITestCase):
         response = self.client.post('/api/v1/login/', login_data)
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
-        # Try to log the user in with the valid answer
-        login_data = {'google_token': 'i_am_a_working_token', 'secret_question_id': self.question.id, 'answer': 'azul'}
-        response = self.client.post('/api/v1/login/', login_data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        token = response.json()['token']  # Save the token for later
-
         # Try to update the user's personal information, but fail due to user not being logged in.
         update_data = {'first_name': 'raul'}
         response = self.client.patch(f'/api/v1/patients/detail/',
                                      update_data,
                                      format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Try to log the user in with the valid answer
+        login_data = {'google_token': 'i_am_a_working_token', 'secret_question_id': self.question.id, 'answer': 'azul'}
+        response = self.client.post('/api/v1/login/', login_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        token = response.json()['token']  # Save the token for later
 
         # Log the patient user in.
         # If this works, it is because the token was correctly created and associated to the user
