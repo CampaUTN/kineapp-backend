@@ -1,8 +1,9 @@
 from django.db import models
-from users.models import User, Patient
 from cryptography.fernet import Fernet
 from django.conf import settings
-from django.db.models import Q
+
+from users.models import User, Patient
+from kinesioapp.utils.thumbnail import ThumbnailGenerator
 
 
 PENDING = 'pending'
@@ -65,18 +66,27 @@ class ClinicalSession(models.Model):
 class ImageQuerySet(models.QuerySet):
     def create(self, content: bytes, **kwargs):
         encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content)
-        return super().create(_content=encrypted_content, **kwargs)
+        encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content).thumbnail)
+        return super().create(_content=encrypted_content, _thumbnail=encrypted_thumbnail, **kwargs)
 
 
 class Image(models.Model):
     _content = models.BinaryField()
+    _thumbnail = models.BinaryField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
 
     objects = ImageQuerySet.as_manager()
 
+    def _decrypted_binary_field(self, field):
+        return Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field.tobytes())
+
     @property
     def content(self) -> bytes:
-        return Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(self._content.tobytes())
+        return self._decrypted_binary_field(self._content)
+
+    @property
+    def thumbnail(self) -> bytes:
+        return self._decrypted_binary_field(self._thumbnail)
 
     def can_access(self, user: User) -> bool:
         return self.clinical_session.can_access(user)

@@ -29,6 +29,11 @@ class ImageDetailsAndDeleteAPIView(APIView):
                 description="Image's ID.",
                 required=True
             ),
+            openapi.Parameter(
+                name='thumbnail',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_BOOLEAN,
+                description="Set it to true if you want to get the thumbnail instead of the full size image")
         ],
         responses={
             status.HTTP_401_UNAUTHORIZED: openapi.Response(
@@ -45,12 +50,13 @@ class ImageDetailsAndDeleteAPIView(APIView):
     def get(self, request, id):
         try:
             image = Image.objects.get(id=id)
+            thumbnail = request.GET.get('thumbnail', 'false').lower() == 'true'
         except Image.DoesNotExist:
             return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
-        return download(f'image_{image.pk}.jpg', image.content)
+        return download(f'image_{image.pk}.jpg', image.content) if not thumbnail else download(f'thumbnail_{image.pk}.jpg', image.thumbnail)
 
     @swagger_auto_schema(
         operation_id='image_delete',
