@@ -31,7 +31,11 @@ class GoogleUser:
 
     @property
     def username_is_valid(self):
-        return self.account_information['iss'] in ['accounts.google.com', 'https://accounts.google.com']
+        return self.account_information['iss'].lower().split('://').pop().strip() == 'accounts.google.com'
+
+    @property
+    def picture_url(self):
+        return self.account_information['picture']
 
     @property
     def user_id(self):

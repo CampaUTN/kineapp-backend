@@ -53,7 +53,7 @@ class UserManager(DjangoUserManager):
 class User(AbstractUser):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
-    photo = models.BinaryField(default=None, null=True)
+    picture_url = models.CharField(max_length=255, default=None, null=True)
 
     objects = UserManager()
 

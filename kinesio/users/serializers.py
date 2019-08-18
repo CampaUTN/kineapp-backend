@@ -41,10 +41,11 @@ class UserSerializer(serializers.ModelSerializer):
                                      write_only=True,
                                      required=False,  # otherwise the drf-yasg detects it as required. fixme: change auth method on drf-yasg, because the detection of HTTP Authorization scheme as "basic" is requestion for user and password even if write_only=True.
                                      style={'input_type': 'password'})
+    picture_url = serializers.CharField(read_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password', 'picture_url')
 
     def _want_to_set_patient_data(self, validated_data):
         return 'patient' in validated_data.keys()
@@ -73,13 +74,13 @@ class UserSerializer(serializers.ModelSerializer):
 class PatientSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'patient', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'patient', 'password', 'picture_url')
 
 
 class MedicSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'password')
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'password', 'picture_url')
 
 
 class SecretQuestionSerializer(serializers.ModelSerializer):

@@ -193,6 +193,7 @@ def register(request, google_user_class=GoogleUser):
                                                 password=answer,
                                                 last_name=google_user.last_name,
                                                 email=google_user.email,
+                                                picture_url=google_user.picture_url,
                                                 license=license,
                                                 current_medic=current_medic,
                                                 secret_question_id=secret_question_id)
