@@ -1,6 +1,8 @@
 from django.test import TestCase
 from rest_framework import status
 from django.urls import reverse
+from django.utils import timezone
+from datetime import datetime
 
 from .. import models
 from ..models import ClinicalSession
@@ -10,8 +12,10 @@ from users.models import User, SecretQuestion
 class TestWebView(TestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Nombre de tu perro?')
-        self.medic = User.objects.create_user(username='pepe', password='1234', license='12341234')
-        self.patient = User.objects.create_user(username='juan', password='1234', current_medic=self.medic)
+        self.medic = User.objects.create_user(username='pepe', password='1234', license='12341234',
+                                              dni=39203040, birth_date=timezone.now())
+        self.patient = User.objects.create_user(username='juan', password='1234', current_medic=self.medic,
+                                                dni=728489, birth_date=timezone.now())
         self.session = ClinicalSession.objects.create(status=models.PENDING, patient=self.patient.patient)
 
     def test_index_page(self):
@@ -31,6 +35,8 @@ class TestWebView(TestCase):
         registration_data = {'google_token': 'token',
                              'secret_question_id': self.question.id,
                              'answer': 'perro',
+                             'dni': 553745,
+                             'birth_date': datetime.now().date(),
                              'license': '12341234'}
         self.client.post('/api/v1/registration/', registration_data, format='json')
         login_data = {'google_token': 'token', 'secret_question_id': self.question.id, 'answer': 'perro'}

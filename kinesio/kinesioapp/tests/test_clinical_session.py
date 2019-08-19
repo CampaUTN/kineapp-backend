@@ -1,5 +1,6 @@
 from rest_framework import status
 from datetime import datetime
+from django.utils import timezone
 
 from ..utils.test_utils import APITestCase
 from .. import models
@@ -10,10 +11,13 @@ from users.models import User
 class TestClinicalSessionOnPatientAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
-                                              last_name='gomez', license='matricula #15433')
+                                              last_name='gomez', license='matricula #15433',
+                                              dni=39203040, birth_date=timezone.now())
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
-                                                password='12345', current_medic=self.medic)
-        User.objects.create_user(first_name='maria', last_name='gomez', username='mgomez')
+                                                password='12345', current_medic=self.medic,
+                                                dni=7357735, birth_date=timezone.now())
+        User.objects.create_user(first_name='maria', last_name='gomez', username='mgomez',
+                                 dni=2432457, birth_date=timezone.now())
         ClinicalSession.objects.create(status=models.PENDING,
                                        patient=self.patient.patient)
         ClinicalSession.objects.create(status=models.PENDING,
@@ -37,9 +41,11 @@ class TestClinicalSessionOnPatientAPI(APITestCase):
 class TestClinicalSessionCreateAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
-                                              last_name='gomez', license='matricula #15433')
+                                              last_name='gomez', license='matricula #15433',
+                                              dni=39203040, birth_date=timezone.now())
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
-                                                password='12345', current_medic=self.medic)
+                                                password='12345', current_medic=self.medic,
+                                                dni=3342342, birth_date=timezone.now())
         self._log_in(self.medic, '12345')
 
     def test_create_clinical_session(self):

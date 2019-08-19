@@ -1,4 +1,5 @@
 from rest_framework import status
+from django.utils import timezone
 
 from ..utils.test_utils import APITestCase
 from .. import models
@@ -10,9 +11,11 @@ from users.models import User
 class TestImageAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
-                                              last_name='gomez', license='matricula #15433')
+                                              last_name='gomez', license='matricula #15433',
+                                              dni=39203040, birth_date=timezone.now())
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
-                                                password='12345', current_medic=self.medic)
+                                                password='12345', current_medic=self.medic,
+                                                dni=564353, birth_date=timezone.now())
         self.clinical_session = ClinicalSession.objects.create(status=models.PENDING,
                                                                patient=self.patient.patient)
         with self.get_file_descriptor() as file:

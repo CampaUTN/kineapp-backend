@@ -1,6 +1,7 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
 from kinesio import settings
+from django.utils import timezone
 
 from ..models import User, SecretQuestion
 
@@ -19,7 +20,8 @@ class TestQuestionsAPI(APITestCase):
 class CheckAnswerAPI(APITestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Cual es tu color favorito?')
-        self.user = User.objects.create_user(username='2429231164242114344333', secret_question_id=self.question.id)
+        self.user = User.objects.create_user(username='2429231164242114344333', secret_question_id=self.question.id,
+                                             dni=39203040, birth_date=timezone.now())
         self.user.set_password('rojo')
         self.user.save()
 

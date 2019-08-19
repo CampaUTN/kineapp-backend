@@ -1,19 +1,25 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
-from ..models import User, SecretQuestion
+from django.utils import timezone
+from datetime import datetime
 from rest_framework.authtoken.models import Token
+
+from ..models import User, SecretQuestion
 
 
 class TestIntegration(APITestCase):
     def setUp(self) -> None:
         self.question = SecretQuestion.objects.create(description='Cual es tu color favorito?')
-        self.medic = User.objects.create_user(username='juan', password='1234', license='matricula #15433')
+        self.medic = User.objects.create_user(username='juan', password='1234', license='matricula #15433',
+                                              dni=39203040, birth_date=timezone.now())
 
-    def test_integration_patient_registration_loging_and_information_update(self):
+    def test_integration_patient_registration_logging_and_information_update(self):
         # Register the user
         registration_data = {'google_token': 'i_am_a_working_token',
                              'secret_question_id': self.question.id,
-                             'answer': 'azul'}
+                             'answer': 'azul',
+                             'birth_date': datetime.now().date(),
+                             'dni': 30405060}
         response = self.client.post('/api/v1/registration/', registration_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 2)
