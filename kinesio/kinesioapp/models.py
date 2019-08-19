@@ -27,15 +27,17 @@ class HomeworkExercise(models.Model):
     homework = models.ForeignKey(Homework, on_delete=models.CASCADE, null=True)
 
 
-class Exercise(models.Model):
-    name = models.CharField(max_length=255)
-    homework_exercise = models.ForeignKey(HomeworkExercise, on_delete=models.CASCADE, null=True)
+class VideoQuerySet(models.QuerySet):
+    def accessible_by(self, user: User) -> models.QuerySet:
+        return self.filter(owner=user.related_medic)
 
 
 class Video(models.Model):
     name = models.CharField(max_length=255)
+    content = models.BinaryField()
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
-    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, null=True)
+
+    objects = VideoQuerySet.as_manager()
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
