@@ -12,3 +12,7 @@ TAGS = [FRONT, RIGHT, LEFT, BACK, OTHER]
 
 def get() -> List[Tuple[str, str]]:
     return [(tag[0], tag) for tag in TAGS]
+
+
+def initials() -> List[str]:
+    return [tag[0] for tag in TAGS]
