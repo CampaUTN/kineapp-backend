@@ -155,10 +155,14 @@ def login(request, google_user_class=GoogleUser):
                                            description="google token that allows the back-end to obtain: given_name, family_name, iss, sub and email"),
             'license': openapi.Schema(type=openapi.TYPE_STRING,
                                       description="Medic's license."),
+            'birth_date': openapi.Schema(type=openapi.TYPE_STRING,
+                                         description="Birth date (yy-mm-dd)."),
+            'dni': openapi.Schema(type=openapi.TYPE_INTEGER,
+                                  description="Argentinean DNI number."),
             'current_medic': openapi.Schema(type=openapi.TYPE_INTEGER,
                                             description="Current medic ID of the patient.")
         },
-        required=['google_token']
+        required=['google_token', 'birth_date', 'dni']
     ),
     responses={
         status.HTTP_201_CREATED: openapi.Response(
@@ -180,6 +184,8 @@ def register(request, google_user_class=GoogleUser):
     secret_question_id = request.data.get('secret_question_id', None)
     answer = request.data.get('answer', None)
     current_medic = request.data.get('current_medic', None)
+    birth_date = request.data.get('birth_date', None)
+    dni = request.data.get('dni', None)
     if google_token is None:
         response = Response({'error': 'Missing token'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -193,6 +199,8 @@ def register(request, google_user_class=GoogleUser):
                                                 password=answer,
                                                 last_name=google_user.last_name,
                                                 email=google_user.email,
+                                                birth_date=birth_date,
+                                                dni=dni,
                                                 picture_url=google_user.picture_url,
                                                 license=license,
                                                 current_medic=current_medic,

@@ -1,15 +1,19 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
+from datetime import datetime
 
 from ..models import User
 
 
 class TestPatientsAPI(APITestCase):
     def setUp(self) -> None:
-        self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423')
-        self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343')
-        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234', current_medic=self.medic)
-        User.objects.create_user(username='martin', current_medic=self.medic)
+        self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
+                                              dni=39203040, birth_date=datetime.now())
+        self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
+                                                      dni=42203088, birth_date=datetime.now())
+        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
+                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
 
     def test_get_one_patient(self):
         self._log_in(self.medic, '1234')
@@ -25,7 +29,7 @@ class TestPatientsAPI(APITestCase):
 
     def test_do_not_get_patients_from_other_medics(self):
         self._log_in(self.medic, '1234')
-        User.objects.create_user(username='pepe23')
+        User.objects.create_user(username='pepe23', dni=9044004, birth_date=datetime.now())
         response = self.client.get('/api/v1/patients/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['data']), 2)

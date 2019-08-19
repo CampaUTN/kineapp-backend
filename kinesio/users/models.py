@@ -54,6 +54,8 @@ class User(AbstractUser):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
     picture_url = models.CharField(max_length=255, default=None, null=True)
+    dni = models.PositiveIntegerField(unique=True)  # National Identity Document of Argentina
+    birth_date = models.DateField()
 
     objects = UserManager()
 
