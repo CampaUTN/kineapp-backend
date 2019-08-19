@@ -4,11 +4,20 @@ from django.conf import settings
 
 from users.models import User, Patient
 from kinesioapp.utils.thumbnail import ThumbnailGenerator
+from typing import List
 
 
-PENDING = 'pending'
-FINISHED = 'finished'
-CANCELLED = 'cancelled'
+IMAGE_ANGLE_CHOICES = [
+    ('F', 'FRONT'),
+    ('R', 'RIGHT_SIDE'),
+    ('L', 'LEFT_SIDE'),
+    ('B', 'BACK'),
+    ('O', 'OTHER')
+]
+
+PENDING = 'PENDING'
+FINISHED = 'FINISHED'
+CANCELLED = 'CANCELLED'
 
 
 class Homework(models.Model):
@@ -53,7 +62,7 @@ class ClinicalSession(models.Model):
         ('C', 'CANCELLED')
     ]
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=100, choices=SESSION_STATUS_CHOICES, default='PENDING')
+    status = models.CharField(max_length=20, choices=SESSION_STATUS_CHOICES, default='PENDING')
     # Fixme: uncomment when necessary: homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
 
@@ -69,11 +78,21 @@ class ImageQuerySet(models.QuerySet):
         encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content).thumbnail)
         return super().create(_content=encrypted_content, _thumbnail=encrypted_thumbnail, **kwargs)
 
+    def by_tag(self, tag: str) -> models.QuerySet:
+        return self.filter(tag=tag)
+
+    def has_images_with_tag(self, tag: str) -> bool:
+        return self.by_tag(tag).exists()
+
+    def classified_by_tag(self) -> List[dict]:
+        return [{'tag': choice[1], 'images': self.by_tag(choice[1])} for choice in IMAGE_ANGLE_CHOICES if self.has_images_with_tag(choice[1])]
+
 
 class Image(models.Model):
     _content = models.BinaryField()
     _thumbnail = models.BinaryField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
+    tag = models.CharField(max_length=20, choices=IMAGE_ANGLE_CHOICES)
 
     objects = ImageQuerySet.as_manager()
 

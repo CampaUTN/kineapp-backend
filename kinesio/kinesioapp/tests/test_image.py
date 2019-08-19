@@ -30,35 +30,35 @@ class TestImageAPI(APITestCase):
         self.assertTrue(len(self.thumbnail) < len(self.content))
 
     def test_image_data_on_database_is_encrypted(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session)
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
         self.assertNotEquals(image._content, self.content)
 
     def test_thumbnail_data_on_database_is_encrypted(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session)
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
         self.assertNotEquals(image._thumbnail, self.thumbnail)
 
     def test_create_image(self):
-        data = {'content': self.get_file_descriptor(), 'clinical_session_id': self.clinical_session.pk}
+        data = {'content': self.get_file_descriptor(), 'clinical_session_id': self.clinical_session.pk, 'tag': 'F'}
         response = self.client.post('/api/v1/image/', data)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(Image.objects.count(), 1)
         self.assertEquals(Image.objects.get().content, self.content)
 
     def test_delete_image(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session)
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
         response = self.client.delete(f'/api/v1/image/{image.id}')
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Image.objects.count(), 0)
 
     def test_get_image(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session)
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
         response = self.client.get(f'/api/v1/image/{image.id}')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(type(response.content), bytes)
         self.assertEquals(response.content, self.content)
 
     def test_get_thumbnail(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session)
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
         response = self.client.get(f'/api/v1/image/{image.id}?thumbnail=true')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(type(response.content), bytes)
