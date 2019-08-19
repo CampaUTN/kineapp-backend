@@ -3,7 +3,6 @@ from datetime import datetime
 from django.utils import timezone
 
 from ..utils.test_utils import APITestCase
-from .. import models
 from ..models import ClinicalSession
 from users.models import User
 
@@ -18,12 +17,9 @@ class TestClinicalSessionOnPatientAPI(APITestCase):
                                                 dni=7357735, birth_date=timezone.now())
         User.objects.create_user(first_name='maria', last_name='gomez', username='mgomez',
                                  dni=2432457, birth_date=timezone.now())
-        ClinicalSession.objects.create(status=models.PENDING,
-                                       patient=self.patient.patient)
-        ClinicalSession.objects.create(status=models.PENDING,
-                                       patient=self.patient.patient)
-        ClinicalSession.objects.create(status=models.PENDING,
-                                       patient=self.patient.patient)
+        ClinicalSession.objects.create(patient=self.patient.patient)
+        ClinicalSession.objects.create(patient=self.patient.patient)
+        ClinicalSession.objects.create(patient=self.patient.patient)
 
     def test_get_clinical_sessions_for_a_patient(self):
         self._log_in(self.patient, '12345')

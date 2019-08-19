@@ -99,6 +99,10 @@ class User(AbstractUser):
     def related_patients(self):
         return self.type.related_patients
 
+    @property
+    def related_medic(self):
+        return self.type.related_medic
+
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
@@ -113,6 +117,10 @@ class Medic(models.Model):
     def related_patients(self) -> [User]:
         return User.objects.filter(id__in=self.user.patients.values('id'))
 
+    @property
+    def related_medic(self) -> User:
+        return self.user
+
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='patient')
@@ -126,3 +134,7 @@ class Patient(models.Model):
     @property
     def related_patients(self) -> [User]:
         return User.objects.filter(id=self.user.id)
+
+    @property
+    def related_medic(self) -> User:
+        return self.current_medic
