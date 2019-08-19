@@ -2,10 +2,10 @@ from rest_framework import status
 from django.utils import timezone
 
 from ..utils.test_utils import APITestCase
-from .. import models
 from ..models import ClinicalSession, Image
 from ..utils.thumbnail import ThumbnailGenerator
 from users.models import User
+from .. import choices
 
 
 class TestImageAPI(APITestCase):
@@ -16,8 +16,7 @@ class TestImageAPI(APITestCase):
         self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
                                                 password='12345', current_medic=self.medic,
                                                 dni=564353, birth_date=timezone.now())
-        self.clinical_session = ClinicalSession.objects.create(status=models.PENDING,
-                                                               patient=self.patient.patient)
+        self.clinical_session = ClinicalSession.objects.create(patient=self.patient.patient)
         with self.get_file_descriptor() as file:
             self.content = file.read()
             self.thumbnail = ThumbnailGenerator(self.content).thumbnail
@@ -30,11 +29,11 @@ class TestImageAPI(APITestCase):
         self.assertTrue(len(self.thumbnail) < len(self.content))
 
     def test_image_data_on_database_is_encrypted(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         self.assertNotEquals(image._content, self.content)
 
     def test_thumbnail_data_on_database_is_encrypted(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         self.assertNotEquals(image._thumbnail, self.thumbnail)
 
     def test_create_image(self):
@@ -45,20 +44,20 @@ class TestImageAPI(APITestCase):
         self.assertEquals(Image.objects.get().content, self.content)
 
     def test_delete_image(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         response = self.client.delete(f'/api/v1/image/{image.id}')
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Image.objects.count(), 0)
 
     def test_get_image(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         response = self.client.get(f'/api/v1/image/{image.id}')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(type(response.content), bytes)
         self.assertEquals(response.content, self.content)
 
     def test_get_thumbnail(self):
-        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag='F')
+        image = Image.objects.create(content=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         response = self.client.get(f'/api/v1/image/{image.id}?thumbnail=true')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(type(response.content), bytes)

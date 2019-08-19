@@ -4,7 +4,6 @@ from django.urls import reverse
 from django.utils import timezone
 from datetime import datetime
 
-from .. import models
 from ..models import ClinicalSession
 from users.models import User, SecretQuestion
 
@@ -16,7 +15,7 @@ class TestWebView(TestCase):
                                               dni=39203040, birth_date=timezone.now())
         self.patient = User.objects.create_user(username='juan', password='1234', current_medic=self.medic,
                                                 dni=728489, birth_date=timezone.now())
-        self.session = ClinicalSession.objects.create(status=models.PENDING, patient=self.patient.patient)
+        self.session = ClinicalSession.objects.create(patient=self.patient.patient)
 
     def test_index_page(self):
         url = reverse('index')
