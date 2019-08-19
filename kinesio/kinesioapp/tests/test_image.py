@@ -62,3 +62,15 @@ class TestImageAPI(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(type(response.content), bytes)
         self.assertEquals(response.content, self.thumbnail)
+
+    def test_images_by_tag(self):
+        Image.objects.create(content=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.FRONT)
+        Image.objects.create(content=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.BACK)
+        Image.objects.create(content=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.BACK)
+        Image.objects.create(content=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.RIGHT)
+        self.assertEquals(len(Image.objects.classified_by_tag()), 3)
+        self.assertEquals(sum([item['images'].count() for item in Image.objects.classified_by_tag()]), 4)
