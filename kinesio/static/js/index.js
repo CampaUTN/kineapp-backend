@@ -2,6 +2,7 @@ $(document).ready(function () {
     <!-- Sometimes Google Api charge slow and the button does not render -->
     <!-- This is the solution -->
     renderButton()
+
 });
 
 function signOut() {
@@ -63,4 +64,10 @@ function get_session(clinical_session_id) {
         });
 
     })
+}
+
+function close_clinical_history() {
+    $('#card_history').addClass('animated slideOutRight').one("animationend", function () {
+        $('#card_history').remove()
+    });
 }

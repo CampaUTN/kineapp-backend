@@ -1,5 +1,17 @@
 <div id="card_history" class="card animated slideInRight">
-    <h5 class="card-header white-text">Historia Clinica de {{ patient.last_name }} {{ patient.first_name }}</h5>
+    <div class="card-header dropdown">
+
+        <h5 class="white-text" style="display: inline">Historia Clinica de {{ patient.last_name }} {{ patient.first_name }}</h5>
+        <ul style="float: right; display: inline">
+            <i class="fas fa-history dropdown-toggle icon-card-header" id="timelapseButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></i>
+            <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="timelapseMenuButton">
+                <a class="dropdown-item text-center" href="#">Frontal</a>
+                <a class="dropdown-item text-center" href="#">De cote</a>
+            </div>
+            <i class="fas fa-times icon-card-header" onclick="close_clinical_history()"></i>
+        </ul>
+    </div>
+
     <div class="card-body">
         <div class="row">
             <div class="col-sm-6 ">
