@@ -15,3 +15,10 @@ function close_session() {
         $('#card_session').remove()
     });
 }
+
+
+$('[data-fancybox="preview"]').fancybox({
+  thumbs : {
+    autoStart : true
+  }
+});
