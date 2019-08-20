@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
-from users.models import SecretQuestion
+from users.models import SecretQuestion, Patient
 from .models import ClinicalSession
 from django.http import HttpResponse
 from django.contrib.auth import logout
@@ -42,8 +42,10 @@ def logout_view(request):
 class ClinicalHistoryView(generic.View):
     def get(self, request):
         patient_id = request.GET.get("patient_id", None)
+        patient = Patient.objects.get(pk=patient_id)
         sessions = ClinicalSession.objects.filter(patient_id=patient_id).order_by('-id')
-        return render(request, 'kinesioapp/users/clinical_history.html', {'sessions': sessions})
+        return render(request, 'kinesioapp/users/clinical_history.html',
+                      {'sessions': sessions, 'patient': patient.user})
 
 
 class ClinicalSessionView(generic.View):

@@ -18,10 +18,6 @@ $(function(){
     });
 });
 
-function get_clinical_history(clinical_history_id){
-    $('.data').load('clinical_history/?clinical_history_id=' + clinical_history_id)
-}
-
 function get_clinical_history_by_patient(patient_id){
     $('.data').load('clinical_history/?patient_id=' + patient_id)
 }

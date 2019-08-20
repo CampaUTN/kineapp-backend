@@ -53,10 +53,9 @@ class UserManager(DjangoUserManager):
 class User(AbstractUser):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
-    birth_day = models.DateTimeField(default=None, null=True)
-    gender = models.CharField(max_length=1, default=None, null=True)
-    photo = models.BinaryField(default=None, null=True)
-    dni = models.CharField(max_length=10, default=None, null=True)
+    picture_url = models.CharField(max_length=255, default=None, null=True)
+    dni = models.PositiveIntegerField(unique=True)  # National Identity Document of Argentina
+    birth_date = models.DateField()
 
     objects = UserManager()
 
@@ -100,6 +99,10 @@ class User(AbstractUser):
     def related_patients(self):
         return self.type.related_patients
 
+    @property
+    def related_medic(self):
+        return self.type.related_medic
+
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
@@ -114,6 +117,10 @@ class Medic(models.Model):
     def related_patients(self) -> [User]:
         return User.objects.filter(id__in=self.user.patients.values('id'))
 
+    @property
+    def related_medic(self) -> User:
+        return self.user
+
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='patient')
@@ -127,3 +134,7 @@ class Patient(models.Model):
     @property
     def related_patients(self) -> [User]:
         return User.objects.filter(id=self.user.id)
+
+    @property
+    def related_medic(self) -> User:
+        return self.current_medic

@@ -6,7 +6,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ('id',)
+        fields = ('id', 'tag')
 
 
 class ClinicalSessionSerializer(serializers.ModelSerializer):

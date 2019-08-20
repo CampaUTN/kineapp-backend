@@ -1,13 +1,16 @@
 from kinesioapp.utils.test_utils import APITestCase
 from rest_framework import status
+from django.utils import timezone
 
 from ..models import User
 
 
 class TestMedicsAPI(APITestCase):
     def setUp(self) -> None:
-        self.medic = User.objects.create_user(username='juan', password='1234', license='matricula #15433')
-        User.objects.create_user(username='maria22', license='matricula #44423')
+        self.medic = User.objects.create_user(username='juan', password='1234', license='matricula #15433',
+                                              dni=39203040, birth_date=timezone.now())
+        User.objects.create_user(username='maria22', license='matricula #44423',
+                                 dni=42203088, birth_date=timezone.now())
         self._log_in(self.medic, '1234')
 
     def test_get_all_medics(self):
@@ -35,7 +38,3 @@ class TestMedicsAPI(APITestCase):
         # Check whether the db was properly updated or not
         self.medic.refresh_from_db()
         self.assertEqual(self.medic.medic.license, 'new license')
-
-    # def test_dont_see_id_on_get(self): Set question on SetUp and fix this test (get secret_question, not *_id)
-    #     response = self.client.get('/api/v1/medics/')
-    #     self.assertEqual(response.json().get('data')[0].get('id', None), None)

@@ -75,11 +75,8 @@ nav {
     height: 50px;
 }
 
-.fa-google-play {
-    color: #1da1f2;
-}
-
-.fa-accessible-icon {
+.fa-google-play,
+.fa-accessible-icon{
     color: #1da1f2;
 }
 
@@ -153,5 +150,11 @@ div.col > .form-control::placeholder {
 .loader {
     min-height: 50px;
     min-width: 50px;
+    background: url("../images/loader.gif") no-repeat;
+}
+
+.profile-pic {
+    height: 150px;
+    width: 150px;
     background: url("../images/loader.gif") no-repeat;
 }

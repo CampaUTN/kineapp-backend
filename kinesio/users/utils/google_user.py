@@ -12,27 +12,30 @@ class GoogleUser:
         self.account_information = self._validate_and_generate_account_information(google_token)
 
     def _validate_and_generate_account_information(self, google_token):
-        try:
-
-            account_information = id_token.verify_oauth2_token(google_token, requests.Request())
-
-            if account_information['aud'] not in [settings.CLIENT_ID_ANDROID, settings.CLIENT_ID_WEB]:
-                raise ValueError('Could not verify audience.')
-            elif not self._token_is_valid(account_information):
-                raise InvalidTokenException
-            else:
-                return account_information
-
-        except ValueError:
+        account_information = self._get_account_information(google_token)
+        if account_information['aud'] not in [settings.CLIENT_ID_ANDROID, settings.CLIENT_ID_WEB] or not self._account_information_is_valid(account_information):
             raise InvalidTokenException
+        return account_information
 
     @staticmethod
-    def _token_is_valid(acc_info):
-        return all(key in acc_info for key in ['iss', 'sub', 'given_name', 'family_name', 'email'])
+    def _account_information_is_valid(acc_info):
+        return all(key in acc_info for key in ['aud', 'iss', 'sub', 'given_name', 'family_name', 'email', 'picture'])
+
+    @staticmethod
+    def _get_account_information(google_token):
+        try:
+            account_information = id_token.verify_oauth2_token(google_token, requests.Request())
+        except ValueError:
+            raise InvalidTokenException
+        return account_information
 
     @property
     def username_is_valid(self):
-        return self.account_information['iss'] in ['accounts.google.com', 'https://accounts.google.com']
+        return self.account_information['iss'].lower().split('://').pop().strip() == 'accounts.google.com'
+
+    @property
+    def picture_url(self):
+        return self.account_information['picture']
 
     @property
     def user_id(self):
