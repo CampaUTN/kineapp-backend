@@ -16,8 +16,8 @@
         <div class="row">
             <div class="col-sm-6 ">
                 <div class="text-center" style="margin-bottom: 20px;">
-                    {% if patient.photo %}
-                        <img src="data:image/jpeg;base64, {{ patient.photo }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block">
+                    {% if patient.picture_url %}
+                        <img src="{{ patient.picture_url }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block">
                     {% else %}
                         <i class="fas fa-user-md fa-8x" style="color: #355C7D; horiz-align: center"></i>
                     {% endif %}
