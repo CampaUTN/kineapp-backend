@@ -1,7 +1,7 @@
 $(document).ready(function () {
     <!-- Sometimes Google Api charge slow and the button does not render -->
     <!-- This is the solution -->
-    renderButton()
+    renderButton();
 
 });
 
@@ -69,5 +69,30 @@ function get_session(clinical_session_id) {
 function close_clinical_history() {
     $('#card_history').addClass('animated slideOutRight').one("animationend", function () {
         $('#card_history').remove()
+    });
+}
+
+function open_timelapse(tag, patient_id){
+    $('#timelapse').remove();
+
+    $.get('timelapse/?tag=' + tag + ";patient_id=" + patient_id).then(function (data) {
+        $('#card_history').append(data);
+        var fancyGallery = $("#timelapse").find("a");
+        fancyGallery.attr("rel","gallery").fancybox({
+            type: "image",
+            loop: true,
+            buttons: [
+                "zoom",
+                "slideShow",
+                "close"
+            ],
+            protect: true,
+            transitionDuration: 10000,
+            slideShow: {
+                autoStart: true,
+                speed: 100
+            },
+        });
+        fancyGallery.eq(0).click();
     });
 }
