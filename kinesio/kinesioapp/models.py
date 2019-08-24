@@ -79,7 +79,7 @@ class ImageQuerySet(models.QuerySet):
 class Image(models.Model):
     _content_base64_and_encrypted = models.BinaryField()
     _thumbnail_base64_and_encrypted = models.BinaryField()
-    clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
+    clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True, related_name='images')
     tag = models.CharField(max_length=20, choices=choices.images.get())
 
     objects = ImageQuerySet.as_manager()

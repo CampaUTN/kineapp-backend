@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 
 from .models import User, SecretQuestion
-from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
+from .serializers.serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
 from .utils.api_mixins import LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin

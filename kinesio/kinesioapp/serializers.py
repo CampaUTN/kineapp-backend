@@ -12,6 +12,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ThumbnailSerializer(ImageSerializer):
+    thumbnail = serializers.CharField(source='thumbnail_as_base64', read_only=True)
 
     class Meta:
         model = Image

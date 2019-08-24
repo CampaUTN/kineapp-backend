@@ -13,11 +13,38 @@ from .models import Image, ClinicalSession
 from .serializers import ClinicalSessionSerializer, ImageSerializer
 from .utils.download import download
 from . import choices
-from .utils.api_mixins import GenericPatchViewWithoutPut
+from .utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
 
 
 class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
+
+
+class ClinicalSessionsForPatientView(generics.ListAPIView):
+    serializer_class = ClinicalSessionSerializer
+    queryset = ClinicalSession.objects.all()
+
+    @swagger_auto_schema(
+        operation_id='clinical_sessions_for_patient',
+        manual_parameters=[
+            openapi.Parameter(
+                name='id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Patient's ID.",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Clinical sessions for the patient with the given ID.",
+                schema=ClinicalSessionSerializer(many=True),
+            )
+        }
+    )
+    def get(self, request, patient_id):
+        queryset = self.get_queryset().filter(patient_id=patient_id).accessible_by(request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
 class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
