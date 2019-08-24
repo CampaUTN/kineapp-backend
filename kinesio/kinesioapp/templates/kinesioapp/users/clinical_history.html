@@ -5,11 +5,11 @@
         <ul style="float: right; display: inline">
             <i class="fas fa-history dropdown-toggle icon-card-header" id="timelapseButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></i>
             <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="timelapseMenuButton">
-                <a class="dropdown-item text-center" onclick="open_timelapse('FRONT', {{ patient.pk }})">Frontal</a>
-                <a class="dropdown-item text-center" onclick="open_timelapse('BACK', {{ patient.pk }})">Trasera</a>
-                <a class="dropdown-item text-center" onclick="open_timelapse('RIGHT_SIDE', {{ patient.pk }})">Lado Derecho</a>
-                <a class="dropdown-item text-center" onclick="open_timelapse('LEFT_SIDE', {{ patient.pk }})">Lado Izquierdo</a>
-                <a class="dropdown-item text-center" onclick="open_timelapse('OTHER', {{ patient.pk }})">Otro</a>
+                <a class="dropdown-item text-center" onclick="open_timelapse('F', {{ patient.pk }})">Frontal</a>
+                <a class="dropdown-item text-center" onclick="open_timelapse('B', {{ patient.pk }})">Trasera</a>
+                <a class="dropdown-item text-center" onclick="open_timelapse('R', {{ patient.pk }})">Lado Derecho</a>
+                <a class="dropdown-item text-center" onclick="open_timelapse('L', {{ patient.pk }})">Lado Izquierdo</a>
+                <a class="dropdown-item text-center" onclick="open_timelapse('O', {{ patient.pk }})">Otro</a>
             </div>
             <i class="fas fa-times icon-card-header" onclick="close_clinical_history()"></i>
         </ul>
