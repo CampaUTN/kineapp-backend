@@ -48,7 +48,6 @@ class ClinicalSessionQuerySet(models.QuerySet):
 
 class ClinicalSession(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=choices.sessions.get(), default=choices.sessions.PENDING)
     # Fixme: uncomment when necessary: homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
 
