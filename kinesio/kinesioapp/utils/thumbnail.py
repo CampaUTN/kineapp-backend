@@ -4,12 +4,13 @@ import random
 import hashlib
 from io import BytesIO
 import os
+import base64
 
 
 class ThumbnailGenerator:
-    def __init__(self, image_content):
+    def __init__(self, image_content_as_base64: bytes):
         self._path_base = f'/tmpfs/{self._datetime}_{self._random_int}'
-        self._image_content = image_content
+        self._image_content = base64.b64decode(image_content_as_base64)
 
     @property
     def _datetime(self):
@@ -36,7 +37,7 @@ class ThumbnailGenerator:
             im.save(self._thumbail_path)
             with open(self._thumbail_path, 'rb') as thumbnail_file:
                 thumbnail_content = thumbnail_file.read()
-            return thumbnail_content
+            return base64.b64encode(thumbnail_content)
         finally:
             # To assure that the file will be deleted regardless any exception
             os.remove(self._thumbail_path)
