@@ -45,7 +45,16 @@ class TestClinicalSessionCreateAPI(APITestCase):
         self._log_in(self.medic, '12345')
 
     def test_create_clinical_session(self):
-        data = {'date': datetime.now(), 'status': 'P', 'patient_id': self.patient.id}
+        data = {'date': datetime.now(), 'patient_id': self.patient.id}
         response = self.client.post('/api/v1/clinical_sessions/', data, format='json')
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalSession.objects.count(), 1)
+
+    def test_update_clinical_session(self):
+        clinical_session = ClinicalSession.objects.create(patient=self.patient.patient)
+        new_description = 'new description'
+        data = {'description': new_description}
+        response = self.client.patch(f'/api/v1/clinical_sessions/{clinical_session.id}', data, format='json')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(ClinicalSession.objects.get(id=clinical_session.id).description, new_description)
+        self.assertEquals(response.json()['description'], new_description)

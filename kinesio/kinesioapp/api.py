@@ -9,14 +9,32 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Image
+from .models import Image, ClinicalSession
 from .serializers import ClinicalSessionSerializer, ImageSerializer
 from .utils.download import download
 from . import choices
+from .utils.api_mixins import GenericPatchViewWithoutPut
 
 
 class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
+
+
+class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
+    serializer_class = ClinicalSessionSerializer
+    queryset = ClinicalSession.objects.all()
+
+    @swagger_auto_schema(
+        operation_id='patch_clinical_session',
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Updated clinical session",
+                schema=ClinicalSessionSerializer(),
+            )
+        }
+    )
+    def patch(self, request, pk):
+        return super().patch(request, pk)
 
 
 class ImageDetailsAndDeleteAPIView(APIView):
