@@ -23,7 +23,7 @@ class TestClinicalSessionOnPatientAPI(APITestCase):
 
     def test_get_clinical_sessions_for_a_patient(self):
         self._log_in(self.patient, '12345')
-        response = self.client.get(f'/api/v1/patients/details/')
+        response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(len(response.json()['patient']['sessions']), 3)
 

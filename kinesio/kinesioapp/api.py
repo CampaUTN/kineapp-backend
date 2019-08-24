@@ -30,11 +30,6 @@ class ImageDetailsAndDeleteAPIView(APIView):
                 description="Image's ID.",
                 required=True
             ),
-            openapi.Parameter(
-                name='thumbnail',
-                in_=openapi.IN_QUERY,
-                type=openapi.TYPE_BOOLEAN,
-                description="Set it to true if you want to get the thumbnail instead of the full size image")
         ],
         responses={
             status.HTTP_401_UNAUTHORIZED: openapi.Response(
@@ -51,13 +46,12 @@ class ImageDetailsAndDeleteAPIView(APIView):
     def get(self, request, id):
         try:
             image = Image.objects.get(id=id)
-            thumbnail = request.GET.get('thumbnail', 'false').lower() == 'true'
         except Image.DoesNotExist:
             return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
-        return download(f'image_{image.pk}.jpg', image.content) if not thumbnail else download(f'thumbnail_{image.pk}.jpg', image.thumbnail)
+        return Response(ImageSerializer(image).data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
         operation_id='image_delete',
@@ -97,23 +91,20 @@ class ImageDetailsAndDeleteAPIView(APIView):
 
 
 class ImageCreateAPIView(APIView):
-    parser_classes = (MultiPartParser, JSONParser)
-
     @swagger_auto_schema(
         operation_id='image_create',
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
                 'clinical_session_id': openapi.Schema(type=openapi.TYPE_STRING),
-                'content': openapi.Schema(type=openapi.TYPE_FILE),
+                'content': openapi.Schema(type=openapi.TYPE_STRING, description='Image content as base64 string. Be careful to not include extra quotes.'),
                 'tag': openapi.Schema(type=openapi.TYPE_STRING, enum=[choices.images.initials()]),
             },
             required=['clinical_session_id', 'content', 'tag']
         ),
         responses={
             status.HTTP_400_BAD_REQUEST: openapi.Response(
-                description="""Missing or invalid clinical_session_id or tag. Also used for invalid or missing content (image).
-                               See the message returned with this status code for details about each case."""
+                description='Missing or invalid clinical_session_id, tag or content',
             ),
             status.HTTP_201_CREATED: openapi.Response(
                 description="Image created successfully.",
@@ -124,16 +115,13 @@ class ImageCreateAPIView(APIView):
     def post(self, request):
         try:
             clinical_session_id = request.data['clinical_session_id']
+            content_as_base64 = request.data['content']
             tag = request.data['tag']
         except KeyError:
-            return Response({'message': 'Missing or invalid clinical_session_id or tag'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            uploaded_file = request.data.get('content')
-            content = uploaded_file.read()
-        except AttributeError:
-            return Response({'message': 'Not possible to read \'content\'. Is it a file?'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Missing or invalid clinical_session_id, tag or content.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        image = Image.objects.create(content=content, clinical_session_id=clinical_session_id, tag=tag)
+        content_as_base64 = bytes(content_as_base64, 'utf-8')
+        image = Image.objects.create(content_as_base64=content_as_base64, clinical_session_id=clinical_session_id, tag=tag)
 
         return Response(ImageSerializer(image).data, status=status.HTTP_201_CREATED)
 
@@ -143,5 +131,7 @@ class ImageCreateAPIView(APIView):
 @permission_classes((AllowAny,))
 def image_hardcoded(request, id):
     with open('/kinesio/kinesio/kinesioapp/tests/resources/kinesio.jpg', 'rb') as file:
-        content = file.read()
-    return download(f'image_{id}.jpg', content)
+        import base64
+        from .utils.thumbnail import ThumbnailGenerator
+        content = base64.b64encode(file.read())
+    return Response({'content': content, 'thumbnail': ThumbnailGenerator(image_content_as_base64=content).thumbnail, 'id': 999, 'clinical_session_id': 888}, status=status.HTTP_200_OK)

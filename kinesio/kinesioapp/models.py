@@ -2,6 +2,7 @@ from django.db import models
 from cryptography.fernet import Fernet
 from django.conf import settings
 from typing import List
+import base64
 
 from kinesioapp import choices
 from users.models import User, Patient
@@ -58,10 +59,12 @@ class ClinicalSession(models.Model):
 
 
 class ImageQuerySet(models.QuerySet):
-    def create(self, content: bytes, **kwargs):
-        encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content)
-        encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content).thumbnail)
-        return super().create(_content=encrypted_content, _thumbnail=encrypted_thumbnail, **kwargs)
+    def create(self, content_as_base64: bytes, **kwargs):
+        encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content_as_base64)
+        encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content_as_base64).thumbnail)
+        return super().create(_content_base64_and_encrypted=encrypted_content,
+                              _thumbnail_base64_and_encrypted=encrypted_thumbnail,
+                              **kwargs)
 
     def by_tag(self, tag: str) -> models.QuerySet:
         return self.filter(tag=tag)
@@ -74,23 +77,23 @@ class ImageQuerySet(models.QuerySet):
 
 
 class Image(models.Model):
-    _content = models.BinaryField()
-    _thumbnail = models.BinaryField()
+    _content_base64_and_encrypted = models.BinaryField()
+    _thumbnail_base64_and_encrypted = models.BinaryField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
     tag = models.CharField(max_length=20, choices=choices.images.get())
 
     objects = ImageQuerySet.as_manager()
 
     def _decrypted_binary_field(self, field):
-        return Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field.tobytes())
+        return str(Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field.tobytes()))[2:-1]
 
     @property
-    def content(self) -> bytes:
-        return self._decrypted_binary_field(self._content)
+    def content_as_base64(self) -> str:
+        return self._decrypted_binary_field(self._content_base64_and_encrypted)
 
     @property
-    def thumbnail(self) -> bytes:
-        return self._decrypted_binary_field(self._thumbnail)
+    def thumbnail_as_base64(self) -> str:
+        return self._decrypted_binary_field(self._thumbnail_base64_and_encrypted)
 
     def can_access(self, user: User) -> bool:
         return self.clinical_session.can_access(user)
