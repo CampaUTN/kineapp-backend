@@ -153,12 +153,14 @@ def login(request, google_user_class=GoogleUser):
         properties={
             'google_token': openapi.Schema(type=openapi.TYPE_STRING,
                                            description="google token that allows the back-end to obtain: given_name, family_name, iss, sub and email"),
-            'license': openapi.Schema(type=openapi.TYPE_STRING,
-                                      description="Medic's license."),
+            'first_name': openapi.Schema(type=openapi.TYPE_STRING),
+            'last_name': openapi.Schema(type=openapi.TYPE_STRING),
             'birth_date': openapi.Schema(type=openapi.TYPE_STRING,
                                          description="Birth date (yyyy-mm-dd)."),
             'dni': openapi.Schema(type=openapi.TYPE_INTEGER,
                                   description="Argentinean DNI number."),
+            'license': openapi.Schema(type=openapi.TYPE_STRING,
+                                      description="Medic's license."),
             'current_medic': openapi.Schema(type=openapi.TYPE_INTEGER,
                                             description="Current medic ID of the patient.")
         },
@@ -180,6 +182,8 @@ def login(request, google_user_class=GoogleUser):
 @mock_google_user_on_tests
 def register(request, google_user_class=GoogleUser):
     google_token = request.data.get('google_token', None)
+    first_name = request.data.get('first_name', None)
+    last_name = request.data.get('last_name', None)
     license = request.data.get('license', None)
     secret_question_id = request.data.get('secret_question_id', None)
     answer = request.data.get('answer', None)
@@ -195,9 +199,9 @@ def register(request, google_user_class=GoogleUser):
     else:
         google_user = google_user_class(google_token)
         user_created = User.objects.create_user(username=google_user.user_id,
-                                                first_name=google_user.first_name,
+                                                first_name=google_user.first_name if first_name is None else first_name,
+                                                last_name=google_user.last_name if last_name is None else last_name,
                                                 password=answer,
-                                                last_name=google_user.last_name,
                                                 email=google_user.email,
                                                 birth_date=birth_date,
                                                 dni=dni,
