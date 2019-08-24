@@ -8,5 +8,6 @@ build:
 release:
   image: web
   command:
+    - chmod u+x deployment-tasks.sh && ./deployment-tasks.sh
 run:
     web: gunicorn --pythonpath kinesio kinesio.wsgi --log-file -
