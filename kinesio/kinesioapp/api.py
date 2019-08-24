@@ -131,5 +131,7 @@ class ImageCreateAPIView(APIView):
 @permission_classes((AllowAny,))
 def image_hardcoded(request, id):
     with open('/kinesio/kinesio/kinesioapp/tests/resources/kinesio.jpg', 'rb') as file:
-        content = file.read()
-    return download(f'image_{id}.jpg', content)
+        import base64
+        from .utils.thumbnail import ThumbnailGenerator
+        content = base64.b64encode(file.read())
+    return Response({'content': content, 'thumbnail': ThumbnailGenerator(image_content_as_base64=content).thumbnail, 'id': 999, 'clinical_session_id': 888}, status=status.HTTP_200_OK)
