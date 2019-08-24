@@ -1,8 +1,5 @@
 <div id="timelapse" style="display: none;">
     {% for image in images %}
-        <!-- <a data-fancybox="images" class="loader" href="data:image/jpg;base64,{{ image.content }}"><img src="data:image/jpg;base64,{{ image.thumbnail }}"></a> -->
+        <a data-fancybox="images" class="loader" href="data:image/jpeg;base64,{{ image.content_as_base64 }}"><img src="data:image/jpeg;base64,{{ image.thumbnail_as_base64 }}"></a>
     {% endfor %}
-        <a data-fancybox="images" class="loader" href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg"></a>
-        <a data-fancybox="images" class="loader" href="https://www.buscouniversidad.com.ar/orientacion/wp-content/uploads/2016/05/Carrera-de-Kinesiolog%C3%ADa.jpg"><img src="https://www.buscouniversidad.com.ar/orientacion/wp-content/uploads/2016/05/Carrera-de-Kinesiolog%C3%ADa.jpg"></a>
-        <a data-fancybox="images" class="loader" href="http://www.diario-lacalle.com.ar/wp-content/uploads/2017/09/Kinesiolog%C3%ADa.jpg"><img src="http://www.diario-lacalle.com.ar/wp-content/uploads/2017/09/Kinesiolog%C3%ADa.jpg"></a>
 </div>

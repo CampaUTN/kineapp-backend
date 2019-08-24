@@ -87,10 +87,10 @@ function open_timelapse(tag, patient_id){
                 "close"
             ],
             protect: true,
-            transitionDuration: 10000,
+            transitionDuration: 5000,
             slideShow: {
                 autoStart: true,
-                speed: 100
+                speed: 10
             },
         });
         fancyGallery.eq(0).click();
