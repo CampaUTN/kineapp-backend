@@ -28,7 +28,7 @@ class ClinicalSessionsForPatientView(generics.ListAPIView):
         operation_id='clinical_sessions_for_patient',
         manual_parameters=[
             openapi.Parameter(
-                name='id', in_=openapi.IN_PATH,
+                name='patient_id', in_=openapi.IN_PATH,
                 type=openapi.TYPE_INTEGER,
                 description="Patient's ID.",
                 required=True
