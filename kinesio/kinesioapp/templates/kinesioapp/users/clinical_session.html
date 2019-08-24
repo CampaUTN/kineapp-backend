@@ -1,32 +1,27 @@
 {% load static %}
-<script src="{% static "js/clinical_session.js" %}"></script>
-
+<script src="{% static 'js/clinical_session.js' %}"></script>
 
 <div id="card_session" class="card animated slideInRight">
     <div class="card-header" style="margin: 0;">
-        <i class="fas fa-arrow-left" onclick="close_session()" style="display: inline-block; margin-bottom: 0px; margin-right: 5px;"></i>
-        <h5 class="white-text" style="display: inline-block; margin-bottom: 0px;">Sesión</h5>
+        <h5 class="white-text card-title">Sesión del día {{ clinical_session.date }}</h5>
+        <ul style="float:right">
+            <i class="fas fa-times icon-card-header" onclick="close_session()"></i>
+        </ul>
     </div>
     <div class="card-body">
         <div class="row" style="display:inline-block; height: 30%; margin-left: 15px;">
             <div class="card-title">
-                <h5>Descripción de la session</h5>
+                <p>Observaciones: {{ clinical_session.description }}</p>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="height: 100%;">
             <div class="col">
                 <i class="fas fa-arrow-circle-left prev"></i>
             </div>
             <div class="multiple-items col-lg-10">
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 1"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 2"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 3"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 4"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 5"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 6"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 7"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 8"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
-                <a data-fancybox="gallery" class="loader view overlay zoom " href="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" data-caption="Foto Ejemplo 9"><img src="https://mdbootstrap.com/img/Photos/Slides/img%20(54).jpg" class="img-fluid z-depth-1" style="margin-bottom: 5px;" alt="thumbnail"></a>
+                {% for image in clinical_session.images.all %}
+                <a data-fancybox="preview" class="loader view overlay zoom " href="data:image/jpeg;base64,{{ image.content_as_base64 }}"><img src="data:image/jpeg;base64,{{ image.thumbnail_as_base64 }}" class="img-fluid z-depth-1" style="margin-bottom: 5px;"></a>
+                {% endfor %}
             </div>
             <div class="col">
                 <i class="fas fa-arrow-circle-right next"></i>

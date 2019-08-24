@@ -8,8 +8,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 
+from ..serializers import ThumbnailSerializer
 from ..models import Image
-from ..serializers import ImageSerializer, ThumbnailSerializer
+from ..serializers import ImageSerializer
 from .. import choices
 
 
