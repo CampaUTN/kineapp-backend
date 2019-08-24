@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
 from users.models import SecretQuestion, Patient
-from .models import ClinicalSession
+from .models import ClinicalSession, Image
 from django.http import HttpResponse
 from django.contrib.auth import logout
 
@@ -51,4 +51,14 @@ class ClinicalHistoryView(generic.View):
 class ClinicalSessionView(generic.View):
     def get(self, request):
         clinical_session_id = request.GET.get("clinical_session_id", None)
-        return render(request, 'kinesioapp/users/clinical_session.html')
+        clinical_session = ClinicalSession.objects.get(pk=clinical_session_id)
+        return render(request, 'kinesioapp/users/clinical_session.html', {'clinical_session': clinical_session})
+
+
+class TimelapseView(generic.View):
+    def get(self, request):
+        tag = request.GET.get("tag", None)
+        patient_id = request.GET.get("patient_id", None)
+        images = Image.objects.filter(clinical_session__patient_id=patient_id, tag=tag)
+
+        return render(request, 'kinesioapp/users/timelapse.html', {'images': images})

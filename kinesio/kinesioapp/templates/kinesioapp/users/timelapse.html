@@ -1,0 +1,5 @@
+<div id="timelapse" style="display: none;">
+    {% for image in images %}
+        <a data-fancybox="images" class="loader" href="data:image/jpeg;base64,{{ image.content_as_base64 }}"><img src="data:image/jpeg;base64,{{ image.thumbnail_as_base64 }}"></a>
+    {% endfor %}
+</div>
