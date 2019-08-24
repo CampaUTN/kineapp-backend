@@ -67,6 +67,7 @@ class ClinicalSession(models.Model):
 
 class ImageQuerySet(models.QuerySet):
     def create(self, content_as_base64: bytes, **kwargs):
+        content_as_base64 = content_as_base64.replace(b'\\n', b'').replace(b'\n', b'')  # to fix a bug in the front end.
         encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content_as_base64)
         encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content_as_base64).thumbnail)
         return super().create(_content_base64_and_encrypted=encrypted_content,

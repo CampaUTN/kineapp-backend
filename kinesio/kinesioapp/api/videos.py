@@ -21,7 +21,7 @@ class UploadVideoAPIView(APIView):
 
     def post(self, request):
         try:
-            uploaded_file = request.data.get('file')
+            uploaded_file = request.data.get('content')
             name = request.data.get('name')
             medic_id = request.data.get('medic_id')
         except KeyError:
