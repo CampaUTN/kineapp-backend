@@ -118,14 +118,3 @@ class ImageCreateAPIView(APIView):
         content_as_base64 = bytes(content_as_base64, 'utf-8')
         image = Image.objects.create(content_as_base64=content_as_base64, clinical_session_id=clinical_session_id, tag=tag)
         return Response(ThumbnailSerializer(image).data, status=status.HTTP_201_CREATED)
-
-
-@csrf_exempt
-@api_view(["GET"])
-@permission_classes((AllowAny,))
-def image_hardcoded(request, id):
-    with open('/kinesio/kinesio/kinesioapp/tests/resources/kinesio.jpg', 'rb') as file:
-        import base64
-        from .utils.thumbnail import ThumbnailGenerator
-        content = base64.b64encode(file.read())
-    return Response({'content': content, 'thumbnail': ThumbnailGenerator(image_content_as_base64=content).thumbnail, 'id': 999, 'clinical_session_id': 888}, status=status.HTTP_200_OK)
