@@ -32,6 +32,9 @@ class VideoQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
         return self.filter(owner=user.related_medic)
 
+    def create(self, name: str, content: bytes, medic_id: int, **kwargs):
+        return super().create(name=name, content=content, owner=User.objects.get(id=medic_id), **kwargs)
+
 
 class Video(models.Model):
     name = models.CharField(max_length=255)
@@ -39,6 +42,10 @@ class Video(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
 
     objects = VideoQuerySet.as_manager()
+
+    @property
+    def url_to_stream(self):
+        return f'not/implemented/{self.id}'
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
@@ -85,7 +92,8 @@ class Image(models.Model):
     objects = ImageQuerySet.as_manager()
 
     def _decrypted_binary_field(self, field):
-        return str(Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field.tobytes()))[2:-1]
+        field = field.tobytes() if type(field) is not bytes else field
+        return str(Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field))[2:-1]
 
     @property
     def content_as_base64(self) -> str:

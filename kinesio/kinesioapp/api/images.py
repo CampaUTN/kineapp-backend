@@ -2,66 +2,15 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.views import APIView
 # For the hardcoded image only:
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Image, ClinicalSession
-from .serializers import ClinicalSessionSerializer, ImageSerializer
-from .utils.download import download
-from . import choices
-from .utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
-
-
-class ClinicalSessionAPIView(generics.CreateAPIView):
-    serializer_class = ClinicalSessionSerializer
-
-
-class ClinicalSessionsForPatientView(generics.ListAPIView):
-    serializer_class = ClinicalSessionSerializer
-    queryset = ClinicalSession.objects.all()
-
-    @swagger_auto_schema(
-        operation_id='clinical_sessions_for_patient',
-        manual_parameters=[
-            openapi.Parameter(
-                name='patient_id', in_=openapi.IN_PATH,
-                type=openapi.TYPE_INTEGER,
-                description="Patient's ID.",
-                required=True
-            ),
-        ],
-        responses={
-            status.HTTP_200_OK: openapi.Response(
-                description="Clinical sessions for the patient with the given ID.",
-                schema=ClinicalSessionSerializer(many=True),
-            )
-        }
-    )
-    def get(self, request, patient_id):
-        queryset = self.get_queryset().filter(patient_id=patient_id).accessible_by(request.user)
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-
-class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
-    serializer_class = ClinicalSessionSerializer
-    queryset = ClinicalSession.objects.all()
-
-    @swagger_auto_schema(
-        operation_id='patch_clinical_session',
-        responses={
-            status.HTTP_200_OK: openapi.Response(
-                description="Updated clinical session",
-                schema=ClinicalSessionSerializer(),
-            )
-        }
-    )
-    def patch(self, request, pk):
-        return super().patch(request, pk)
+from ..models import Image
+from ..serializers import ImageSerializer, ThumbnailSerializer
+from .. import choices
 
 
 class ImageDetailsAndDeleteAPIView(APIView):
@@ -131,7 +80,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
-        image_data = ImageSerializer(image).data
+        image_data = ThumbnailSerializer(image).data
         image.delete()
         return Response(image_data, status=status.HTTP_204_NO_CONTENT)
 
@@ -154,7 +103,7 @@ class ImageCreateAPIView(APIView):
             ),
             status.HTTP_201_CREATED: openapi.Response(
                 description="Image created successfully.",
-                schema=ImageSerializer()
+                schema=ThumbnailSerializer()
             )
         }
     )
@@ -168,8 +117,7 @@ class ImageCreateAPIView(APIView):
 
         content_as_base64 = bytes(content_as_base64, 'utf-8')
         image = Image.objects.create(content_as_base64=content_as_base64, clinical_session_id=clinical_session_id, tag=tag)
-
-        return Response(ImageSerializer(image).data, status=status.HTTP_201_CREATED)
+        return Response(ThumbnailSerializer(image).data, status=status.HTTP_201_CREATED)
 
 
 @csrf_exempt
