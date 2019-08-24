@@ -51,7 +51,7 @@ class ClinicalHistoryView(generic.View):
 class ClinicalSessionView(generic.View):
     def get(self, request):
         clinical_session_id = request.GET.get("clinical_session_id", None)
-        clinical_session = ClinicalSession.objects.get(clinical_session_id=clinical_session_id)
+        clinical_session = ClinicalSession.objects.get(pk=clinical_session_id)
         return render(request, 'kinesioapp/users/clinical_session.html', {'clinical_session': clinical_session})
 
 
