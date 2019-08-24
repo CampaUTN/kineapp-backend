@@ -50,6 +50,7 @@ class ClinicalSession(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     # Fixme: uncomment when necessary: homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
+    description = models.CharField(default='', max_length=511)
 
     objects = ClinicalSessionQuerySet.as_manager()
 

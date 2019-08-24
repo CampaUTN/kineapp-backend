@@ -25,4 +25,4 @@ class ClinicalSessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClinicalSession
-        fields = ('id', 'patient_id', 'date', 'images')
+        fields = ('id', 'patient_id', 'date', 'description', 'images')
