@@ -84,7 +84,8 @@ class ImageDetailsAndDeleteAPIView(APIView):
                 description="Invalid image id: Image not found"
             ),
             status.HTTP_200_OK: openapi.Response(
-                description="Downloads the image. Content type: application/octet-stream"
+                description='Image found and accessible.',
+                schema=ImageSerializer()
             ),
         }
     )
