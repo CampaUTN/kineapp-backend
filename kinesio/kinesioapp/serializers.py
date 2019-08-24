@@ -10,7 +10,7 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ('id', 'tag', 'content')
 
 
-class ThumbnailSerializer(ImageSerializer):
+class ThumbnailSerializer(serializers.ModelSerializer):
     thumbnail = serializers.CharField(source='thumbnail_as_base64', read_only=True)  # fixme remove if unnecessary
 
     class Meta:

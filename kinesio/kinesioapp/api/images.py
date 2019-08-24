@@ -68,7 +68,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
             ),
             status.HTTP_204_NO_CONTENT: openapi.Response(
                 description="Image deleted successfully.",
-                schema=ImageSerializer()
+                schema=ThumbnailSerializer()
             ),
         }
     )
@@ -82,7 +82,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
                             status=status.HTTP_401_UNAUTHORIZED)
         image_data = ThumbnailSerializer(image).data
         image.delete()
-        return Response(image_data, status=status.HTTP_204_NO_CONTENT)
+        return Response(image_data, status=status.HTTP_202_ACCEPTED)
 
 
 class ImageCreateAPIView(APIView):
