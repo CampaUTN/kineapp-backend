@@ -172,6 +172,7 @@ div.col > .form-control::placeholder {
     min-height: 50px;
     min-width: 50px;
     background: url("../images/loader.gif") no-repeat;
+    background-position: center;
 }
 
 .profile-pic {
