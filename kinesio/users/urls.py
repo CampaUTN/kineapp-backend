@@ -18,7 +18,6 @@ urlpatterns = [
 
     # Patients
     re_path(r'^api/v1/patients/?$', api.PatientListAPIView.as_view(), name='patients'),
-    re_path(r'^api/v1/patients/detail/(?P<pk>[0-9]+)/?', api.PatientDetailAPIView.as_view(), name='patient_detail'),
     re_path(r'^api/v1/patients/detail/?', api.CurrentPatientDetailUpdateAPIView.as_view(), name='current_patient_detail'),
 ]
 

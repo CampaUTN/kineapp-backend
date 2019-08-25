@@ -23,15 +23,30 @@ class TestClinicalSessionOnPatientAPI(APITestCase):
 
     def test_get_clinical_sessions_for_a_patient(self):
         self._log_in(self.patient, '12345')
-        response = self.client.get(f'/api/v1/patients/detail/')
+        response = self.client.get(f'/api/v1/clinical_sessions_for_patient/{self.patient.id}')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.json()['patient']['sessions']), 3)
+        self.assertEquals(len(response.json()['data']), 3)
 
     def test_get_clinical_sessions_for_patients_of_the_medic(self):
         self._log_in(self.medic, '12345')
-        response = self.client.get(f'/api/v1/patients/')
+        response = self.client.get(f'/api/v1/clinical_sessions_for_patient/{self.patient.id}')
         self.assertEquals(response.status_code, status.HTTP_200_OK)
-        self.assertEquals(len(response.json()['data'][0]['patient']['sessions']), 3)
+        self.assertEquals(len(response.json()['data']), 3)
+
+    def test_there_is_an_images_key(self):
+        self._log_in(self.patient, '12345')
+        response = self.client.get(f'/api/v1/clinical_sessions_for_patient/{self.patient.id}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertTrue('images' in response.json()['data'][0])
+
+    def test_do_not_get_clinical_sessions_for_other_patients(self):
+        another_medic = User.objects.create_user(username='Pedro', password='12345', first_name='juan',
+                                                 last_name='gomez', license='matricula #43587',
+                                                 dni=92030455, birth_date=timezone.now())
+        self._log_in(another_medic, '12345')
+        response = self.client.get(f'/api/v1/clinical_sessions_for_patient/{self.patient.id}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 0)
 
 
 class TestClinicalSessionCreateAPI(APITestCase):

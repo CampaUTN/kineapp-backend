@@ -19,7 +19,7 @@
                 <i class="fas fa-arrow-circle-left prev"></i>
             </div>
             <div class="multiple-items col-lg-10">
-                {% for image in clinical_session.image_set.all %}
+                {% for image in clinical_session.images.all %}
                 <a data-fancybox="preview" class="loader view overlay zoom " href="data:image/jpeg;base64,{{ image.content_as_base64 }}"><img src="data:image/jpeg;base64,{{ image.thumbnail_as_base64 }}" class="img-fluid z-depth-1" style="margin-bottom: 5px;"></a>
                 {% endfor %}
             </div>

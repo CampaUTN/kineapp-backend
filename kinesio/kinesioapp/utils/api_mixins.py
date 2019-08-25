@@ -20,3 +20,12 @@ class GenericPatchViewWithoutPut(APIView):
 
     def get_queryset(self):
         return self.queryset
+
+
+# fixme remove if unused
+class GenericListView(APIView):
+    """ Add a 'get' method to views in order to only get instances that are accessible by the logged user. """
+    def get(self, request):
+        queryset = self.get_queryset().accessible_by(request.user)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)

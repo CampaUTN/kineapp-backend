@@ -2,39 +2,16 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.views import APIView
 # For the hardcoded image only:
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Image, ClinicalSession
-from .serializers import ClinicalSessionSerializer, ImageSerializer
-from .utils.download import download
-from . import choices
-from .utils.api_mixins import GenericPatchViewWithoutPut
-
-
-class ClinicalSessionAPIView(generics.CreateAPIView):
-    serializer_class = ClinicalSessionSerializer
-
-
-class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
-    serializer_class = ClinicalSessionSerializer
-    queryset = ClinicalSession.objects.all()
-
-    @swagger_auto_schema(
-        operation_id='patch_clinical_session',
-        responses={
-            status.HTTP_200_OK: openapi.Response(
-                description="Updated clinical session",
-                schema=ClinicalSessionSerializer(),
-            )
-        }
-    )
-    def patch(self, request, pk):
-        return super().patch(request, pk)
+from ..serializers import ThumbnailSerializer
+from ..models import Image
+from ..serializers import ImageSerializer
+from .. import choices
 
 
 class ImageDetailsAndDeleteAPIView(APIView):
@@ -57,7 +34,8 @@ class ImageDetailsAndDeleteAPIView(APIView):
                 description="Invalid image id: Image not found"
             ),
             status.HTTP_200_OK: openapi.Response(
-                description="Downloads the image. Content type: application/octet-stream"
+                description='Image found and accessible.',
+                schema=ImageSerializer()
             ),
         }
     )
@@ -91,7 +69,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
             ),
             status.HTTP_204_NO_CONTENT: openapi.Response(
                 description="Image deleted successfully.",
-                schema=ImageSerializer()
+                schema=ThumbnailSerializer()
             ),
         }
     )
@@ -103,9 +81,9 @@ class ImageDetailsAndDeleteAPIView(APIView):
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
-        image_data = ImageSerializer(image).data
+        image_data = ThumbnailSerializer(image).data
         image.delete()
-        return Response(image_data, status=status.HTTP_204_NO_CONTENT)
+        return Response(image_data, status=status.HTTP_202_ACCEPTED)
 
 
 class ImageCreateAPIView(APIView):
@@ -126,7 +104,7 @@ class ImageCreateAPIView(APIView):
             ),
             status.HTTP_201_CREATED: openapi.Response(
                 description="Image created successfully.",
-                schema=ImageSerializer()
+                schema=ThumbnailSerializer()
             )
         }
     )
@@ -140,16 +118,4 @@ class ImageCreateAPIView(APIView):
 
         content_as_base64 = bytes(content_as_base64, 'utf-8')
         image = Image.objects.create(content_as_base64=content_as_base64, clinical_session_id=clinical_session_id, tag=tag)
-
-        return Response(ImageSerializer(image).data, status=status.HTTP_201_CREATED)
-
-
-@csrf_exempt
-@api_view(["GET"])
-@permission_classes((AllowAny,))
-def image_hardcoded(request, id):
-    with open('/kinesio/kinesio/kinesioapp/tests/resources/kinesio.jpg', 'rb') as file:
-        import base64
-        from .utils.thumbnail import ThumbnailGenerator
-        content = base64.b64encode(file.read())
-    return Response({'content': content, 'thumbnail': ThumbnailGenerator(image_content_as_base64=content).thumbnail, 'id': 999, 'clinical_session_id': 888}, status=status.HTTP_200_OK)
+        return Response(ThumbnailSerializer(image).data, status=status.HTTP_201_CREATED)

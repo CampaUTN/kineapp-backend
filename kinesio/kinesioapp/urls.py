@@ -1,6 +1,8 @@
 from django.urls import re_path
 from rest_framework.urlpatterns import format_suffix_patterns
-from . import views, api
+from . import views
+from kinesioapp.api import clinical_sessions, images, videos
+
 
 urlpatterns = [
     # Web Views
@@ -13,11 +15,11 @@ urlpatterns = [
     re_path(r'^timelapse/?$', views.TimelapseView.as_view(), name='timelapse_view'),
 
     # API
-    re_path(r'^api/v1/clinical_sessions/?$', api.ClinicalSessionAPIView.as_view(), name='clinical_session'),
-    re_path(r'^api/v1/clinical_sessions/(?P<pk>[0-9]+)/?', api.ClinicalSessionUpdateAPIView.as_view(), name='clinical_session_update'),
-    re_path(r'^api/v1/image/?$', api.ImageCreateAPIView.as_view(), name='image_create'),
-    re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', api.ImageDetailsAndDeleteAPIView.as_view(), name='image'),
-    re_path(r'^api/v1/image_test/(?P<id>[0-9]+)/?$', api.image_hardcoded, name='image_test'),
+    re_path(r'^api/v1/clinical_sessions/?$', clinical_sessions.ClinicalSessionAPIView.as_view(), name='clinical_session'),
+    re_path(r'^api/v1/clinical_sessions_for_patient/(?P<patient_id>[0-9]+)/?', clinical_sessions.ClinicalSessionsForPatientView.as_view(), name='clinical_sessions_for_patient'),
+    re_path(r'^api/v1/clinical_sessions/(?P<pk>[0-9]+)/?', clinical_sessions.ClinicalSessionUpdateAPIView.as_view(), name='clinical_session_update'),
+    re_path(r'^api/v1/image/?$', images.ImageCreateAPIView.as_view(), name='image_create'),
+    re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', images.ImageDetailsAndDeleteAPIView.as_view(), name='image'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

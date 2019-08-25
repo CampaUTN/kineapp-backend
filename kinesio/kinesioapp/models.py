@@ -32,6 +32,9 @@ class VideoQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
         return self.filter(owner=user.related_medic)
 
+    def create(self, name: str, content: bytes, medic_id: int, **kwargs):
+        return super().create(name=name, content=content, owner=User.objects.get(id=medic_id), **kwargs)
+
 
 class Video(models.Model):
     name = models.CharField(max_length=255)
@@ -39,6 +42,10 @@ class Video(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
 
     objects = VideoQuerySet.as_manager()
+
+    @property
+    def url_to_stream(self):
+        return f'not/implemented/{self.id}'
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
@@ -60,6 +67,7 @@ class ClinicalSession(models.Model):
 
 class ImageQuerySet(models.QuerySet):
     def create(self, content_as_base64: bytes, **kwargs):
+        content_as_base64 = content_as_base64.replace(b'\\n', b'').replace(b'\n', b'')  # to fix a bug in the front end.
         encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content_as_base64)
         encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content_as_base64).thumbnail)
         return super().create(_content_base64_and_encrypted=encrypted_content,
@@ -79,13 +87,14 @@ class ImageQuerySet(models.QuerySet):
 class Image(models.Model):
     _content_base64_and_encrypted = models.BinaryField()
     _thumbnail_base64_and_encrypted = models.BinaryField()
-    clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True)
+    clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True, related_name='images')
     tag = models.CharField(max_length=20, choices=choices.images.get())
 
     objects = ImageQuerySet.as_manager()
 
     def _decrypted_binary_field(self, field):
-        return str(Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field.tobytes()))[2:-1]
+        field = field.tobytes() if type(field) is not bytes else field
+        return str(Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field))[2:-1]
 
     @property
     def content_as_base64(self) -> str:
