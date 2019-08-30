@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Medic, Patient, User, SecretQuestion
+from ..models import Medic, Patient, User, SecretQuestion
 from kinesioapp.serializers import ClinicalSessionSerializer
 from rest_framework.authtoken.models import Token
 
@@ -22,15 +22,14 @@ class MedicTypeSerializer(serializers.ModelSerializer):
 
 class PatientTypeSerializer(serializers.ModelSerializer):
     current_medic_id = serializers.IntegerField(required=False)  # otherwise the drf-yasg detects it as required
-    sessions = ClinicalSessionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Patient
-        fields = ('current_medic_id', 'videos', 'sessions')
+        fields = ('current_medic_id', 'videos')
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(read_only=True, required=False)  # otherwise the drf-yasg detects it as required. fixme: same as password
+    id = serializers.IntegerField(read_only=True, required=False)  # otherwise the drf-yasg detects it as required. fixme: same as password
     is_active = serializers.BooleanField(read_only=True, required=False)
     email = serializers.CharField(read_only=True, required=False)
     # We need the specific fields on the superclass because sometimes we want to return an user but we don't know
@@ -42,10 +41,12 @@ class UserSerializer(serializers.ModelSerializer):
                                      required=False,  # otherwise the drf-yasg detects it as required. fixme: change auth method on drf-yasg, because the detection of HTTP Authorization scheme as "basic" is requestion for user and password even if write_only=True.
                                      style={'input_type': 'password'})
     picture_url = serializers.CharField(read_only=True, required=False)
+    dni = serializers.IntegerField(required=False)
+    birth_date = serializers.DateField(required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password',
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password',
                   'picture_url', 'dni', 'birth_date')
 
     def _want_to_set_patient_data(self, validated_data):
@@ -75,14 +76,14 @@ class UserSerializer(serializers.ModelSerializer):
 class PatientSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'patient', 'password',
+        fields = ('id', 'first_name', 'last_name', 'email', 'is_active', 'patient', 'password',
                   'picture_url', 'dni', 'birth_date')
 
 
 class MedicSerializer(UserSerializer):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'password',
+        fields = ('id', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'password',
                   'picture_url', 'dni', 'birth_date')
 
 

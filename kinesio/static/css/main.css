@@ -41,6 +41,16 @@ nav {
     background: #355C7D;
 }
 
+.nav-item {
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.dropdown-menu {
+    min-width: auto;
+    padding: auto;
+}
+
 .container {
     min-height: 100%;
     margin: 0;
@@ -91,8 +101,19 @@ nav {
     display:inline-block;
 }
 
+.card-title {
+    display: inline-block;
+    margin-bottom: 0;
+}
+
 .card-header {
     background: lightcoral;
+}
+
+.icon-card-header {
+    display: inline-block;
+    margin-bottom: 0px;
+    margin-right: 15px;
 }
 
 .list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
@@ -143,7 +164,7 @@ div.col > .form-control::placeholder {
     position:absolute;
 }
 
-.fa-arrow-left {
+.fa-times, .fa-history {
     color: white;
 }
 
@@ -151,6 +172,7 @@ div.col > .form-control::placeholder {
     min-height: 50px;
     min-width: 50px;
     background: url("../images/loader.gif") no-repeat;
+    background-position: center;
 }
 
 .profile-pic {
@@ -158,3 +180,5 @@ div.col > .form-control::placeholder {
     width: 150px;
     background: url("../images/loader.gif") no-repeat;
 }
+
+

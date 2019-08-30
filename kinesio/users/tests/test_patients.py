@@ -15,9 +15,9 @@ class TestPatientsAPI(APITestCase):
                                                 dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
         User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
 
-    def test_get_one_patient(self):
-        self._log_in(self.medic, '1234')
-        response = self.client.get(f'/api/v1/patients/detail/{self.patient.id}')
+    def test_get_current_patient(self):
+        self._log_in(self.patient, '1234')
+        response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['first_name'], 'facundo')
 

@@ -20,7 +20,9 @@
                 <a onclick="get_clinical_history_by_patient({{ patient.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ patient }}</a>
             {% endfor %}
         {% else %}
-            <a onclick="get_clinical_history_by_patient({{ user.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ user.patient.current_medic }}</a>
+            {% if user.patient.current_medic%}
+                <a onclick="get_clinical_history_by_patient({{ user.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ user.patient.current_medic }}</a>
+            {% endif %}
         {%  endif %}
     </div>
 </div>
