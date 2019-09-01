@@ -31,4 +31,4 @@ class ClinicalSessionSerializer(serializers.ModelSerializer):
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields = ('id', 'name', 'url_to_stream')
+        fields = ('id', 'name', 'url')

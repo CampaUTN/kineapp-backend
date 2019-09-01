@@ -21,6 +21,7 @@ urlpatterns = [
     re_path(r'^api/v1/clinical_sessions/(?P<pk>[0-9]+)/?', clinical_sessions.ClinicalSessionUpdateAPIView.as_view(), name='clinical_session_update'),
     re_path(r'^api/v1/image/?$', images.ImageCreateAPIView.as_view(), name='image_create'),
     re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', images.ImageDetailsAndDeleteAPIView.as_view(), name='image'),
+    re_path(r'^api/v1/video/?$', videos.VideoUploadView.as_view(), name='video_create'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
