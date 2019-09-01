@@ -51,7 +51,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
 
     @swagger_auto_schema(
         operation_id='image_delete',
-        operation_description='You will not be able to delete the image if the current user does not have access.',
+        operation_description='You will not be able to delete the image if the logged user does not have access.',
         manual_parameters=[
             openapi.Parameter(
                 name='id', in_=openapi.IN_PATH,
@@ -92,7 +92,7 @@ class ImageCreateAPIView(APIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'clinical_session_id': openapi.Schema(type=openapi.TYPE_STRING),
+                'clinical_session_id': openapi.Schema(type=openapi.TYPE_INTEGER),
                 'content': openapi.Schema(type=openapi.TYPE_STRING, description='Image content as base64 string. Be careful to not include extra quotes.'),
                 'tag': openapi.Schema(type=openapi.TYPE_STRING, enum=[choices.images.initials()]),
             },

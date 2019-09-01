@@ -29,6 +29,8 @@ class ClinicalSessionSerializer(serializers.ModelSerializer):
 
 
 class VideoSerializer(serializers.ModelSerializer):
+    url = serializers.CharField(read_only=True)
+
     class Meta:
         model = Video
         fields = ('id', 'name', 'url')
