@@ -6,6 +6,7 @@ from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.views import APIView
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 
 from ..models import Image, ClinicalSession, Video
@@ -29,6 +30,13 @@ class VideoUploadView(APIView):
         return Response(VideoSerializer(video).data, status=status.HTTP_201_CREATED)
 
 
-class DeleteVideoAPIView(generics.DestroyAPIView):
+class VideoDeleteAPIView(generics.DestroyAPIView):
     model = Video
     queryset = Video.objects.all()  # is it necessary?
+
+    def delete(self, request, *args, pk: int, **kwargs):
+        video = get_object_or_404(Video, pk=pk)
+        if video.owner != request.user:
+            return Response({'message': 'Not authorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return super().delete(request, *args, **kwargs)
