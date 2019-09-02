@@ -23,7 +23,7 @@ class IndexView(generic.View):
 
 class SecretQuestionView(generic.View):
     def get(self, request):
-        questions = SecretQuestion.objects.all()
+        questions = SecretQuestion.objects.order_by('description')
 
         return render(request, 'kinesioapp/login/secret_question.html', {"questions": questions})
 

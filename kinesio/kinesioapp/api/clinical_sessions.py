@@ -28,7 +28,7 @@ class ClinicalSessionsForPatientView(generics.ListAPIView):
         ],
         responses={
             status.HTTP_200_OK: openapi.Response(
-                description="Clinical sessions for the patient with the given ID.",
+                description="Clinical sessions for the patient with the given ID. If there is no matching session, the list will be empty.",
                 schema=ClinicalSessionSerializer(many=True),
             )
         }

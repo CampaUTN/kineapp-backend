@@ -49,6 +49,7 @@ class VideoUploadView(APIView):
 
 class VideoDeleteAPIView(generics.DestroyAPIView):
     model = Video
+    queryset = Video.objects.all()
 
     @swagger_auto_schema(
         operation_id='video_delete',
