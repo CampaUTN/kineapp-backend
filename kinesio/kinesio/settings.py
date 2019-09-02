@@ -191,3 +191,7 @@ LOGGING = {
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
 IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
+
+# Videos
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

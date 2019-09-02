@@ -8,6 +8,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
 from .models import User, SecretQuestion
 from .serializers.serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
@@ -93,6 +94,9 @@ def users_exists(request):
         status.HTTP_401_UNAUTHORIZED: openapi.Response(
             description="User is banned (max password attempts exceeded)."
         ),
+        status.HTTP_404_NOT_FOUND: openapi.Response(
+            description="Secret question not found."
+        ),
         status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
             description="Invalid credentials provided."
         )
@@ -112,7 +116,7 @@ def login(request, google_user_class=GoogleUser):
 
     # Check existence of both user and secret question
     google_user = google_user_class(google_token)
-    try:
+    try:  # do not use get_or_404 for the user and the secret because that may break both front ends. Keep it in this legacy way.
         user = User.objects.get(username=google_user.user_id)
         SecretQuestion.objects.get(id=secret_question_id)
     except User.DoesNotExist:
@@ -155,6 +159,8 @@ def login(request, google_user_class=GoogleUser):
                                            description="google token that allows the back-end to obtain: given_name, family_name, iss, sub and email"),
             'first_name': openapi.Schema(type=openapi.TYPE_STRING),
             'last_name': openapi.Schema(type=openapi.TYPE_STRING),
+            'secret_question_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            'answer': openapi.Schema(type=openapi.TYPE_STRING),
             'birth_date': openapi.Schema(type=openapi.TYPE_STRING,
                                          description="Birth date (yyyy-mm-dd)."),
             'dni': openapi.Schema(type=openapi.TYPE_INTEGER,
@@ -164,7 +170,7 @@ def login(request, google_user_class=GoogleUser):
             'current_medic': openapi.Schema(type=openapi.TYPE_INTEGER,
                                             description="Current medic ID of the patient.")
         },
-        required=['google_token', 'birth_date', 'dni']
+        required=['google_token', 'secret_question_id', 'answer', 'birth_date', 'dni']
     ),
     responses={
         status.HTTP_201_CREATED: openapi.Response(
@@ -182,14 +188,10 @@ def login(request, google_user_class=GoogleUser):
 @mock_google_user_on_tests
 def register(request, google_user_class=GoogleUser):
     google_token = request.data.get('google_token', None)
-    first_name = request.data.get('first_name', None)
-    last_name = request.data.get('last_name', None)
+    secret_question_id = request.data.get('secret_question_id')
+    answer = request.data.get('answer')
     license = request.data.get('license', None)
-    secret_question_id = request.data.get('secret_question_id', None)
-    answer = request.data.get('answer', None)
     current_medic = request.data.get('current_medic', None)
-    birth_date = request.data.get('birth_date', None)
-    dni = request.data.get('dni', None)
     if google_token is None:
         response = Response({'error': 'Missing token'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -199,12 +201,12 @@ def register(request, google_user_class=GoogleUser):
     else:
         google_user = google_user_class(google_token)
         user_created = User.objects.create_user(username=google_user.user_id,
-                                                first_name=google_user.first_name if first_name is None else first_name,
-                                                last_name=google_user.last_name if last_name is None else last_name,
+                                                first_name=request.data.get('first_name', google_user.first_name),
+                                                last_name=request.data.get('last_name', google_user.last_name),
                                                 password=answer,
                                                 email=google_user.email,
-                                                birth_date=birth_date,
-                                                dni=dni,
+                                                birth_date=request.data.get('birth_date'),
+                                                dni=request.data.get('dni'),
                                                 picture_url=google_user.picture_url,
                                                 license=license,
                                                 current_medic=current_medic,
@@ -247,17 +249,12 @@ class PatientDetailAPIView(APIView):
         }
     )
     def get(self, request, pk):
-        try:
-            patient = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            response = Response({'message': 'Patient does not exists'}, status=status.HTTP_404_NOT_FOUND)
+        patient = get_object_or_404(User, pk=pk)
+        if patient in request.user.related_patients:
+            response = Response(PatientSerializer(patient).data, status=status.HTTP_200_OK)
         else:
-            if patient in request.user.related_patients:
-                response = Response(PatientSerializer(patient).data, status=status.HTTP_200_OK)
-            else:
-                response = Response({'message': 'Patient not related to the logged in medic.'}, status=status.HTTP_401_UNAUTHORIZED)
-        finally:
-            return response
+            response = Response({'message': 'Patient not related to the logged in medic.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return response
 
 
 class CurrentPatientDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):

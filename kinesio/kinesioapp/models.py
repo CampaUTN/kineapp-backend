@@ -32,20 +32,20 @@ class VideoQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
         return self.filter(owner=user.related_medic)
 
-    def create(self, name: str, content: bytes, medic_id: int, **kwargs):
-        return super().create(name=name, content=content, owner=User.objects.get(id=medic_id), **kwargs)
+    def create(self, medic_id: int, **kwargs):
+        return super().create(owner=User.objects.get(id=medic_id), **kwargs)
 
 
 class Video(models.Model):
     name = models.CharField(max_length=255)
-    content = models.BinaryField()
+    content = models.FileField(upload_to='')
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
 
     objects = VideoQuerySet.as_manager()
 
     @property
-    def url_to_stream(self):
-        return f'not/implemented/{self.id}'
+    def url(self):
+        return self.content.url
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
@@ -67,7 +67,7 @@ class ClinicalSession(models.Model):
 
 class ImageQuerySet(models.QuerySet):
     def create(self, content_as_base64: bytes, **kwargs):
-        content_as_base64 = content_as_base64.replace(b'\\n', b'').replace(b'\n', b'')  # to fix a bug in the front end.
+        content_as_base64 = content_as_base64.replace(b'\\n', b'').replace(b'\n', b'')  # to fix a bug in the mobile front end.
         encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content_as_base64)
         encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content_as_base64).thumbnail)
         return super().create(_content_base64_and_encrypted=encrypted_content,

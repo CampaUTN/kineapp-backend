@@ -1,24 +1,41 @@
+from django.core.files.storage import FileSystemStorage
 from rest_framework import generics, status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.views import APIView
-# For the hardcoded image only:
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from django.views.decorators.csrf import csrf_exempt
-
-from ..models import Image, ClinicalSession, Video
-from ..serializers import ClinicalSessionSerializer, ImageSerializer, VideoSerializer
-from ..utils.download import download
-from .. import choices
-from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
+from django.shortcuts import get_object_or_404
 
 
-class UploadVideoAPIView(APIView):
-    parser_classes = (MultiPartParser,)
+from ..models import Video
+from ..serializers import VideoSerializer
 
+
+class VideoUploadView(APIView):
+    parser_classes = (MultiPartParser, JSONParser)  # It works without JSONParser, but drf-yasg fails to build the docs
+
+    @swagger_auto_schema(
+        operation_id='video_create',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'content': openapi.Schema(type=openapi.TYPE_FILE, description='Upload the video as a file.'),
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='Title of the video.'),
+                'medic_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+            },
+            required=['content', 'name', 'medic_id']
+        ),
+        responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Missing or invalid medic_id, name or content',
+            ),
+            status.HTTP_201_CREATED: openapi.Response(
+                description="Video created successfully.",
+                schema=VideoSerializer()
+            )
+        }
+    )
     def post(self, request):
         try:
             uploaded_file = request.data.get('content')
@@ -26,11 +43,40 @@ class UploadVideoAPIView(APIView):
             medic_id = request.data.get('medic_id')
         except KeyError:
             return Response({'message': 'Missing or invalid file, name or medic_id.'}, status=status.HTTP_400_BAD_REQUEST)
-        content = uploaded_file.read()
-        video = Video.objects.create(name=name, content=content, medic_id=medic_id)
+        video = Video.objects.create(name=name, content=uploaded_file, medic_id=medic_id)
         return Response(VideoSerializer(video).data, status=status.HTTP_201_CREATED)
 
 
-class DeleteVideoAPIView(generics.DestroyAPIView):
+class VideoDeleteAPIView(generics.DestroyAPIView):
     model = Video
-    queryset = Video.objects.all()  # is it necessary?
+    queryset = Video.objects.all()
+
+    @swagger_auto_schema(
+        operation_id='video_delete',
+        operation_description='You will not be able to delete the video if the logged user is not the owner.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Video's ID.",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to delete that video. Only the owner medic can delete this video."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid video id: Video not found"
+            ),
+            status.HTTP_204_NO_CONTENT: openapi.Response(
+                description="Image deleted successfully.",
+            ),
+        }
+    )
+    def delete(self, request, *args, pk: int, **kwargs):
+        video = get_object_or_404(Video, pk=pk)
+        if video.owner != request.user:
+            return Response({'message': 'Not authorized'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return super().delete(request, *args, **kwargs)
