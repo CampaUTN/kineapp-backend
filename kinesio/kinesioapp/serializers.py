@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ClinicalSession, Image, Video
+from .models import ClinicalSession, Image, Video, Exercise, Routine
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -34,3 +34,20 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ('id', 'name', 'url')
+
+
+class ExerciseSerializer(serializers.ModelSerializer):
+    video = VideoSerializer(read_only=True)
+    video_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Exercise
+        fields = ('id', 'name', 'description', 'video', 'video_id')
+
+
+class RoutineSerializer(serializers.ModelSerializer):
+    exercises = ExerciseSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Routine
+        fields = ('id', 'from_date', 'until_date', 'days', 'exercises')

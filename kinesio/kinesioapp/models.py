@@ -1,3 +1,4 @@
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from cryptography.fernet import Fernet
 from django.conf import settings
@@ -7,25 +8,6 @@ import base64
 from kinesioapp import choices
 from users.models import User, Patient
 from kinesioapp.utils.thumbnail import ThumbnailGenerator
-
-
-class Homework(models.Model):
-    from_date = models.DateTimeField()
-    to_date = models.DateTimeField()
-    periodicity = models.IntegerField()
-
-
-class HomeworkExercise(models.Model):
-    HOMEWORK_SESSION_STATUS_CHOICES = [
-        ('P', 'PENDING'),
-        ('D', 'DONE'),
-        ('C', 'CANCELLED')
-    ]
-
-    date = models.DateTimeField()
-    number_of_homework_session = models.IntegerField()
-    status = models.CharField(max_length=100, choices=HOMEWORK_SESSION_STATUS_CHOICES, default='PENDING')
-    homework = models.ForeignKey(Homework, on_delete=models.CASCADE, null=True)
 
 
 class VideoQuerySet(models.QuerySet):
@@ -44,8 +26,27 @@ class Video(models.Model):
     objects = VideoQuerySet.as_manager()
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self.content.url
+
+
+class Routine(models.Model):
+    from_date = models.DateField(auto_created=True)
+    until_date = models.DateField()
+    days = models.CharField(max_length=14, validators=[validate_comma_separated_integer_list])
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs) -> None:
+        if not all(choices.days.MONDAY < int(day) < choices.days.SUNDAY for day in self.days.split(',')):
+            raise Exception('Invalid day')
+        super().save(*args, **kwargs)
+
+
+class Exercise(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=511, default='')
+    routine = models.ForeignKey(Routine, on_delete=models.CASCADE, related_name='exercises')
+    video = models.ForeignKey(Video, on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
