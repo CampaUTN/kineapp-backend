@@ -3,6 +3,7 @@ from rest_framework import status
 from datetime import datetime
 
 from ..models import User
+from kinesioapp.models import Exercise
 
 
 class TestPatientsAPI(APITestCase):
@@ -14,11 +15,13 @@ class TestPatientsAPI(APITestCase):
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
                                                 dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
         User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
+        Exercise.objects.create(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
 
     def test_get_current_patient(self):
         self._log_in(self.patient, '1234')
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        breakpoint()
         self.assertEqual(response.json()['first_name'], 'facundo')
 
     def test_get_all_patients_of_the_current_medic(self):

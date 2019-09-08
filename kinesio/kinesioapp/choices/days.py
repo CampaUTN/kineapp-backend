@@ -22,3 +22,7 @@ DAYS_CHOICES = [
 
 def get() -> List[Tuple[int, str]]:
     return DAYS_CHOICES
+
+
+def is_valid(day):
+    return MONDAY <= day <= SUNDAY
