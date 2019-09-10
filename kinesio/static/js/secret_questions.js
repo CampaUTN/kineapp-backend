@@ -12,7 +12,6 @@ function check_answer(){
             answer_input.removeClass('animated bounce')
         });
         answer_input.popover('show');
-
     } else {
         let question_id = $('#questionSelector').val();
         let google_token=sessionStorage.google_token;
@@ -31,14 +30,15 @@ function check_answer(){
                 $('#modalGeneric').modal('hide').then(
                     $('#logo_index').addClass('animated fadeOutDown').one('animationend', function () {
                         location.reload()
+
                     }));
             },
             error: function(response){
                 answer_input.addClass('animated bounce');
-                let popover= answer_button.popover(
+                let popover= $('#answer_button').popover(
                     {content: response.responseJSON.message}
                 );
-                answer_button.popover('show')
+                $('#answer_button').popover('show');
             },
         });
 
