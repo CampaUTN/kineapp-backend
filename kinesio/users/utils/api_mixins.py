@@ -7,6 +7,9 @@ class LoggedUserPatchAPIViewMixin(APIView):
     """ Add a 'patch' method to views in order to do partial updated of the logged users,
         without requesting the user's PK."""
     def patch(self, request):
+        if request.user.is_patient:  # fixes front-end request to unassigned medics.
+            if request.data['patient']['current_medic_id'] == 0:
+                request.data['patient']['current_medic_id'] = None
         serializer = self.serializer_class(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
