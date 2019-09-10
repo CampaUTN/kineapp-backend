@@ -1,0 +1,52 @@
+from rest_framework import status
+from datetime import datetime
+
+from kinesioapp.utils.test_utils import APITestCase
+from users.models import User
+from kinesioapp.models import Exercise
+
+
+class TestExercisesOnPatientsAPI(APITestCase):
+    def setUp(self) -> None:
+        self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
+                                              dni=39203040, birth_date=datetime.now())
+        self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
+                                                      dni=42203088, birth_date=datetime.now())
+        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
+                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
+
+    def test_get_current_patient_without_exercises(self):
+        self._log_in(self.patient, '1234')
+        response = self.client.get(f'/api/v1/patients/detail/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['exercises'], {'0': [], '1': [], '2': [], '3': [],
+                                                                   '4': [], '5': [], '6': []})
+
+    def test_get_current_patient_with_an_exercise(self):
+        exercise = Exercise.objects.create(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
+        self._log_in(self.patient, '1234')
+        response = self.client.get(f'/api/v1/patients/detail/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['exercises'], {'0': [],
+                                                                   '1': [{'description': '', 'id': exercise.id, 'name': 'exercise', 'video': None}],
+                                                                   '2': [{'description': '', 'id': exercise.id, 'name': 'exercise', 'video': None}],
+                                                                   '3': [{'description': '', 'id': exercise.id, 'name': 'exercise', 'video': None}],
+                                                                   '4': [],
+                                                                   '5': [],
+                                                                   '6': []})
+
+    def test_get_current_patient_with_two_exercises(self):
+        first_exercise = Exercise.objects.create(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
+        second_exercise = Exercise.objects.create(days=[2, 4], patient=self.patient.patient, name='exercise 2')
+        self._log_in(self.patient, '1234')
+        response = self.client.get(f'/api/v1/patients/detail/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['exercises'], {'0': [],
+                                                                   '1': [{'description': '', 'id': first_exercise.id, 'name': 'exercise', 'video': None}],
+                                                                   '2': [{'description': '', 'id': first_exercise.id, 'name': 'exercise', 'video': None},
+                                                                         {'description': '', 'id': second_exercise.id, 'name': 'exercise 2', 'video': None}],
+                                                                   '3': [{'description': '', 'id': first_exercise.id, 'name': 'exercise', 'video': None}],
+                                                                   '4': [{'description': '', 'id': second_exercise.id, 'name': 'exercise 2', 'video': None}],
+                                                                   '5': [],
+                                                                   '6': []})
