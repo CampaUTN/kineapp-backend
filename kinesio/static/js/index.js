@@ -66,6 +66,10 @@ function get_session(clinical_session_id) {
     })
 }
 
+function get_videos() {
+    $('.data').load('videos/');
+}
+
 function close_clinical_history() {
     $('#card_history').addClass('animated slideOutRight').one("animationend", function () {
         $('#card_history').remove()

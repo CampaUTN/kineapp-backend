@@ -1,0 +1,34 @@
+{% load static %}
+<script src="{% static 'js/public_video.js' %}"></script>
+
+<div id="card_videos" class="card animated slideInRight">
+    <div class="card-header" style="margin: 0;">
+        <h5 class="white-text card-title">Mis Videos</h5>
+        <ul style="float:right">
+            <i class="fas fa-times icon-card-header" onclick="close_videos()"></i>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="row" style="height: 100%;">
+            <div class="col">
+                <i class="fas fa-arrow-circle-left prev"></i>
+            </div>
+            <div class="multiple-items col-lg-10">
+                {% for video in videos %}
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="video.path" allowfullscreen></iframe>
+                    </div>
+                {% endfor %}
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/v64KOxKVLVg" allowfullscreen></iframe>
+                </div>
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/v64KOxKVLVg" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="col">
+                <i class="fas fa-arrow-circle-right next"></i>
+            </div>
+        </div>
+    </div>
+</div>

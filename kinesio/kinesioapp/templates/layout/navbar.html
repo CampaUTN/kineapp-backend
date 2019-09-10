@@ -12,6 +12,12 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
+                {% if user.is_medic %}
+                    <li class="nav-item">
+                        <a class="nav-link" onclick="get_videos()">
+                            <i class="fas fa-video"></i> Videos </a>
+                    </li>
+                {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">

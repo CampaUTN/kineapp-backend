@@ -3,10 +3,7 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.views import APIView
-# For the hardcoded image only:
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 
 from ..serializers import ThumbnailSerializer
 from ..models import Image
@@ -40,10 +37,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
         }
     )
     def get(self, request, id):
-        try:
-            image = Image.objects.get(id=id)
-        except Image.DoesNotExist:
-            return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        image = get_object_or_404(Image, id=id)
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -51,7 +45,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
 
     @swagger_auto_schema(
         operation_id='image_delete',
-        operation_description='You will not be able to delete the image if the current user does not have access.',
+        operation_description='You will not be able to delete the image if the logged user does not have access.',
         manual_parameters=[
             openapi.Parameter(
                 name='id', in_=openapi.IN_PATH,
@@ -74,10 +68,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
         }
     )
     def delete(self, request, id):
-        try:
-            image = Image.objects.get(id=id)
-        except Image.DoesNotExist:
-            return Response({'message': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        image = get_object_or_404(Image, id=id)
         if not image.can_access(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -92,7 +83,7 @@ class ImageCreateAPIView(APIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'clinical_session_id': openapi.Schema(type=openapi.TYPE_STRING),
+                'clinical_session_id': openapi.Schema(type=openapi.TYPE_INTEGER),
                 'content': openapi.Schema(type=openapi.TYPE_STRING, description='Image content as base64 string. Be careful to not include extra quotes.'),
                 'tag': openapi.Schema(type=openapi.TYPE_STRING, enum=[choices.images.initials()]),
             },
