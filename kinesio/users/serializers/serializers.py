@@ -1,7 +1,9 @@
 from rest_framework import serializers
+
 from ..models import Medic, Patient, User, SecretQuestion
 from rest_framework.authtoken.models import Token
 from kinesioapp.serializers import ExerciseForDaySerializer
+
 
 class TokenSerializer(serializers.ModelSerializer):
     token = serializers.CharField(source='key', read_only=True)
