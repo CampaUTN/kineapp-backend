@@ -1,10 +1,12 @@
 <nav class="mb-1 navbar navbar-expand-lg navbar-dark">
     {% if user.is_authenticated %}
         <a class="navbar-brand disabled white-text">{{ user }}</a>
+        <ul class="nav navbar-nav navbar-center">
+            <li><a class="navbar-brand disabled white-text" style="font-family: 'Montserrat'">KineApp</a><img src="../../../static/images/logo.png" height="40" alt="KinesioApp Logo"></li>
+        </ul>
     {% else %}
-        <a class="navbar-brand disabled white-text">KineApp</a>
+        <a class="navbar-brand disabled white-text" style="font-family: 'Montserrat'">KineApp</a>
     {% endif %}
-
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4"
             aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
