@@ -33,43 +33,27 @@ class Video(models.Model):
 
 ###############################
 class ExerciseQuerySet(models.QuerySet):
-    def create(self, patient: Patient, days: Iterable[int], **kwargs):
+    def create_multiple(self, days: Iterable[int], **kwargs):
         if not days:
             raise Exception('At least one day should be specified for the exercise')
         elif any(not choices.days.is_valid(day) for day in days):
             raise Exception('At least one days is outside range of valid days [0;6].')
         else:
             with transaction.atomic():
-                exercise = super().create(**kwargs)
-                for day in days:
-                    ExerciseForDay.objects.create(day=day, exercise=exercise, patient=patient)
-        return exercise
+                exercises = [self.create(day=day, **kwargs) for day in days]
+        return exercises
 
 
 class Exercise(models.Model):
+    """ If an exercise should be done two times a week, we will create two different exercises:
+        one for each of those days. """
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=511, default='')
     video = models.ForeignKey(Video, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    day = models.PositiveSmallIntegerField()
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='exercises')
 
     objects = ExerciseQuerySet.as_manager()
-
-
-class ExerciseForDayQuerySet(models.QuerySet):
-    def create(self, day: int, **kwargs):
-        if not choices.days.is_valid(day):
-            raise Exception('Day is outside the valid range (0 to 6).')
-        return super().create(day=day, **kwargs)
-
-
-class ExerciseForDay(models.Model):
-    """ This class act as an intermediary table for the 'natural' many to many relation between patients and exercises.
-        Also, it includes a day when the patient should do such exercise.
-        This way of storing data is a trade off between performance and fulfillment of front-end requests. """
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='exercise_for_day')
-    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
-    day = models.PositiveSmallIntegerField()
-
-    objects = ExerciseForDayQuerySet.as_manager()
 
 
 ##############################

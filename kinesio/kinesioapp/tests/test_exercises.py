@@ -24,29 +24,29 @@ class TestExercisesOnPatientsAPI(APITestCase):
                                                                    '4': [], '5': [], '6': []})
 
     def test_get_current_patient_with_an_exercise(self):
-        exercise = Exercise.objects.create(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
+        exercises = Exercise.objects.create_multiple(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
         self._log_in(self.patient, '1234')
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['exercises'], {'0': [],
-                                                                   '1': [{'description': '', 'id': exercise.id, 'name': 'exercise', 'video': None}],
-                                                                   '2': [{'description': '', 'id': exercise.id, 'name': 'exercise', 'video': None}],
-                                                                   '3': [{'description': '', 'id': exercise.id, 'name': 'exercise', 'video': None}],
+                                                                   '1': [{'description': '', 'id': exercises[0].id, 'name': 'exercise', 'video': None}],
+                                                                   '2': [{'description': '', 'id': exercises[1].id, 'name': 'exercise', 'video': None}],
+                                                                   '3': [{'description': '', 'id': exercises[2].id, 'name': 'exercise', 'video': None}],
                                                                    '4': [],
                                                                    '5': [],
                                                                    '6': []})
 
     def test_get_current_patient_with_two_exercises(self):
-        first_exercise = Exercise.objects.create(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
-        second_exercise = Exercise.objects.create(days=[2, 4], patient=self.patient.patient, name='exercise 2')
+        first_exercises = Exercise.objects.create_multiple(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
+        second_exercises = Exercise.objects.create_multiple(days=[2, 4], patient=self.patient.patient, name='exercise 2')
         self._log_in(self.patient, '1234')
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['exercises'], {'0': [],
-                                                                   '1': [{'description': '', 'id': first_exercise.id, 'name': 'exercise', 'video': None}],
-                                                                   '2': [{'description': '', 'id': first_exercise.id, 'name': 'exercise', 'video': None},
-                                                                         {'description': '', 'id': second_exercise.id, 'name': 'exercise 2', 'video': None}],
-                                                                   '3': [{'description': '', 'id': first_exercise.id, 'name': 'exercise', 'video': None}],
-                                                                   '4': [{'description': '', 'id': second_exercise.id, 'name': 'exercise 2', 'video': None}],
+                                                                   '1': [{'description': '', 'id': first_exercises[0].id, 'name': 'exercise', 'video': None}],
+                                                                   '2': [{'description': '', 'id': second_exercises[0].id, 'name': 'exercise 2', 'video': None},
+                                                                         {'description': '', 'id': first_exercises[1].id, 'name': 'exercise', 'video': None}],
+                                                                   '3': [{'description': '', 'id': first_exercises[2].id, 'name': 'exercise', 'video': None}],
+                                                                   '4': [{'description': '', 'id': second_exercises[1].id, 'name': 'exercise 2', 'video': None}],
                                                                    '5': [],
                                                                    '6': []})
