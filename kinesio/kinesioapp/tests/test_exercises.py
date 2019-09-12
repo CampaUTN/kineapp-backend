@@ -29,9 +29,9 @@ class TestExercisesOnPatientsAPI(APITestCase):
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['exercises'], {'0': [],
-                                                                   '1': [{'description': '', 'id': exercises[0].id, 'name': 'exercise', 'video': None}],
-                                                                   '2': [{'description': '', 'id': exercises[1].id, 'name': 'exercise', 'video': None}],
-                                                                   '3': [{'description': '', 'id': exercises[2].id, 'name': 'exercise', 'video': None}],
+                                                                   '1': [{'description': '', 'id': exercises[0].id, 'name': 'exercise', 'video': None, 'done': False}],
+                                                                   '2': [{'description': '', 'id': exercises[1].id, 'name': 'exercise', 'video': None, 'done': False}],
+                                                                   '3': [{'description': '', 'id': exercises[2].id, 'name': 'exercise', 'video': None, 'done': False}],
                                                                    '4': [],
                                                                    '5': [],
                                                                    '6': []})
@@ -43,10 +43,10 @@ class TestExercisesOnPatientsAPI(APITestCase):
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['exercises'], {'0': [],
-                                                                   '1': [{'description': '', 'id': first_exercises[0].id, 'name': 'exercise', 'video': None}],
-                                                                   '2': [{'description': '', 'id': second_exercises[0].id, 'name': 'exercise 2', 'video': None},
-                                                                         {'description': '', 'id': first_exercises[1].id, 'name': 'exercise', 'video': None}],
-                                                                   '3': [{'description': '', 'id': first_exercises[2].id, 'name': 'exercise', 'video': None}],
-                                                                   '4': [{'description': '', 'id': second_exercises[1].id, 'name': 'exercise 2', 'video': None}],
+                                                                   '1': [{'description': '', 'id': first_exercises[0].id, 'name': 'exercise', 'video': None, 'done': False}],
+                                                                   '2': [{'description': '', 'id': second_exercises[0].id, 'name': 'exercise 2', 'video': None, 'done': False},
+                                                                         {'description': '', 'id': first_exercises[1].id, 'name': 'exercise', 'video': None, 'done': False}],
+                                                                   '3': [{'description': '', 'id': first_exercises[2].id, 'name': 'exercise', 'video': None, 'done': False}],
+                                                                   '4': [{'description': '', 'id': second_exercises[1].id, 'name': 'exercise 2', 'video': None, 'done': False}],
                                                                    '5': [],
                                                                    '6': []})

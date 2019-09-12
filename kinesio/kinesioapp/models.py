@@ -31,7 +31,6 @@ class Video(models.Model):
         return self.content.url
 
 
-###############################
 class ExerciseQuerySet(models.QuerySet):
     def create_multiple(self, days: Iterable[int], **kwargs):
         if not days:
@@ -52,11 +51,11 @@ class Exercise(models.Model):
     video = models.ForeignKey(Video, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     day = models.PositiveSmallIntegerField()
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='exercises')
+    done = models.BooleanField(default=False)
 
     objects = ExerciseQuerySet.as_manager()
 
 
-##############################
 class ClinicalSessionQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
         return self.filter(patient__user__in=user.related_patients)
