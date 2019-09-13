@@ -10,29 +10,43 @@ from ..utils.api_mixins import GenericPatchViewWithoutPut
 
 
 class ExerciseCreateAPIView(generics.CreateAPIView):
+    serializer_class = ExerciseSerializer
+
     @swagger_auto_schema(
         operation_id='exercise_create',
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'patient_id': openapi.Schema(type=openapi.TYPE_INTEGER),
-                'content': openapi.Schema(type=openapi.TYPE_STRING, description='Image content as base64 string. Be careful to not include extra quotes.'),
-                'tag': openapi.Schema(type=openapi.TYPE_INTEGER, enum=[0, 1, 2, 3, 4, 5, 6]),
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'description': openapi.Schema(type=openapi.TYPE_STRING),
+                'video_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the video of the exercise.'),
+                'days': openapi.Schema(type=openapi.TYPE_INTEGER, enum=[0, 1, 2, 3, 4, 5, 6])
             },
-            required=['clinical_session_id', 'content', 'tag']
+            required=['name', 'days']
         ),
         responses={
             status.HTTP_400_BAD_REQUEST: openapi.Response(
-                description='Missing or invalid clinical_session_id, tag or content',
+                description='Missing or invalid parameter',
             ),
             status.HTTP_201_CREATED: openapi.Response(
-                description="Image created successfully.",
-                schema=ThumbnailSerializer()
+                description="Exercise created successfully.",
+                schema=ExerciseSerializer(many=True)
             )
         }
     )
     def post(self, request):
+        if 'done' in request.POST:
+            request.POST.pop('done')
         return super().post(request)
+
+    def get_serializer(self, data):
+        exercises = []
+        days = data.pop('days')
+        for day in days:
+            exercise = data.copy()
+            exercise['day'] = day
+            exercises.append(exercise)
+        return self.serializer_class(data=exercises, many=True)
 
 
 class ExerciseUpdateAPIView(GenericPatchViewWithoutPut):
@@ -41,6 +55,16 @@ class ExerciseUpdateAPIView(GenericPatchViewWithoutPut):
 
     @swagger_auto_schema(
         operation_id='patch_exercise',
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'description': openapi.Schema(type=openapi.TYPE_STRING),
+                'video_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the video of the exercise.'),
+                'done': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Set it to True after the patient finishes the exercise.')
+            },
+            required=['name', 'days']
+        ),
         responses={
             status.HTTP_200_OK: openapi.Response(
                 description="Updated exercise",

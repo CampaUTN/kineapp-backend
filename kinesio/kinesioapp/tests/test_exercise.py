@@ -6,7 +6,7 @@ from users.models import User
 from kinesioapp.models import Exercise
 
 
-class TestExercisesOnPatientsAPI(APITestCase):
+class TestGetExercisesOnPatientsAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
                                               dni=39203040, birth_date=datetime.now())
@@ -50,3 +50,30 @@ class TestExercisesOnPatientsAPI(APITestCase):
                                                                    '4': [{'description': '', 'id': second_exercises[1].id, 'name': 'exercise 2', 'video': None, 'done': False}],
                                                                    '5': [],
                                                                    '6': []})
+
+
+class TestExercisesAPI(APITestCase):
+    def setUp(self) -> None:
+        self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
+                                              dni=39203040, birth_date=datetime.now())
+        self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
+                                                      dni=42203088, birth_date=datetime.now())
+        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
+                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
+
+    def test_create_exercise_for_one_day(self):
+        self._log_in(self.patient, '1234')
+        data = {'name': 'Arm exercise', 'description': '....', 'days': [2], 'patient_id': self.patient.id}
+        response = self.client.post('/api/v1/exercise/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.json()['data']), 1)
+        self.assertEqual(Exercise.objects.count(), 1)
+
+    def test_create_exercise_for_three_days(self):
+        self._log_in(self.patient, '1234')
+        data = {'name': 'Arm exercise', 'description': '....', 'days': [0, 4, 5], 'patient_id': self.patient.id}
+        response = self.client.post('/api/v1/exercise/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.json()['data']), 3)
+        self.assertEqual(Exercise.objects.count(), 3)
