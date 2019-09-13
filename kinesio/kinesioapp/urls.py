@@ -1,7 +1,7 @@
 from django.urls import re_path
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
-from kinesioapp.api import clinical_sessions, images, videos
+from kinesioapp.api import clinical_sessions, images, videos, exercises
 
 
 urlpatterns = [
@@ -23,6 +23,9 @@ urlpatterns = [
     re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', images.ImageDetailsAndDeleteAPIView.as_view(), name='image'),
     re_path(r'^api/v1/video/?$', videos.VideoUploadView.as_view(), name='video_create'),
     re_path(r'^api/v1/video/(?P<pk>[0-9]+)/?$', videos.VideoDeleteAPIView.as_view(), name='video_delete'),
+    re_path(r'^api/v1/exercise/?$', exercises.ExerciseCreateAPIView.as_view(), name='exercise_create'),
+    re_path(r'^api/v1/exercise/(?P<pk>[0-9]+)/?$', exercises.ExerciseUpdateAPIView.as_view(), name='exercise_update'),
+    # agregar borrado de ejeercicio
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

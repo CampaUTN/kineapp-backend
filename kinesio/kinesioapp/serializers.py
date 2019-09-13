@@ -39,7 +39,12 @@ class VideoSerializer(serializers.ModelSerializer):
 class ExerciseSerializer(serializers.ModelSerializer):
     video = VideoSerializer(read_only=True)
     video_id = serializers.IntegerField(write_only=True)
+    day = serializers.IntegerField(read_only=True)
+    days = serializers.ListField(write_only=True)
 
     class Meta:
         model = Exercise
-        fields = ('id', 'name', 'description', 'video', 'video_id', 'day', 'done')
+        fields = ('id', 'name', 'description', 'video', 'video_id', 'day', 'days', 'done')
+
+    def create(self, validated_data):
+        return Exercise.objects.create_multiple(**validated_data)
