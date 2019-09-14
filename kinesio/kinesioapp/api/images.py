@@ -10,9 +10,12 @@ from ..models import Image
 from users.models import User
 from ..serializers import ImageSerializer
 from .. import choices
+from ..utils.api_mixins import GenericDeleteView
 
 
-class ImageDetailsAndDeleteAPIView(APIView):
+class ImageDetailsAndDeleteAPIView(GenericDeleteView):
+    model_class = Image
+
     @swagger_auto_schema(
         operation_id='image_details',
         operation_description='You will not get the image if the current user does not have access.',
@@ -39,7 +42,7 @@ class ImageDetailsAndDeleteAPIView(APIView):
     )
     def get(self, request, id):
         image = get_object_or_404(Image, id=id)
-        if not image.can_access(request.user):
+        if not image.can_view(request.user):
             return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         return Response(ImageSerializer(image).data, status=status.HTTP_200_OK)
@@ -69,19 +72,14 @@ class ImageDetailsAndDeleteAPIView(APIView):
         }
     )
     def delete(self, request, id):
-        image = get_object_or_404(Image, id=id)
-        if not image.can_access(request.user):
-            return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        image_data = ThumbnailSerializer(image).data
-        image.delete()
-        return Response(image_data, status=status.HTTP_202_ACCEPTED)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().delete(request, id)
 
 
 class ImagesWithTagAPIView(APIView):
     @swagger_auto_schema(
-        operation_id='image_details',
-        operation_description='You will not get the image if the current user does not have access.',
+        operation_id='images_with_tag',
+        operation_description='This method returns the images matching the given patient and tag. You will not get the image if the current user does not have access.',
         manual_parameters=[
             openapi.Parameter(
                 name='patient_id', in_=openapi.IN_PATH,

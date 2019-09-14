@@ -31,6 +31,12 @@ class Video(models.Model):
     def url(self) -> str:
         return self.content.url
 
+    def can_edit_and_delete(self, user: User) -> bool:
+        return self.owner == user
+
+    def can_view(self, user: User) -> bool:
+        return self.can_edit_and_delete(user)
+
 
 class ExerciseQuerySet(models.QuerySet):
     def create_multiple(self, days: Iterable[int], **kwargs):
@@ -56,6 +62,12 @@ class Exercise(models.Model):
 
     objects = ExerciseQuerySet.as_manager()
 
+    def can_edit_and_delete(self, user: User) -> bool:
+        return self.patient.user in user.related_patients
+
+    def can_view(self, user: User) -> bool:
+        return self.can_edit_and_delete(user)
+
 
 class ClinicalSessionQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
@@ -69,8 +81,11 @@ class ClinicalSession(models.Model):
 
     objects = ClinicalSessionQuerySet.as_manager()
 
-    def can_access(self, user: User) -> bool:
+    def can_edit_and_delete(self, user: User) -> bool:
         return self.patient.user in user.related_patients
+
+    def can_view(self, user: User) -> bool:
+        return self.can_edit_and_delete(user)
 
 
 class ImageQuerySet(models.QuerySet):
@@ -115,5 +130,8 @@ class Image(models.Model):
     def thumbnail_as_base64(self) -> str:
         return self._decrypted_binary_field(self._thumbnail_base64_and_encrypted)
 
-    def can_access(self, user: User) -> bool:
-        return self.clinical_session.can_access(user)
+    def can_edit_and_delete(self, user: User) -> bool:
+        return self.clinical_session.can_edit_and_delete(user)
+
+    def can_view(self, user: User) -> bool:
+        return self.can_edit_and_delete(user)

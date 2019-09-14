@@ -47,7 +47,7 @@ class TestImageAPI(APITestCase):
     def test_delete_image(self):
         image = Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         response = self.client.delete(f'/api/v1/image/{image.id}')
-        self.assertEquals(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Image.objects.count(), 0)
 
     def test_get_image(self):

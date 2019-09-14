@@ -41,16 +41,20 @@ class ClinicalSessionsForPatientView(generics.ListAPIView):
 
 class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
     serializer_class = ClinicalSessionSerializer
-    queryset = ClinicalSession.objects.all()
+    model_class = ClinicalSession
 
     @swagger_auto_schema(
         operation_id='patch_clinical_session',
         responses={
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid clinical session id: Clinical session not found"
+            ),
             status.HTTP_200_OK: openapi.Response(
                 description="Updated clinical session",
                 schema=ClinicalSessionSerializer(),
             )
         }
     )
-    def patch(self, request, pk):
-        return super().patch(request, pk)
+    def patch(self, request, id):
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().patch(request, id)

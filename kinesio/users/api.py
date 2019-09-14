@@ -319,7 +319,6 @@ class CurrentMedicDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDet
         return super().patch(request)
 
 
-# Questions. Fixme: remove this view if there is no use for it.
 class SecretQuestionAPIView(generics.ListAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer

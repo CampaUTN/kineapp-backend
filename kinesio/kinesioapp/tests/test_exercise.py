@@ -77,3 +77,28 @@ class TestExercisesAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(len(response.json()['data']), 3)
         self.assertEqual(Exercise.objects.count(), 3)
+
+    def test_update_exercise(self):
+        self._log_in(self.medic, '1234')
+        exercise = Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
+        new_name = 'new name'
+        response = self.client.patch(f'/api/v1/exercise/{exercise.id}', {'name': new_name}, format='json')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(Exercise.objects.get(id=exercise.id).name, new_name)
+        self.assertEquals(response.json()['name'], new_name)
+
+    def test_delete_exercise(self):
+        self._log_in(self.medic, '1234')
+        exercise = Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
+        response = self.client.delete(f'/api/v1/exercise/{exercise.id}')
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEquals(Exercise.objects.count(), 0)
+
+    def test_fail_to_delete_a_exercise_of_other_patient(self):
+        another_patient = User.objects.create_user(username='raul55', first_name='raul', password='0000',
+                                                   dni=633836, birth_date=datetime.now(), current_medic=self.medic)
+        self._log_in(another_patient, '0000')
+        exercise = Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
+        response = self.client.delete(f'/api/v1/exercise/{exercise.id}')
+        self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEquals(Exercise.objects.count(), 1)
