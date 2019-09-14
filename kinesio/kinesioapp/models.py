@@ -35,7 +35,7 @@ class Video(models.Model):
         return self.owner == user
 
     def can_view(self, user: User) -> bool:
-        return self.can_edit_and_delete(user)
+        return self.owner == user.related_medic
 
 
 class ExerciseQuerySet(models.QuerySet):
