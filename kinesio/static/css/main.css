@@ -181,3 +181,14 @@ div.col > .form-control::placeholder {
     background: url("../images/loader.gif") no-repeat center;
 }
 
+.navbar-nav.navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translatex(-50%);
+}
+
+.center-info {
+    justify-content: center;
+    display: flex;
+    margin-bottom: 10px;
+}

@@ -10,7 +10,8 @@
         <div id="logo_index" class="text-center animated fadeInUp">
             <img src="{% static "images/logo.png" %}" class="img-fluid logo_image_index" alt="Temporal Logo" >
             <div style="margin-bottom: 15px">
-                <h1 class="display-2 logo_title_index" ><strong>KineApp</strong></h1>
+                <h1 class="display-2 logo_title_index" style="font-family: 'Montserrat'"><strong>KineApp</strong></h1>
+                <p class="display-2 logo_title_index" style="font-family: 'Montserrat'; font-size: 35px;"><strong>Un nuevo paradigma en la salud</strong></p>
             </div>
             <div class="google_center">
                 <div id="my-signin2"></div>
@@ -20,7 +21,16 @@
     {% else %}
         <div id="sidebar_row" class="row">
             <div class="col-md-4" style="padding-left: 25px">{% include "kinesioapp/users/sidebar.html" %}</div>
-            <div id="data_content" class="col-md-8 data" ></div>
+            <div id="data_content" class="col-md-8 data" >
+            <div style="margin-top: 125px;">
+                    <i class="fas fa-notes-medical fa-5x center-info white-text"></i>
+                    {% if user.is_medic %}
+                        <p class="text-center white-text" style="font-size:25px; padding: 5px;">Haz click sobre un paciente para observar su historial clínico.</p>
+                    {% else %}
+                        <p class="text-center white-text" style="font-size:25px; padding: 5px;">Haz click sobre un medico para observar tu historial clínico con el mismo.</p>
+                    {% endif %}
+            </div>
+            </div>
         </div>
     {% endif %}
 
