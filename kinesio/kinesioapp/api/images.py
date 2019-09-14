@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 
 from ..serializers import ThumbnailSerializer
 from ..models import Image
+from users.models import User
 from ..serializers import ImageSerializer
 from .. import choices
 
@@ -75,6 +76,46 @@ class ImageDetailsAndDeleteAPIView(APIView):
         image_data = ThumbnailSerializer(image).data
         image.delete()
         return Response(image_data, status=status.HTTP_202_ACCEPTED)
+
+
+class ImagesWithTagAPIView(APIView):
+    @swagger_auto_schema(
+        operation_id='image_details',
+        operation_description='You will not get the image if the current user does not have access.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='patient_id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Patient's ID.",
+                required=True
+            ),
+            openapi.Parameter(
+                name='tag', in_=openapi.IN_PATH,
+                type=openapi.TYPE_STRING,
+                description="Tag (Any of: F, R, L, B, O).",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to access those images. Only the patient and its medic can access them."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid patient id: Patient not found"
+            ),
+            status.HTTP_200_OK: openapi.Response(
+                description='Images found and accessible.',
+                schema=ImageSerializer(many=True)
+            ),
+        }
+    )
+    def get(self, request, patient_id, tag):
+        patient = get_object_or_404(User, id=patient_id)
+        images = Image.objects.of_patient(patient).by_tag(tag)
+        if patient not in request.user.related_patients:
+            return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        return Response(ImageSerializer(images, many=True).data, status=status.HTTP_200_OK)
 
 
 class ImageCreateAPIView(APIView):

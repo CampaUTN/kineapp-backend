@@ -5,6 +5,7 @@ from django.conf import settings
 from typing import List, Iterable
 import base64
 from functools import reduce
+from django.db.models.functions import Substr, Lower
 
 from kinesioapp import choices
 from users.models import User, Patient
@@ -82,7 +83,10 @@ class ImageQuerySet(models.QuerySet):
                               **kwargs)
 
     def by_tag(self, tag: str) -> models.QuerySet:
-        return self.filter(tag=tag)
+        return self.annotate(tag_initial=Lower(Substr('tag', 1, 1))).filter(tag_initial=tag[0].lower())
+
+    def of_patient(self, user: User) -> models.QuerySet:
+        return self.filter(clinical_session__patient__id__in=user.related_patients.values('id'))
 
     def has_images_with_tag(self, tag: str) -> bool:
         return self.by_tag(tag).exists()
