@@ -5,14 +5,14 @@ from drf_yasg import openapi
 
 from ..models import ClinicalSession
 from ..serializers import ClinicalSessionSerializer
-from ..utils.api_mixins import GenericPatchViewWithoutPut
+from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
 
 
 class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
 
-class ClinicalSessionsForPatientView(generics.ListAPIView):
+class ClinicalSessionsForPatientView(GenericListView):
     serializer_class = ClinicalSessionSerializer
     queryset = ClinicalSession.objects.all()
 
@@ -34,9 +34,7 @@ class ClinicalSessionsForPatientView(generics.ListAPIView):
         }
     )
     def get(self, request, patient_id):
-        queryset = self.get_queryset().filter(patient_id=patient_id).accessible_by(request.user)
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        return super().get(request, queryset=self.get_queryset().filter(patient_id=patient_id))
 
 
 class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):

@@ -16,6 +16,11 @@ class UserQuerySet(models.QuerySet):
     def patients(self):
         return self.exclude(patient__isnull=True)
 
+    def accessible_by(self, user):
+        users_with_access = user.related_patients
+        users_with_access |= User.objects.filter(id=user.related_medic.id)
+        return self.intersection(users_with_access)
+
 
 class MedicManager(models.Manager):
     def _fixed_license(self, license):
@@ -50,6 +55,9 @@ class UserManager(DjangoUserManager):
 
     def medics(self):
         return self.get_queryset().medics()
+
+    def accessible_by(self, user):
+        return self.get_queryset().accessible_by(user)
 
 
 class User(AbstractUser, CanViewModelMixin):
@@ -132,7 +140,7 @@ class Patient(models.Model):
     current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
 
-    @property  # Just for Lean until he fixes something
+    @property  # todo remove. Just for Lean until he fixes something
     def videos(self):
         return []
 

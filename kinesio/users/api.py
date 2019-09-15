@@ -14,7 +14,7 @@ from .models import User, SecretQuestion
 from .serializers.serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
-from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView
+from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
 
 
 @swagger_auto_schema(
@@ -218,7 +218,10 @@ def register(request, google_user_class=GoogleUser):
 
 
 # Patients
-class PatientListAPIView(APIView):
+class PatientListAPIView(GenericListView):
+    serializer_class = PatientSerializer
+    queryset = User.objects.patients()
+
     @swagger_auto_schema(
         operation_id='get_related_patients',
         responses={
@@ -229,7 +232,8 @@ class PatientListAPIView(APIView):
         }
     )
     def get(self, request):
-        return Response(PatientSerializer(request.user.related_patients, many=True).data, status=status.HTTP_200_OK)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().get(request)
 
 
 class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):

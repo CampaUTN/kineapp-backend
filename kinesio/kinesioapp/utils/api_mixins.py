@@ -32,10 +32,14 @@ class GenericDeleteView(APIView):
 
 # fixme: remove if unused
 class GenericListView(APIView):
-    def get(self, request) -> Response:
-        queryset = self.get_queryset().accessible_by(request.user)
-        serializer = self.serializer_class(queryset, many=True)
+    def get(self, request, queryset=None) -> Response:
+        if queryset is None:
+            queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset.accessible_by(request.user), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    def get_queryset(self):
+        return self.queryset
 
 
 class GenericDetailsView(APIView):
