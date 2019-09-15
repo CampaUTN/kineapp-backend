@@ -21,7 +21,7 @@ class TestMedicsAPI(APITestCase):
     def test_update_medic_first_name(self):
         data = {'first_name': 'raul'}
         response = self.client.patch('/api/v1/medics/detail', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the response
         self.assertEqual(response.json()['first_name'], 'raul')
         # Check whether the db was properly updated or not
@@ -32,7 +32,7 @@ class TestMedicsAPI(APITestCase):
         self._log_in(self.medic, '1234')
         data = {'medic': {'license': 'new license'}}
         response = self.client.patch('/api/v1/medics/detail', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the response
         self.assertEqual(response.json()['medic']['license'], 'new license')
         # Check whether the db was properly updated or not

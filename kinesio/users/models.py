@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserMa
 from django.db import models, transaction
 from django.conf import settings
 
+from kinesioapp.utils.models_mixins import CanViewModelMixin
+
 
 class SecretQuestion(models.Model):
     description = models.CharField(max_length=255)
@@ -13,6 +15,11 @@ class UserQuerySet(models.QuerySet):
 
     def patients(self):
         return self.exclude(patient__isnull=True)
+
+    def accessible_by(self, user):
+        users_with_access = user.related_patients
+        users_with_access |= User.objects.filter(id=user.related_medic.id)
+        return self.intersection(users_with_access)
 
 
 class MedicManager(models.Manager):
@@ -49,8 +56,11 @@ class UserManager(DjangoUserManager):
     def medics(self):
         return self.get_queryset().medics()
 
+    def accessible_by(self, user):
+        return self.get_queryset().accessible_by(user)
 
-class User(AbstractUser):
+
+class User(AbstractUser, CanViewModelMixin):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
     picture_url = models.CharField(max_length=255, default=None, null=True)
@@ -106,6 +116,9 @@ class User(AbstractUser):
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
+    def can_edit_and_delete(self, user) -> bool:
+        return self == user
+
 
 class Medic(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -127,7 +140,7 @@ class Patient(models.Model):
     current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
                                       default=None, blank=True, null=True)
 
-    @property  # Just for Lean until he fixes something
+    @property  # todo remove. Just for Lean until he fixes something
     def videos(self):
         return []
 

@@ -7,11 +7,16 @@ from django.shortcuts import get_object_or_404
 
 from ..serializers import ThumbnailSerializer
 from ..models import Image
+from users.models import User
 from ..serializers import ImageSerializer
 from .. import choices
+from ..utils.api_mixins import GenericDeleteView, GenericDetailsView
 
 
-class ImageDetailsAndDeleteAPIView(APIView):
+class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
+    model_class = Image
+    serializer_class = ImageSerializer
+
     @swagger_auto_schema(
         operation_id='image_details',
         operation_description='You will not get the image if the current user does not have access.',
@@ -37,11 +42,8 @@ class ImageDetailsAndDeleteAPIView(APIView):
         }
     )
     def get(self, request, id):
-        image = get_object_or_404(Image, id=id)
-        if not image.can_access(request.user):
-            return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        return Response(ImageSerializer(image).data, status=status.HTTP_200_OK)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().get(request, id)
 
     @swagger_auto_schema(
         operation_id='image_delete',
@@ -55,6 +57,9 @@ class ImageDetailsAndDeleteAPIView(APIView):
             ),
         ],
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
             status.HTTP_401_UNAUTHORIZED: openapi.Response(
                 description="User not authorized to access that image. Only the patient and its medic can access the image."
             ),
@@ -68,13 +73,48 @@ class ImageDetailsAndDeleteAPIView(APIView):
         }
     )
     def delete(self, request, id):
-        image = get_object_or_404(Image, id=id)
-        if not image.can_access(request.user):
-            return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().delete(request, id)
+
+
+class ImagesWithTagAPIView(APIView):
+    @swagger_auto_schema(
+        operation_id='images_with_tag',
+        operation_description='This method returns the images matching the given patient and tag. You will not get the image if the current user does not have access.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='patient_id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Patient's ID.",
+                required=True
+            ),
+            openapi.Parameter(
+                name='tag', in_=openapi.IN_PATH,
+                type=openapi.TYPE_STRING,
+                description="Tag (Any of: F, R, L, B, O).",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to access those images. Only the patient and its medic can access them."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid patient id: Patient not found"
+            ),
+            status.HTTP_200_OK: openapi.Response(
+                description='Images found and accessible.',
+                schema=ImageSerializer(many=True)
+            ),
+        }
+    )
+    def get(self, request, patient_id, tag):
+        patient = get_object_or_404(User, id=patient_id)
+        images = Image.objects.of_patient(patient).by_tag(tag)
+        if patient not in request.user.related_patients:
+            return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
                             status=status.HTTP_401_UNAUTHORIZED)
-        image_data = ThumbnailSerializer(image).data
-        image.delete()
-        return Response(image_data, status=status.HTTP_202_ACCEPTED)
+        return Response(ImageSerializer(images, many=True).data, status=status.HTTP_200_OK)
 
 
 class ImageCreateAPIView(APIView):

@@ -1,31 +1,16 @@
-from django.db import models
+from django.core.validators import validate_comma_separated_integer_list
+from django.db import models, transaction
 from cryptography.fernet import Fernet
 from django.conf import settings
-from typing import List
+from typing import List, Iterable
 import base64
+from functools import reduce
+from django.db.models.functions import Substr, Lower
 
 from kinesioapp import choices
 from users.models import User, Patient
 from kinesioapp.utils.thumbnail import ThumbnailGenerator
-
-
-class Homework(models.Model):
-    from_date = models.DateTimeField()
-    to_date = models.DateTimeField()
-    periodicity = models.IntegerField()
-
-
-class HomeworkExercise(models.Model):
-    HOMEWORK_SESSION_STATUS_CHOICES = [
-        ('P', 'PENDING'),
-        ('D', 'DONE'),
-        ('C', 'CANCELLED')
-    ]
-
-    date = models.DateTimeField()
-    number_of_homework_session = models.IntegerField()
-    status = models.CharField(max_length=100, choices=HOMEWORK_SESSION_STATUS_CHOICES, default='PENDING')
-    homework = models.ForeignKey(Homework, on_delete=models.CASCADE, null=True)
+from kinesioapp.utils.models_mixins import CanViewModelMixin
 
 
 class VideoQuerySet(models.QuerySet):
@@ -44,8 +29,42 @@ class Video(models.Model):
     objects = VideoQuerySet.as_manager()
 
     @property
-    def url(self):
+    def url(self) -> str:
         return self.content.url
+
+    def can_edit_and_delete(self, user: User) -> bool:
+        return self.owner == user
+
+    def can_view(self, user: User) -> bool:
+        return self.owner == user.related_medic
+
+
+class ExerciseQuerySet(models.QuerySet):
+    def create_multiple(self, days: Iterable[int], **kwargs):
+        if not days:
+            raise Exception('At least one day should be specified for the exercise')
+        elif any(not choices.days.is_valid(day) for day in days):
+            raise Exception('At least one days is outside range of valid days [0;6].')
+        else:
+            with transaction.atomic():
+                exercises = [self.create(day=day, **kwargs) for day in days]
+        return exercises
+
+
+class Exercise(models.Model, CanViewModelMixin):
+    """ If an exercise should be done two times a week, we will create two different exercises:
+        one for each of those days. """
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=511, default='')
+    video = models.ForeignKey(Video, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    day = models.PositiveSmallIntegerField()
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='exercises')
+    done = models.BooleanField(default=False)
+
+    objects = ExerciseQuerySet.as_manager()
+
+    def can_edit_and_delete(self, user: User) -> bool:
+        return self.patient.user in user.related_patients
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
@@ -53,15 +72,14 @@ class ClinicalSessionQuerySet(models.QuerySet):
         return self.filter(patient__user__in=user.related_patients)
 
 
-class ClinicalSession(models.Model):
+class ClinicalSession(models.Model, CanViewModelMixin):
     date = models.DateTimeField(auto_now_add=True)
-    # Fixme: uncomment when necessary: homework = models.OneToOneField(Homework, on_delete=models.CASCADE, blank=True, null=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
     description = models.CharField(default='', max_length=511)
 
     objects = ClinicalSessionQuerySet.as_manager()
 
-    def can_access(self, user: User) -> bool:
+    def can_edit_and_delete(self, user: User) -> bool:
         return self.patient.user in user.related_patients
 
 
@@ -75,7 +93,10 @@ class ImageQuerySet(models.QuerySet):
                               **kwargs)
 
     def by_tag(self, tag: str) -> models.QuerySet:
-        return self.filter(tag=tag)
+        return self.annotate(tag_initial=Lower(Substr('tag', 1, 1))).filter(tag_initial=tag[0].lower())
+
+    def of_patient(self, user: User) -> models.QuerySet:
+        return self.filter(clinical_session__patient__id__in=user.related_patients.values('id'))
 
     def has_images_with_tag(self, tag: str) -> bool:
         return self.by_tag(tag).exists()
@@ -84,7 +105,7 @@ class ImageQuerySet(models.QuerySet):
         return [{'tag': tag, 'images': self.by_tag(tag)} for tag in choices.images.TAGS if self.has_images_with_tag(tag)]
 
 
-class Image(models.Model):
+class Image(models.Model, CanViewModelMixin):
     _content_base64_and_encrypted = models.BinaryField()
     _thumbnail_base64_and_encrypted = models.BinaryField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True, related_name='images')
@@ -104,5 +125,5 @@ class Image(models.Model):
     def thumbnail_as_base64(self) -> str:
         return self._decrypted_binary_field(self._thumbnail_base64_and_encrypted)
 
-    def can_access(self, user: User) -> bool:
-        return self.clinical_session.can_access(user)
+    def can_edit_and_delete(self, user: User) -> bool:
+        return self.clinical_session.can_edit_and_delete(user)

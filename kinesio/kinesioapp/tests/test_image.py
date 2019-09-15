@@ -47,7 +47,7 @@ class TestImageAPI(APITestCase):
     def test_delete_image(self):
         image = Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session, tag=choices.images.FRONT)
         response = self.client.delete(f'/api/v1/image/{image.id}')
-        self.assertEquals(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Image.objects.count(), 0)
 
     def test_get_image(self):
@@ -57,7 +57,7 @@ class TestImageAPI(APITestCase):
         self.assertEquals(type(response.json()['content']), str)
         self.assertEquals(bytes(response.json()['content'].encode('utf-8')), self.content)
 
-    def test_images_by_tag(self):
+    def test_images_classified_by_tag(self):
         Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
                              tag=choices.images.FRONT)
         Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
@@ -68,3 +68,18 @@ class TestImageAPI(APITestCase):
                              tag=choices.images.RIGHT)
         self.assertEquals(len(Image.objects.classified_by_tag()), 3)
         self.assertEquals(sum([item['images'].count() for item in Image.objects.classified_by_tag()]), 4)
+
+    def test_images_by_tag(self):
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.FRONT)
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.BACK)
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.BACK)
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.RIGHT)
+        response = self.client.get(f'/api/v1/image/{self.patient.id}/{choices.images.BACK}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 2)
+        self.assertEquals(bytes(response.json()['data'][0]['content'].encode('utf-8')), self.content)
+        self.assertEquals(response.json()['data'][0]['tag'], choices.images.BACK)

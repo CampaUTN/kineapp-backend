@@ -51,7 +51,7 @@ class TestIntegration(APITestCase):
         response = self.client.patch(f'/api/v1/patients/detail/',
                                      update_data,
                                      format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Get the user data and check whether it is updated or not
         response = self.client.get(f'/api/v1/patients/detail/')

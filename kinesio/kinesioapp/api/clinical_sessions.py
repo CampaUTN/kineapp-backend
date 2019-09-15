@@ -5,14 +5,14 @@ from drf_yasg import openapi
 
 from ..models import ClinicalSession
 from ..serializers import ClinicalSessionSerializer
-from ..utils.api_mixins import GenericPatchViewWithoutPut
+from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
 
 
 class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
 
-class ClinicalSessionsForPatientView(generics.ListAPIView):
+class ClinicalSessionsForPatientView(GenericListView):
     serializer_class = ClinicalSessionSerializer
     queryset = ClinicalSession.objects.all()
 
@@ -34,23 +34,31 @@ class ClinicalSessionsForPatientView(generics.ListAPIView):
         }
     )
     def get(self, request, patient_id):
-        queryset = self.get_queryset().filter(patient_id=patient_id).accessible_by(request.user)
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        return super().get(request, queryset=self.queryset.filter(patient_id=patient_id))
 
 
 class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
     serializer_class = ClinicalSessionSerializer
-    queryset = ClinicalSession.objects.all()
+    model_class = ClinicalSession
 
     @swagger_auto_schema(
         operation_id='patch_clinical_session',
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Clinical session not related to the logged in user."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid clinical session id: Clinical session not found"
+            ),
             status.HTTP_200_OK: openapi.Response(
                 description="Updated clinical session",
                 schema=ClinicalSessionSerializer(),
             )
         }
     )
-    def patch(self, request, pk):
-        return super().patch(request, pk)
+    def patch(self, request, id):
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().patch(request, id)

@@ -14,7 +14,7 @@ from .models import User, SecretQuestion
 from .serializers.serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, InvalidTokenException
-from .utils.api_mixins import LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin
+from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
 
 
 @swagger_auto_schema(
@@ -218,7 +218,10 @@ def register(request, google_user_class=GoogleUser):
 
 
 # Patients
-class PatientListAPIView(APIView):
+class PatientListAPIView(GenericListView):
+    serializer_class = PatientSerializer
+    queryset = User.objects.patients()
+
     @swagger_auto_schema(
         operation_id='get_related_patients',
         responses={
@@ -229,40 +232,20 @@ class PatientListAPIView(APIView):
         }
     )
     def get(self, request):
-        return Response(PatientSerializer(request.user.related_patients, many=True).data, status=status.HTTP_200_OK)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().get(request)
 
 
-class PatientDetailAPIView(APIView):
-    @swagger_auto_schema(
-        operation_id='get_patient',
-        responses={
-            status.HTTP_200_OK: openapi.Response(
-                description="Current patient data",
-                schema=PatientSerializer(),
-            ),
-            status.HTTP_401_UNAUTHORIZED: openapi.Response(
-                description="Patient not related to the logged in medic."
-            ),
-            status.HTTP_404_NOT_FOUND: openapi.Response(
-                description="Patient with the given id not found."
-            )
-        }
-    )
-    def get(self, request, pk):
-        patient = get_object_or_404(User, pk=pk)
-        if patient in request.user.related_patients:
-            response = Response(PatientSerializer(patient).data, status=status.HTTP_200_OK)
-        else:
-            response = Response({'message': 'Patient not related to the logged in medic.'}, status=status.HTTP_401_UNAUTHORIZED)
-        return response
-
-
-class CurrentPatientDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):
+class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):
+    model_class = User
     serializer_class = PatientSerializer
 
     @swagger_auto_schema(
         operation_id='get_current_patient',
         responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Users are not authorized to patch other users"
+            ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current patient data",
                 schema=PatientSerializer(),
@@ -270,11 +253,18 @@ class CurrentPatientDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserD
         }
     )
     def get(self, request):
-        return super().get(request)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().get(request, request.user.id)
 
     @swagger_auto_schema(
         operation_id='patch_current_patient',
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Users are not authorized to patch other users"
+            ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current patient data",
                 schema=PatientSerializer(),
@@ -282,7 +272,14 @@ class CurrentPatientDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserD
         }
     )
     def patch(self, request):
-        return super().patch(request)
+        self._unset_medic_if_necessary(request)
+        return super().patch(request, request.user.id)
+
+    def _unset_medic_if_necessary(self, request):
+        """ fixes front-end request to remove current_medic. """
+        if request.user.is_patient:
+            if request.data.get('patient', {}).get('current_medic_id') == 0:
+                request.data['patient']['current_medic_id'] = None
 
 
 # Medics
@@ -291,12 +288,16 @@ class MedicListAPIView(generics.ListAPIView):
     serializer_class = MedicSerializer
 
 
-class CurrentMedicDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDetailAPIViewMixin):
+class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):
+    model_class = User
     serializer_class = MedicSerializer
 
     @swagger_auto_schema(
         operation_id='get_current_medic',
         responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Users are not authorized to patch other users"
+            ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current medic data",
                 schema=MedicSerializer(),
@@ -304,11 +305,18 @@ class CurrentMedicDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDet
         }
     )
     def get(self, request):
-        return super().get(request)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().get(request, request.user.id)
 
     @swagger_auto_schema(
         operation_id='patch_current_medic',
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Users are not authorized to patch other users"
+            ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current patient data",
                 schema=MedicSerializer(),
@@ -316,10 +324,10 @@ class CurrentMedicDetailUpdateAPIView(LoggedUserPatchAPIViewMixin, LoggedUserDet
         }
     )
     def patch(self, request):
-        return super().patch(request)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().patch(request, request.user.id)
 
 
-# Questions. Fixme: remove this view if there is no use for it.
 class SecretQuestionAPIView(generics.ListAPIView):
     queryset = SecretQuestion.objects.all()
     serializer_class = SecretQuestionSerializer

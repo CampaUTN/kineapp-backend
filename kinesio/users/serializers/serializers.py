@@ -1,7 +1,8 @@
 from rest_framework import serializers
+
 from ..models import Medic, Patient, User, SecretQuestion
-from kinesioapp.serializers import ClinicalSessionSerializer
 from rest_framework.authtoken.models import Token
+from kinesioapp.serializers import ExerciseSerializer
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -22,10 +23,21 @@ class MedicTypeSerializer(serializers.ModelSerializer):
 
 class PatientTypeSerializer(serializers.ModelSerializer):
     current_medic_id = serializers.IntegerField(required=False)  # otherwise the drf-yasg detects it as required
+    exercises = ExerciseSerializer(read_only=True, many=True)
 
     class Meta:
         model = Patient
-        fields = ('current_medic_id', 'videos')
+        fields = ('current_medic_id', 'videos', 'exercises')  # fixme: remove 'videos' from here, because they are already on the exercises.
+
+    def to_representation(self, obj):
+        """ Method to return the exercises in a friendly way for the front end """
+        data = super().to_representation(obj)
+        exercises_per_day = {'0': [], '1': [], '2': [], '3': [], '4': [], '5': [], '6': []}  # days from monday (0) to sunday (6).
+        for exercise in data['exercises']:
+            day = exercise.pop('day')
+            exercises_per_day[str(day)].append(exercise)
+        data['exercises'] = exercises_per_day
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):

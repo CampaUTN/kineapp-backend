@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 
 from ..models import Video
 from ..serializers import VideoSerializer
+from ..utils.api_mixins import GenericDeleteView
 
 
 class VideoUploadView(APIView):
@@ -47,9 +48,8 @@ class VideoUploadView(APIView):
         return Response(VideoSerializer(video).data, status=status.HTTP_201_CREATED)
 
 
-class VideoDeleteAPIView(generics.DestroyAPIView):
-    model = Video
-    queryset = Video.objects.all()
+class VideoDeleteAPIView(GenericDeleteView):
+    model_class = Video
 
     @swagger_auto_schema(
         operation_id='video_delete',
@@ -74,9 +74,6 @@ class VideoDeleteAPIView(generics.DestroyAPIView):
             ),
         }
     )
-    def delete(self, request, *args, pk: int, **kwargs):
-        video = get_object_or_404(Video, pk=pk)
-        if video.owner != request.user:
-            return Response({'message': 'Not authorized'}, status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            return super().delete(request, *args, **kwargs)
+    def delete(self, request, id: int):
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().delete(request, id)
