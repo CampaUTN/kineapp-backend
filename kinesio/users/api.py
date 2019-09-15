@@ -232,27 +232,6 @@ class PatientListAPIView(APIView):
         return Response(PatientSerializer(request.user.related_patients, many=True).data, status=status.HTTP_200_OK)
 
 
-class PatientDetailAPIView(GenericDetailsView):
-    @swagger_auto_schema(
-        operation_id='get_patient',
-        responses={
-            status.HTTP_200_OK: openapi.Response(
-                description="Current patient data",
-                schema=PatientSerializer(),
-            ),
-            status.HTTP_401_UNAUTHORIZED: openapi.Response(
-                description="Patient not related to the logged in medic."
-            ),
-            status.HTTP_404_NOT_FOUND: openapi.Response(
-                description="Patient with the given id not found."
-            )
-        }
-    )
-    def get(self, request, id):
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
-        return super().get(request, id)
-
-
 class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):
     model_class = User
     serializer_class = PatientSerializer
