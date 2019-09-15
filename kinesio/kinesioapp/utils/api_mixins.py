@@ -5,8 +5,6 @@ from django.shortcuts import get_object_or_404
 
 
 class GenericPatchViewWithoutPut(APIView):
-    """ Add a 'patch' method to views in order to do partial updated of the logged users,
-        without requesting the user's PK."""
     def patch(self, request, id: int) -> Response:
         instance = get_object_or_404(self.model_class, id=id)
         if not instance.can_edit_and_delete(request.user):
@@ -34,8 +32,17 @@ class GenericDeleteView(APIView):
 
 # fixme: remove if unused
 class GenericListView(APIView):
-    """ Adds a 'get' method to views in order to only get instances that are accessible by the logged user. """
     def get(self, request) -> Response:
         queryset = self.get_queryset().accessible_by(request.user)
         serializer = self.serializer_class(queryset, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class GenericDetailsView(APIView):
+    def get(self, request, id) -> Response:
+        instance = get_object_or_404(self.model_class, id=id)
+        if not instance.can_view(request.user):
+            return Response(status=status.HTTP_401_UNAUTHORIZED,
+                            data={'message': 'The user has no rights to view the current object.'})
+        serializer = self.serializer_class(instance)
         return Response(status=status.HTTP_200_OK, data=serializer.data)

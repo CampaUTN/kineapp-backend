@@ -38,7 +38,7 @@ class TestPatientsAPI(APITestCase):
         self._log_in(self.patient, '1234')
         data = {'first_name': 'raul'}
         response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the response
         self.assertEqual(response.json()['first_name'], 'raul')
         # Check whether the db was properly updated or not
@@ -49,7 +49,7 @@ class TestPatientsAPI(APITestCase):
         self._log_in(self.patient, '1234')
         data = {'patient': {'current_medic_id': self.another_medic.id}}
         response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the response
         self.assertEqual(response.json()['patient']['current_medic_id'], self.another_medic.id)
         # Check whether the db was properly updated or not

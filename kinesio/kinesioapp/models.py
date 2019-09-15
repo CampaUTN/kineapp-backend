@@ -10,6 +10,7 @@ from django.db.models.functions import Substr, Lower
 from kinesioapp import choices
 from users.models import User, Patient
 from kinesioapp.utils.thumbnail import ThumbnailGenerator
+from kinesioapp.utils.models_mixins import CanViewModelMixin
 
 
 class VideoQuerySet(models.QuerySet):
@@ -50,7 +51,7 @@ class ExerciseQuerySet(models.QuerySet):
         return exercises
 
 
-class Exercise(models.Model):
+class Exercise(models.Model, CanViewModelMixin):
     """ If an exercise should be done two times a week, we will create two different exercises:
         one for each of those days. """
     name = models.CharField(max_length=255)
@@ -65,16 +66,13 @@ class Exercise(models.Model):
     def can_edit_and_delete(self, user: User) -> bool:
         return self.patient.user in user.related_patients
 
-    def can_view(self, user: User) -> bool:
-        return self.can_edit_and_delete(user)
-
 
 class ClinicalSessionQuerySet(models.QuerySet):
     def accessible_by(self, user: User) -> models.QuerySet:
         return self.filter(patient__user__in=user.related_patients)
 
 
-class ClinicalSession(models.Model):
+class ClinicalSession(models.Model, CanViewModelMixin):
     date = models.DateTimeField(auto_now_add=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
     description = models.CharField(default='', max_length=511)
@@ -83,9 +81,6 @@ class ClinicalSession(models.Model):
 
     def can_edit_and_delete(self, user: User) -> bool:
         return self.patient.user in user.related_patients
-
-    def can_view(self, user: User) -> bool:
-        return self.can_edit_and_delete(user)
 
 
 class ImageQuerySet(models.QuerySet):
@@ -110,7 +105,7 @@ class ImageQuerySet(models.QuerySet):
         return [{'tag': tag, 'images': self.by_tag(tag)} for tag in choices.images.TAGS if self.has_images_with_tag(tag)]
 
 
-class Image(models.Model):
+class Image(models.Model, CanViewModelMixin):
     _content_base64_and_encrypted = models.BinaryField()
     _thumbnail_base64_and_encrypted = models.BinaryField()
     clinical_session = models.ForeignKey(ClinicalSession, on_delete=models.CASCADE, null=True, related_name='images')
@@ -132,6 +127,3 @@ class Image(models.Model):
 
     def can_edit_and_delete(self, user: User) -> bool:
         return self.clinical_session.can_edit_and_delete(user)
-
-    def can_view(self, user: User) -> bool:
-        return self.can_edit_and_delete(user)

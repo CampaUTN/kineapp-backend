@@ -46,6 +46,12 @@ class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
     @swagger_auto_schema(
         operation_id='patch_clinical_session',
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Clinical session not related to the logged in user."
+            ),
             status.HTTP_404_NOT_FOUND: openapi.Response(
                 description="Invalid clinical session id: Clinical session not found"
             ),

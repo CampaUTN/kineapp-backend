@@ -59,6 +59,9 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView):
             ),
         ],
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
             status.HTTP_401_UNAUTHORIZED: openapi.Response(
                 description="User not authorized to access that image. Only the patient and its medic can access the image."
             ),

@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserMa
 from django.db import models, transaction
 from django.conf import settings
 
+from kinesioapp.utils.models_mixins import CanViewModelMixin
+
 
 class SecretQuestion(models.Model):
     description = models.CharField(max_length=255)
@@ -50,7 +52,7 @@ class UserManager(DjangoUserManager):
         return self.get_queryset().medics()
 
 
-class User(AbstractUser):
+class User(AbstractUser, CanViewModelMixin):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
     tries = models.IntegerField(default=0)
     picture_url = models.CharField(max_length=255, default=None, null=True)
@@ -105,6 +107,9 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
+
+    def can_edit_and_delete(self, user) -> bool:
+        return self == user
 
 
 class Medic(models.Model):

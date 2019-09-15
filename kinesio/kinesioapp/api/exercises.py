@@ -67,6 +67,12 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
             },
         ),
         responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="Exercise not related to the logged in user."
+            ),
             status.HTTP_404_NOT_FOUND: openapi.Response(
                 description="Invalid exercise id: Exercise not found"
             ),
@@ -77,6 +83,7 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
         }
     )
     def patch(self, request, id):
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().patch(request, id)
 
     @swagger_auto_schema(
@@ -102,4 +109,5 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
         }
     )
     def delete(self, request, id: int):
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().delete(request, id)
