@@ -10,11 +10,12 @@ from ..models import Image
 from users.models import User
 from ..serializers import ImageSerializer
 from .. import choices
-from ..utils.api_mixins import GenericDeleteView
+from ..utils.api_mixins import GenericDeleteView, GenericDetailsView
 
 
-class ImageDetailsAndDeleteAPIView(GenericDeleteView):
+class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
     model_class = Image
+    serializer_class = ImageSerializer
 
     @swagger_auto_schema(
         operation_id='image_details',
@@ -41,11 +42,8 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView):
         }
     )
     def get(self, request, id):
-        image = get_object_or_404(Image, id=id)
-        if not image.can_view(request.user):
-            return Response({'message': 'User not authorized to access that image. Only the patient and its medic can access the image.'},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        return Response(ImageSerializer(image).data, status=status.HTTP_200_OK)
+        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        return super().get(request, id)
 
     @swagger_auto_schema(
         operation_id='image_delete',

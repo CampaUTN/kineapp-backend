@@ -34,12 +34,9 @@ class GenericDeleteView(APIView):
 class GenericListView(APIView):
     def get(self, request, queryset=None) -> Response:
         if queryset is None:
-            queryset = self.get_queryset()
+            queryset = self.queryset
         serializer = self.serializer_class(queryset.accessible_by(request.user), many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
-
-    def get_queryset(self):
-        return self.queryset
 
 
 class GenericDetailsView(APIView):

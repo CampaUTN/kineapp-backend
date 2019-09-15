@@ -34,7 +34,7 @@ class ClinicalSessionsForPatientView(GenericListView):
         }
     )
     def get(self, request, patient_id):
-        return super().get(request, queryset=self.get_queryset().filter(patient_id=patient_id))
+        return super().get(request, queryset=self.queryset.filter(patient_id=patient_id))
 
 
 class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
