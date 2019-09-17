@@ -11,6 +11,17 @@ function signOut() {
     });
 }
 
+showModalLogin = function(response){
+    console.log(response.status)
+    if(response.status == 401) {
+        $('.modal-content').load('secret_questions/', function(){
+            $('#modalGeneric').modal({show:true});
+        });
+    } else {
+        console.log("There was an error.")
+    }
+};
+
 function onSuccess(googleUser) {
     var id_token = googleUser.getAuthResponse().id_token;
 
@@ -30,15 +41,8 @@ function onSuccess(googleUser) {
                 });
             }
         },
-        error: function(response){
-            if(response.status == 406) {
-                $('.modal-content').load('no_user/', function(){
-                    $('#modalGeneric').modal({show:true});
-                });
-            } else {
-                console.log("There was an error.")
-            }
-        }});
+        error: showModalLogin
+    });
 }
 
 function onFailure(error) {
@@ -58,16 +62,26 @@ function renderButton() {
 }
 
 function get_session(clinical_session_id) {
-    $.get('clinical_session/?clinical_session_id=' + clinical_session_id).then(function (data) {
-        $('#card_history').append(data).one("animationend", function(){
-            $('#card_session').removeClass('animated slideInRight')
-        });
-
-    })
+    $.ajax({
+        type: 'GET',
+        url: 'clinical_session/?clinical_session_id=' + clinical_session_id,
+        success: function(response) {
+            $('#card_history').append(response).one("animationend", function(){
+                $('#card_session').removeClass('animated slideInRight')
+            });
+        },
+        error: showModalLogin
+    });
 }
 
 function get_videos() {
-    $('.data').load('videos/');
+    $('.data').load('videos/', null, function (responseText, textStatus, xhr) {
+        if(xhr.status == 401 ){
+            $('.modal-content').load('secret_questions/',function(){
+                $('#modalGeneric').modal();
+            });
+        }
+    });
 }
 
 function close_clinical_history() {
@@ -79,24 +93,30 @@ function close_clinical_history() {
 function open_timelapse(tag, patient_id){
     $('#timelapse').remove();
 
-    $.get('timelapse/?tag=' + tag + ";patient_id=" + patient_id).then(function (data) {
-        $('#card_history').append(data);
-        var fancyGallery = $("#timelapse").find("a");
-        fancyGallery.attr("rel","gallery").fancybox({
-            type: "image",
-            loop: true,
-            buttons: [
-                "zoom",
-                "slideShow",
-                "close"
-            ],
-            protect: true,
-            transitionDuration: 5000,
-            slideShow: {
-                autoStart: true,
-                speed: 10
-            },
-        });
-        fancyGallery.eq(0).click();
+    $.ajax({
+        type: 'GET',
+        url: 'timelapse/?tag=' + tag + ";patient_id=" + patient_id,
+        success: function (data) {
+            $('#card_history').append(data);
+            var fancyGallery = $("#timelapse").find("a");
+            fancyGallery.attr("rel","gallery").fancybox({
+                type: "image",
+                loop: true,
+                buttons: [
+                    "zoom",
+                    "slideShow",
+                    "close"
+                ],
+                protect: true,
+                transitionDuration: 5000,
+                slideShow: {
+                    autoStart: true,
+                    speed: 10
+                },
+            });
+            fancyGallery.eq(0).click();
+        },
+        error: showModalLogin
     });
+
 }
