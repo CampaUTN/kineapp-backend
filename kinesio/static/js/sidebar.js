@@ -19,5 +19,11 @@ $(function(){
 });
 
 function get_clinical_history_by_patient(patient_id){
-    $('.data').load('clinical_history/?patient_id=' + patient_id)
+    $('.data').load('clinical_history/?patient_id=' + patient_id, null, function (responseText, textStatus, xhr) {
+        if(xhr.status == 401 ){
+            $('.modal-content').load('secret_questions/',function(){
+                $('#modalGeneric').modal();
+            });
+        }
+    })
 }

@@ -25,13 +25,11 @@ function check_answer(){
             },
             success: function(response) {
                 sessionStorage.setItem('token', response.token);
-                console.log('Log In Successfuly Summited ' + response.token);
 
-                $('#modalGeneric').modal('hide').then(
-                    $('#logo_index').addClass('animated fadeOutDown').one('animationend', function () {
-                        location.reload()
-
-                    }));
+                $('#modalGeneric').modal('hide');
+                $('#logo_index').addClass('animated fadeOutDown').one('animationend', function () {
+                    location.reload()
+                });
             },
             error: function(response){
                 answer_input.addClass('animated bounce');

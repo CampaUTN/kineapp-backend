@@ -55,6 +55,7 @@ CLIENT_ID_WEB = '989785370858-vo6q8dpnjs4d5gr08k6s0to4opp1repi.apps.googleuserco
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'users.middleware.SessionTimeoutMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -187,6 +188,13 @@ LOGGING = {
         },
     },
 }
+
+
+# Session Timeout
+LOGIN_URL = '/'
+SESSION_EXPIRE_SECONDS = 300  # 5 Minutes
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
 
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
