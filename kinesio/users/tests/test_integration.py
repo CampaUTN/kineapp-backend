@@ -27,7 +27,7 @@ class TestIntegration(APITestCase):
         # Try to log the user in with a wrong answer
         login_data = {'google_token': 'i_am_a_working_token', 'secret_question_id': self.question.id, 'answer': 'verde'}
         response = self.client.post('/api/v1/login/', login_data)
-        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # Try to update the user's personal information, but fail due to user not being logged in.
         update_data = {'first_name': 'raul'}

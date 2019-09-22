@@ -21,7 +21,8 @@ class ExerciseCreateAPIView(generics.CreateAPIView):
                 'name': openapi.Schema(type=openapi.TYPE_STRING),
                 'description': openapi.Schema(type=openapi.TYPE_STRING),
                 'video_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the video of the exercise.'),
-                'days': openapi.Schema(type=openapi.TYPE_INTEGER, enum=[0, 1, 2, 3, 4, 5, 6])
+                'days': openapi.Schema(type=openapi.TYPE_INTEGER, enum=[0, 1, 2, 3, 4, 5, 6]),
+                'patient_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='ID of the patient to whom the exercise is assigned to.'),
             },
             required=['name', 'days']
         ),

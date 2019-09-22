@@ -29,6 +29,11 @@ class PatientTypeSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ('current_medic_id', 'videos', 'exercises')  # fixme: remove 'videos' from here, because they are already on the exercises.
 
+    def update(self, instance, validated_data):
+        if 'current_medic_id' in validated_data and validated_data.get('current_medic_id') is not None and validated_data.get('current_medic_id') <= 0:
+            validated_data.update({'current_medic_id': None})
+        return super().update(instance, validated_data)
+
     def to_representation(self, obj):
         """ Method to return the exercises in a friendly way for the front end """
         data = super().to_representation(obj)

@@ -9,11 +9,12 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+import textwrap
 
 from .models import User, SecretQuestion
 from .serializers.serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
-from .utils.google_user import GoogleUser, InvalidTokenException
+from .utils.google_user import GoogleUser, GoogleRejectsTokenException, InformationNotAccessibleFromTokenException, InvalidAudienceException
 from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
 
 
@@ -56,7 +57,11 @@ def users_exists(request):
     else:
         try:
             google_user = GoogleUser(google_token=google_token)
-        except InvalidTokenException:
+        except InformationNotAccessibleFromTokenException:
+            response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+        except GoogleRejectsTokenException:
+            response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+        except InvalidAudienceException:
             response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             questions_serializer = SecretQuestionSerializer(SecretQuestion.objects.order_by('description'), many=True)
@@ -89,16 +94,17 @@ def users_exists(request):
             schema=TokenSerializer(),
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
-            description="Missing parameter, non existent user or non existent question."
-        ),
+            description="Missing parameter, non-integer secret_question_id, error related to google token (see response's message for details)",
+            schema=openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'message': openapi.Schema(type=openapi.TYPE_STRING)
+                })),
         status.HTTP_401_UNAUTHORIZED: openapi.Response(
-            description="User is banned (max password attempts exceeded)."
+            description="User is banned (max password attempts exceeded), the question or the answer are invalid."
         ),
         status.HTTP_404_NOT_FOUND: openapi.Response(
-            description="Secret question not found."
-        ),
-        status.HTTP_406_NOT_ACCEPTABLE: openapi.Response(
-            description="Invalid credentials provided."
+            description="User or Secret question not found."
         )
     })
 @csrf_exempt
@@ -114,35 +120,27 @@ def login(request, google_user_class=GoogleUser):
     except KeyError:
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Check existence of both user and secret question
-    google_user = google_user_class(google_token)
-    try:  # do not use get_or_404 for the user and the secret because that may break both front ends. Keep it in this legacy way.
-        user = User.objects.get(username=google_user.user_id)
-        SecretQuestion.objects.get(id=secret_question_id)
-    except User.DoesNotExist:
-        return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-    except SecretQuestion.DoesNotExist:
-        return Response({'message': 'Question not found'}, status=status.HTTP_400_BAD_REQUEST)
+    # Check whether google token is valid
+    try:
+        google_user = google_user_class(google_token)
+    except (InformationNotAccessibleFromTokenException, GoogleRejectsTokenException, InvalidAudienceException) as exception:
+        return Response({'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Check user and secret question existence
+    user = get_object_or_404(User, username=google_user.user_id)
+    get_object_or_404(SecretQuestion, id=secret_question_id)
 
     # Check user status (active / banned)
     if not user.is_active:
         return Response({'message': 'Your account has been blocked due to many access errors'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    # Check whether the question is correct
-    if user.secret_question.id != secret_question_id:
-        user.log_invalid_try()
-        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_401_UNAUTHORIZED)
-
-    # Check whether the password is correct
-    if user.check_password(answer):
+    # Check whether the question and the answer are correct
+    if user.check_question_and_answer(secret_question_id, answer):
         auth.authenticate(username=user.username, password=answer)
-        token, _ = Token.objects.get_or_create(user=user)
         auth.login(request, user)
-        user.log_valid_try()
-        return Response({'message': 'Logged in', 'token': token.key}, status=status.HTTP_200_OK)
+        return Response({'message': 'Logged in', 'token': user.get_or_create_token().key}, status=status.HTTP_200_OK)
     else:
-        user.log_invalid_try()
-        return Response({'message': 'Invalid username, question or answer'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({'message': 'Invalid question or answer (no more details are given due to security reasons).'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @swagger_auto_schema(
@@ -258,6 +256,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
 
     @swagger_auto_schema(
         operation_id='patch_current_patient',
+        operation_description='Patch the current patient. You can use 0 or negative numbers, as well as \'null\', to unset the current medic.',
         responses={
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 description='Invalid parameter',
@@ -272,14 +271,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
         }
     )
     def patch(self, request):
-        self._unset_medic_if_necessary(request)
         return super().patch(request, request.user.id)
-
-    def _unset_medic_if_necessary(self, request):
-        """ fixes front-end request to remove current_medic. """
-        if request.user.is_patient:
-            if request.data.get('patient', {}).get('current_medic_id') == 0:
-                request.data['patient']['current_medic_id'] = None
 
 
 # Medics

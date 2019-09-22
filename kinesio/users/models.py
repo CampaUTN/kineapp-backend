@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models, transaction
 from django.conf import settings
+from django.contrib import auth
+from rest_framework.authtoken.models import Token
 
 from kinesioapp.utils.models_mixins import CanViewModelMixin
 
@@ -69,16 +71,6 @@ class User(AbstractUser, CanViewModelMixin):
 
     objects = UserManager()
 
-    def log_valid_try(self):
-        self.tries = 0
-        self.save()
-
-    def log_invalid_try(self):
-        self.tries += 1
-        if self.tries >= settings.MAX_PASSWORD_TRIES:
-            self.is_active = False
-        self.save()
-
     @property
     def is_patient(self):
         try:
@@ -113,11 +105,32 @@ class User(AbstractUser, CanViewModelMixin):
     def related_medic(self):
         return self.type.related_medic
 
+    def get_or_create_token(self):
+        return Token.objects.get_or_create(user=self)[0]
+
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
+    def log_valid_try(self):
+        self.tries = 0
+        self.save()
+
+    def log_invalid_try(self):
+        self.tries += 1
+        if self.tries >= settings.MAX_PASSWORD_TRIES:
+            self.is_active = False
+        self.save()
+
     def can_edit_and_delete(self, user) -> bool:
         return self == user
+
+    def check_question_and_answer(self, secret_question_id, answer):
+        credentials_are_valid = (self.secret_question.id == secret_question_id) and self.check_password(raw_password=answer)
+        if not credentials_are_valid:
+            self.log_invalid_try()
+        else:
+            self.log_valid_try()
+        return credentials_are_valid
 
 
 class Medic(models.Model):
