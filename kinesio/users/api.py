@@ -258,6 +258,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
 
     @swagger_auto_schema(
         operation_id='patch_current_patient',
+        operation_description='Patch the current patient. You can use 0 or negative numbers, as well as \'null\', to unset the current medic.',
         responses={
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 description='Invalid parameter',
@@ -272,14 +273,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
         }
     )
     def patch(self, request):
-        self._unset_medic_if_necessary(request)
         return super().patch(request, request.user.id)
-
-    def _unset_medic_if_necessary(self, request):
-        """ fixes front-end request to remove current_medic. """
-        if request.user.is_patient:
-            if request.data.get('patient', {}).get('current_medic_id') == 0:
-                request.data['patient']['current_medic_id'] = None
 
 
 # Medics

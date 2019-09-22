@@ -34,7 +34,7 @@ class TestPatientsAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['data']), 2)
 
-    def test_update_one_patient_first_name(self):
+    def test_update_patient_first_name(self):
         self._log_in(self.patient, '1234')
         data = {'first_name': 'raul'}
         response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
@@ -45,7 +45,7 @@ class TestPatientsAPI(APITestCase):
         self.patient.refresh_from_db()
         self.assertEqual(self.patient.first_name, 'raul')
 
-    def test_update_one_patient_current_medic_id(self):
+    def test_update_patient_current_medic_id(self):
         self._log_in(self.patient, '1234')
         data = {'patient': {'current_medic_id': self.another_medic.id}}
         response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
@@ -55,3 +55,14 @@ class TestPatientsAPI(APITestCase):
         # Check whether the db was properly updated or not
         self.patient.refresh_from_db()
         self.assertEqual(self.patient.patient.current_medic, self.another_medic)
+
+    def test_unset_medic_for_patient(self):
+        self._log_in(self.patient, '1234')
+        data = {'patient': {'current_medic_id': 0}}
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check the response
+        self.assertEqual(response.json()['patient']['current_medic_id'], None)
+        # Check whether the db was properly updated or not
+        self.patient.refresh_from_db()
+        self.assertEqual(self.patient.patient.current_medic, None)
