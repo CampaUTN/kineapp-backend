@@ -24,7 +24,7 @@ class VideoQuerySet(models.QuerySet):
 class Video(models.Model):
     name = models.CharField(max_length=255)
     content = models.FileField(upload_to='')
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     objects = VideoQuerySet.as_manager()
 
