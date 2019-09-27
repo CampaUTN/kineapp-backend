@@ -1,7 +1,9 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views import generic
 from users.models import SecretQuestion, Patient
-from .models import ClinicalSession, Image, Video
+from .models import ClinicalSession, Image, Video, Exercise
 from django.http import HttpResponse
 from django.contrib.auth import logout
 
@@ -39,6 +41,7 @@ def logout_view(request):
     return HttpResponse("User logout")
 
 
+@method_decorator(login_required, name='dispatch')
 class ClinicalHistoryView(generic.View):
     def get(self, request):
         patient_id = request.GET.get("patient_id", None)
@@ -48,6 +51,7 @@ class ClinicalHistoryView(generic.View):
                       {'sessions': sessions, 'patient': patient.user})
 
 
+@method_decorator(login_required, name='dispatch')
 class ClinicalSessionView(generic.View):
     def get(self, request):
         clinical_session_id = request.GET.get("clinical_session_id", None)
@@ -55,6 +59,7 @@ class ClinicalSessionView(generic.View):
         return render(request, 'kinesioapp/users/clinical_session.html', {'clinical_session': clinical_session})
 
 
+@method_decorator(login_required, name='dispatch')
 class TimelapseView(generic.View):
     def get(self, request):
         tag = request.GET.get("tag", None)
@@ -64,8 +69,17 @@ class TimelapseView(generic.View):
         return render(request, 'kinesioapp/users/timelapse.html', {'images': images})
 
 
+@method_decorator(login_required, name='dispatch')
 class PublicVideosView(generic.View):
     def get(self, request):
         user = request.user
         videos = Video.objects.filter(owner=user)
         return render(request, 'kinesioapp/users/public_video.html', {'videos': videos})
+
+
+@method_decorator(login_required, name='dispatch')
+class RoutineView(generic.View):
+    def get(self, request):
+        patient_id = request.GET.get("patient_id", None)
+        exercises = Exercise.objects.filter(patient_id=patient_id)
+        return render(request, 'kinesioapp/users/routine.html', {'exercises': exercises, 'days_range': range(7)})
