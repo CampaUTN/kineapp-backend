@@ -33,6 +33,18 @@ body {
     left: 0;
 }
 
+.card_routine_medic {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.card_routine_patient {
+    margin-top: 10px;
+}
+
 #card_history {
     margin-top: 10px;
 }
@@ -164,7 +176,7 @@ div.col > .form-control::placeholder {
     position:absolute;
 }
 
-.fa-times, .fa-history {
+.fa-times, .fa-history, .fa-dumbbell {
     color: white;
 }
 
@@ -192,3 +204,19 @@ div.col > .form-control::placeholder {
     display: flex;
     margin-bottom: 10px;
 }
+
+.menu .accordion-heading {  position: relative; }
+.menu .accordion-heading .edit {
+    position: absolute;
+    top: 8px;
+    right: 30px;
+}
+.menu .area { border-left: 4px solid #f38787; }
+.menu .collapse.in { overflow: visible; }
+
+.accordion{margin-bottom:20px;}
+.accordion-group{margin-bottom:2px;border:1px solid #e5e5e5;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;}
+.accordion-heading{border-bottom:0;}
+.accordion-heading .accordion-toggle{display:block;padding:8px 15px;}
+.accordion-toggle{cursor:pointer;}
+.accordion-inner{padding:9px 15px;border-top:1px solid #e5e5e5;}
