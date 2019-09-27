@@ -3,7 +3,10 @@
 
         <h5 class="white-text" style="display: inline">Historia Clinica de {{ patient.last_name }} {{ patient.first_name }}</h5>
         <ul style="float: right; display: inline">
-            <i class="fas fa-history dropdown-toggle icon-card-header" id="timelapseButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ></i>
+            {% if user.is_medic %}
+            <a class="white-text" onclick="get_rutine({{ patient.pk }}, true)" style="margin-right: 10px;"><i class="fas fa-dumbbell"></i> Rutina  </a>
+            {% endif %}
+            <a class="dropdown-toggle icon-card-header white-text" id="timelapseButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-right: 10px;"><i class="fas fa-history"></i> Timelapse</a>
             <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="timelapseMenuButton">
                 <a class="dropdown-item text-center" onclick="open_timelapse('F', {{ patient.pk }})">Frontal</a>
                 <a class="dropdown-item text-center" onclick="open_timelapse('B', {{ patient.pk }})">Trasera</a>
@@ -11,7 +14,7 @@
                 <a class="dropdown-item text-center" onclick="open_timelapse('L', {{ patient.pk }})">Lado Izquierdo</a>
                 <a class="dropdown-item text-center" onclick="open_timelapse('O', {{ patient.pk }})">Otro</a>
             </div>
-            <i class="fas fa-times icon-card-header" onclick="close_clinical_history()"></i>
+            <i class="fas fa-times icon-card-header" onclick="close_clinical_history()" style="margin-right: 10px;"></i>
         </ul>
     </div>
 
