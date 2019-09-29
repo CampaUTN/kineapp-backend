@@ -1,10 +1,7 @@
-from django.core.validators import validate_comma_separated_integer_list
 from django.db import models, transaction
 from cryptography.fernet import Fernet
 from django.conf import settings
 from typing import List, Iterable
-import base64
-from functools import reduce
 from django.db.models.functions import Substr, Lower
 
 from kinesioapp import choices

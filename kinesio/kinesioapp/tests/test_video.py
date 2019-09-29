@@ -40,10 +40,17 @@ class TestVideoAPI(APITestCase):
 
     def test_upload_video(self):
         self._log_in(self.medic, '12345')
-        data = {'content': self.get_file_descriptor(), 'name': 'leg exercise', 'medic_id': self.medic.id}
+        data = {'content': self.get_file_descriptor(), 'name': 'leg exercise'}
         response = self.client.post('/api/v1/video/', data)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(response.json()['url'], '/media/kinesio.jpg')
+
+    def test_uploaded_video_owner_is_the_uploader(self):
+        self._log_in(self.medic, '12345')
+        data = {'content': self.get_file_descriptor(), 'name': 'leg exercise'}
+        response = self.client.post('/api/v1/video/', data)
+        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(Video.objects.all()[0].owner, self.medic)
 
     def test_delete_video(self):
         self._log_in(self.medic, '12345')
@@ -53,7 +60,7 @@ class TestVideoAPI(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEquals(Video.objects.count(), 0)
 
-    def test_fail_to_delete_a_video_of_other_medic(self):
+    def test_fail_to_delete_a_video_of_another_medic(self):
         another_medic = User.objects.create_user(username='raul22', password='12345', first_name='raul',
                                                  last_name='sanchez', license='matricula #5555',
                                                  dni=9203040, birth_date=timezone.now())
