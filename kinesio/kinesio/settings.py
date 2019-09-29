@@ -146,6 +146,7 @@ STATIC_URL = '/static/'
 
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5rt4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
+
 # Rest framework settings
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
