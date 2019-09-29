@@ -1,18 +1,8 @@
 FROM python:3.7.4-stretch
+ENV PYTHONUNBUFFERED=1
 RUN mkdir /kinesio
-WORKDIR /kinesio
 ADD . /kinesio
-ENV PYTHONUNBUFFERED=0
+WORKDIR /kinesio/kinesio
 
-RUN pip install --upgrade pip
-
-RUN apt-get clean && \
-apt-get update
-
-RUN apt-get install --no-install-recommends -y build-essential apt-transport-https
-
-RUN apt-get clean && \
-apt-get update
-
-
-RUN pip install -r /kinesio/requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r /kinesio/requirements.txt
