@@ -24,11 +24,6 @@ class UserManager(DjangoUserManager):
     def get_queryset(self) -> models.QuerySet:
         return UserQuerySet(self.model, using=self._db)
 
-    def _fixed_license(self, license: str) -> str:
-        if license is not None:
-            license = license.strip() if license.strip() != '' else None
-        return license
-
     def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs) -> models.Model:
         # We need to use dynamic imports to avoid circular imports.
         from users.models.patient import Patient
