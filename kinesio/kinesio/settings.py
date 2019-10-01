@@ -142,10 +142,12 @@ USE_TZ = True
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "collected_static")
-
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "media")
-
 STATIC_URL = '/static/'
+
+# Media files
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "media")
+MEDIA_URL = '/media/'
+
 
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5rt4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
@@ -198,7 +200,3 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
 IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
-
-# Videos
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'

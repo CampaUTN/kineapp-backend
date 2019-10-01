@@ -4,5 +4,10 @@ RUN mkdir /kinesio
 ADD . /kinesio
 WORKDIR /kinesio/kinesio
 
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y ffmpeg && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
+
 RUN pip install --upgrade pip && \
     pip install -r /kinesio/requirements.txt
