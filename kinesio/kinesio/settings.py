@@ -11,10 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,6 +26,9 @@ SECRET_KEY = '7lex&^&d#s^yuz-y#g+5=nr%t+&r7i)xtwjl=^mamo(l%&p2ql'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+
+DEFAULT_PORT = 80
+PUBLIC_IP = '198.199.121.38'
 
 PROJECT_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), ".."),
@@ -136,20 +138,19 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
+# Where are the files placed
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'kinesio/static/')
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "collected_static")
+STATIC_URL = '/static/'
 
-STATIC_URL = 'kinesio/static/'
+# Media files
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "media")
+MEDIA_URL = '/media/'
 
-STATICFILES_DIRS = (
-  'kinesio/static/',
-)
-
-# Heroku Configurations
-django_heroku.settings(locals())
 
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5rt4Xq8u-wBwPcb15sIYS2CN6d69zueM='
+
 
 # Rest framework settings
 REST_FRAMEWORK = {
@@ -199,7 +200,3 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
 IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
-
-# Videos
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'

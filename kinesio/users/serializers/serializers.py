@@ -18,7 +18,7 @@ class MedicTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Medic
-        fields = ('license',)
+        fields = ('license', 'videos')
 
 
 class PatientTypeSerializer(serializers.ModelSerializer):
@@ -27,7 +27,7 @@ class PatientTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
-        fields = ('current_medic_id', 'videos', 'exercises')  # fixme: remove 'videos' from here, because they are already on the exercises.
+        fields = ('current_medic_id', 'exercises')
 
     def update(self, instance, validated_data):
         if 'current_medic_id' in validated_data and validated_data.get('current_medic_id') is not None and validated_data.get('current_medic_id') <= 0:

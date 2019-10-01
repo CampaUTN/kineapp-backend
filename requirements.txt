@@ -1,8 +1,6 @@
 certifi==2019.6.16
 chardet==3.0.4
-dj-database-url==0.5.0
 Django==2.2.4
-django-heroku==0.3.1
 djangorestframework==3.10.2
 gunicorn==19.9.0
 idna==2.8
@@ -23,3 +21,4 @@ Pillow==6.1.0
 attrs==19.1.0
 packaging==19.1
 pyparsing==2.4.2
+ffmpy==0.2.2

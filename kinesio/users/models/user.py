@@ -1,49 +1,33 @@
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models, transaction
 from django.conf import settings
-from django.contrib import auth
 from rest_framework.authtoken.models import Token
 
 from kinesioapp.utils.models_mixins import CanViewModelMixin
-
-
-class SecretQuestion(models.Model):
-    description = models.CharField(max_length=255)
+from users.models.question import SecretQuestion
 
 
 class UserQuerySet(models.QuerySet):
-    def medics(self):
+    def medics(self) -> models.QuerySet:
         return self.exclude(medic__isnull=True)
 
-    def patients(self):
+    def patients(self) -> models.QuerySet:
         return self.exclude(patient__isnull=True)
 
-    def accessible_by(self, user):
+    def accessible_by(self, user) -> models.QuerySet:
         users_with_access = user.related_patients
         users_with_access |= User.objects.filter(id=user.related_medic.id)
         return self.intersection(users_with_access)
 
 
-class MedicManager(models.Manager):
-    def _fixed_license(self, license):
-        if license is not None:
-            license = license.strip() if license.strip() != '' else None
-        return license
-
-    def create(self, user, license, **kwargs):
-        return super().create(user=user, license=self._fixed_license(license), **kwargs)
-
-
 class UserManager(DjangoUserManager):
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet:
         return UserQuerySet(self.model, using=self._db)
 
-    def _fixed_license(self, license):
-        if license is not None:
-            license = license.strip() if license.strip() != '' else None
-        return license
-
-    def create_user(self, username, license=None, current_medic=None, **kwargs):
+    def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs) -> models.Model:
+        # We need to use dynamic imports to avoid circular imports.
+        from users.models.patient import Patient
+        from users.models.medic import Medic
         with transaction.atomic():
             user = super().create_user(username,  **kwargs)
             if license is not None:
@@ -52,13 +36,13 @@ class UserManager(DjangoUserManager):
                 Patient.objects.create(pk=user.pk, id=user.id, user=user, current_medic=current_medic)
         return user
 
-    def patients(self):
+    def patients(self) -> models.QuerySet:
         return self.get_queryset().patients()
 
-    def medics(self):
+    def medics(self) -> models.QuerySet:
         return self.get_queryset().medics()
 
-    def accessible_by(self, user):
+    def accessible_by(self, user) -> models.QuerySet:
         return self.get_queryset().accessible_by(user)
 
 
@@ -73,20 +57,11 @@ class User(AbstractUser, CanViewModelMixin):
 
     @property
     def is_patient(self):
-        try:
-            self.patient
-            return True
-        except Patient.DoesNotExist:
-            return False
+        return hasattr(self, 'patient')
 
     @property
     def is_medic(self):
-        # We can not do "return not self.is_patient" because during the first save, the user doesn't have a type.
-        try:
-            self.medic
-            return True
-        except Medic.DoesNotExist:
-            return False
+        return not self.is_patient
 
     @property
     def type(self):
@@ -131,36 +106,3 @@ class User(AbstractUser, CanViewModelMixin):
         else:
             self.log_valid_try()
         return credentials_are_valid
-
-
-class Medic(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    license = models.CharField(max_length=100)
-
-    objects = MedicManager()
-
-    @property
-    def related_patients(self) -> [User]:
-        return User.objects.filter(id__in=self.user.patients.values('id'))
-
-    @property
-    def related_medic(self) -> User:
-        return self.user
-
-
-class Patient(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='patient')
-    current_medic = models.ForeignKey(User, related_name='patients', on_delete=models.SET_NULL,
-                                      default=None, blank=True, null=True)
-
-    @property  # todo remove. Just for Lean until he fixes something
-    def videos(self):
-        return []
-
-    @property
-    def related_patients(self) -> [User]:
-        return User.objects.filter(id=self.user.id)
-
-    @property
-    def related_medic(self) -> User:
-        return self.current_medic
