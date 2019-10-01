@@ -71,7 +71,7 @@ class TestVideoAPI(APITestCase):
         data = {'content': self.get_file_descriptor(), 'name': 'leg exercise'}
         response = self.client.post('/api/v1/video/', data)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(Video.objects.all()[0].owner, self.medic)
+        self.assertEquals(Video.objects.all()[0].owner, self.medic.medic)
 
     def test_delete_video(self):
         self._log_in(self.medic, '12345')
