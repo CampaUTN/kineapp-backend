@@ -1,15 +1,13 @@
 from rest_framework import status
 from django.utils import timezone
-from django.core.files import File
-from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 import requests
 import os
+from django.conf import settings
 
 from ..utils.test_utils import APITestCase
 from ..models import Video
 from users.models import User
-from .. import choices
 
 
 class TestVideoAPI(APITestCase):
@@ -34,7 +32,8 @@ class TestVideoAPI(APITestCase):
         self._log_in(self.medic, '12345')
         file = SimpleUploadedFile(self.file_name, self.get_file_descriptor().read())
         video = Video.objects.create(name='leg exercise', content=file, medic_id=self.medic.id)
-        response = requests.get(f'http://localhost{video.url}')  # We request the image from the outside because otherwise is unreachable.
+        # We request the video from the outside because otherwise is unreachable.
+        response = requests.get(video.url.replace(settings.PUBLIC_IP, '127.0.0.1'))
         self.assertEquals(response.status_code, status.HTTP_200_OK)
         self.assertEquals(response.content, self.get_file_descriptor().read())
 
@@ -43,7 +42,8 @@ class TestVideoAPI(APITestCase):
         data = {'content': self.get_file_descriptor(), 'name': 'leg exercise'}
         response = self.client.post('/api/v1/video/', data)
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
-        self.assertEquals(response.json()['url'], '/media/kinesio.jpg')
+        # Do not check the IP because it may change
+        self.assertEquals(response.json()['url'].replace(settings.PUBLIC_IP, '127.0.0.1'), 'http://127.0.0.1:80/media/kinesio.jpg')
 
     def test_uploaded_video_owner_is_the_uploader(self):
         self._log_in(self.medic, '12345')

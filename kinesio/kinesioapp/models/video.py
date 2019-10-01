@@ -1,5 +1,6 @@
 from django.db import models
 
+from kinesioapp.utils.django_server import DjangoServerConfiguration
 from users.models import User
 
 
@@ -20,7 +21,7 @@ class Video(models.Model):
 
     @property
     def url(self) -> str:
-        return self.content.url
+        return f'http://{DjangoServerConfiguration().base_url}{self.content.url}'
 
     def can_edit_and_delete(self, user: User) -> bool:
         return self.owner == user
