@@ -21,6 +21,13 @@ class TestPatientsAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['first_name'], 'facundo')
 
+    def test_patient_has_current_medic_first_and_last_name_when_serialized(self):
+        self._log_in(self.patient, '1234')
+        response = self.client.get(f'/api/v1/patients/detail/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['current_medic_first_name'], self.patient.patient.current_medic.first_name)
+        self.assertEqual(response.json()['patient']['current_medic_last_name'], self.patient.patient.current_medic.last_name)
+
     def test_get_all_patients_of_the_current_medic(self):
         self._log_in(self.medic, '1234')
         response = self.client.get('/api/v1/patients/')
