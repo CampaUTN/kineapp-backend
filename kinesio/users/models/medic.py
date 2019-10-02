@@ -15,7 +15,7 @@ class MedicManager(models.Manager):
 
 class Medic(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    license = models.CharField(max_length=100)
+    license = models.CharField(max_length=100, db_index=True, unique=True)
 
     objects = MedicManager()
 
