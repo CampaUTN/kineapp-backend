@@ -36,7 +36,7 @@ class TestWebView(TestCase):
                              'answer': 'perro',
                              'dni': 553745,
                              'birth_date': datetime.now().date(),
-                             'license': '12341234'}
+                             'license': '123412340'}
         self.client.post('/api/v1/registration/', registration_data, format='json')
         login_data = {'google_token': 'token', 'secret_question_id': self.question.id, 'answer': 'perro'}
         response = self.client.post('/api/v1/login/', login_data)

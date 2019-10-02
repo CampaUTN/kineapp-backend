@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from ..models import Medic, Patient, User, SecretQuestion
 from rest_framework.authtoken.models import Token
-from kinesioapp.serializers import ExerciseSerializer
+from kinesioapp.serializers import ExerciseSerializer, VideoSerializer
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -15,6 +15,7 @@ class TokenSerializer(serializers.ModelSerializer):
 
 class MedicTypeSerializer(serializers.ModelSerializer):
     license = serializers.CharField(required=False)  # otherwise the drf-yasg detects it as required
+    videos = VideoSerializer(many=True)
 
     class Meta:
         model = Medic
@@ -23,11 +24,13 @@ class MedicTypeSerializer(serializers.ModelSerializer):
 
 class PatientTypeSerializer(serializers.ModelSerializer):
     current_medic_id = serializers.IntegerField(required=False)  # otherwise the drf-yasg detects it as required
+    current_medic_first_name = serializers.CharField(source='current_medic.first_name', read_only=True, required=False)
+    current_medic_last_name = serializers.CharField(source='current_medic.last_name', read_only=True, required=False)
     exercises = ExerciseSerializer(read_only=True, many=True)
 
     class Meta:
         model = Patient
-        fields = ('current_medic_id', 'exercises')
+        fields = ('current_medic_id', 'current_medic_first_name', 'current_medic_last_name', 'exercises')
 
     def update(self, instance, validated_data):
         if 'current_medic_id' in validated_data and validated_data.get('current_medic_id') is not None and validated_data.get('current_medic_id') <= 0:
