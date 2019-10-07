@@ -1,4 +1,4 @@
-{% regroup exercises by day as day_list %}
+{% regroup exercises|dictsort:"day" by day as day_list %}
 <div id="card_routine" class="card animated slideInRight card_routine_medic" >
     <div class="card-header" style="margin: 0;">
         <h5 class="white-text card-title">Rutina</h5>
@@ -44,12 +44,12 @@
                 {% else %}
                     <div class="tab-pane fade" id="pills-{{day}}" role="tabpanel" aria-labelledby="pills-{{day}}-tab">
                 {% endif %}
-            <div class="menu">
-                <div class="accordion">
-                    <div class="accordion-group">
-                        {% for day_group in day_list %}
-                            {% if day_group.grouper == day %}
-                                {% if day_group.list %}
+            {% if day in active_days %}
+                {% for day_group in day_list %}
+                    {% if day_group.grouper == day %}
+                        <div class="menu">
+                            <div class="accordion">
+                                <div class="accordion-group">
                                     {% for exercise in day_group.list %}
                                         <div class="accordion-heading area">
                                             <a class="accordion-toggle" data-toggle="collapse" href="#exersice{{ exercise.pk }}">
@@ -63,27 +63,45 @@
                                         </div>
                                         <div class="accordion-body collapse" id="exersice{{ exercise.pk }}">
                                             <div class="accordion-inner">
-                                                <div class="embed-responsive embed-responsive-16by9">
-                                                    <video controls>
-                                                        <source src="{{exercise.video.url}}" type="video/mp4">
-                                                        <source src="{{exercise.video.url}}" type="video/ogg">
-                                                        Your browser does not support the videos.
-                                                    </video>
-                                                </div>
+                                                {% if exercise.video %}
+                                                    <div class="embed-responsive embed-responsive-16by9">
+                                                        <video controls>
+                                                            <source src="{{exercise.video.url}}" type="video/mp4">
+                                                            <source src="{{exercise.video.url}}" type="video/ogg">
+                                                            Your browser does not support the videos.
+                                                        </video>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="embed-responsive">
+                                                        {{ exercise.description }}
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     {% endfor %}
-                                {% else %}
-                                    <div class="accordion-heading area">No hay ejercicios asignados para este día</div>
-                                {% endif %}
-                            {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
 
-                        {% endfor %}
+                {% endfor %}
+            {% else %}
+                <div class="menu">
+                    <div class="accordion">
+                        <div class="accordion-group">
+                            <div class="accordion-heading area">
+                                <a class="accordion-toggle">
+                                    <i class="far fa-smile"></i>
+                                    No hay ejercicios asignados para este día.
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {%  endif %}
             </div>
             {% endfor %}
+
             </div>
         </div>
     </div>
