@@ -2,7 +2,15 @@ $(function(){
     $('#answer').on("change keyup paste", function(){
         $('#answer').popover('hide');
         $('#answer_button').popover('hide');
-    })
+    });
+
+    $('#answer').on("keyup", function(event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("answer_button").click();
+        }
+    });
 });
 
 function check_answer(){
