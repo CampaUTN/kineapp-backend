@@ -36,7 +36,7 @@
             </div>
             <div class="col-sm-6">
                 <h6 class="card-text ">Sesiones:</h6>
-                <ul class="list-group">
+                <ul class="list-group scroll" id="listSession">
                     {% if sessions %}
                         {% for session in sessions %}
                             <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date }}</li>
