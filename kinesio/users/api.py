@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 import textwrap
 
 from .models import User, SecretQuestion
-from .serializers.serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientSerializer, MedicSerializer
+from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientUserSerializer, MedicUserSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, GoogleRejectsTokenException, InformationNotAccessibleFromTokenException, InvalidAudienceException
 from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
@@ -217,7 +217,7 @@ def register(request, google_user_class=GoogleUser):
 
 # Patients
 class PatientListAPIView(GenericListView):
-    serializer_class = PatientSerializer
+    serializer_class = PatientUserSerializer
     queryset = User.objects.patients()
 
     @swagger_auto_schema(
@@ -225,7 +225,7 @@ class PatientListAPIView(GenericListView):
         responses={
             status.HTTP_200_OK: openapi.Response(
                 description="Data from patients of the current medic. If used as a patient, return a list containing only its own data.",
-                schema=PatientSerializer(many=True),
+                schema=PatientUserSerializer(many=True),
             )
         }
     )
@@ -236,7 +236,7 @@ class PatientListAPIView(GenericListView):
 
 class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):
     model_class = User
-    serializer_class = PatientSerializer
+    serializer_class = PatientUserSerializer
 
     @swagger_auto_schema(
         operation_id='get_current_patient',
@@ -246,7 +246,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
             ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current patient data",
-                schema=PatientSerializer(),
+                schema=PatientUserSerializer(),
             )
         }
     )
@@ -266,7 +266,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
             ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current patient data",
-                schema=PatientSerializer(),
+                schema=PatientUserSerializer(),
             )
         }
     )
@@ -277,12 +277,12 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
 # Medics
 class MedicListAPIView(generics.ListAPIView):
     queryset = User.objects.medics()
-    serializer_class = MedicSerializer
+    serializer_class = MedicUserSerializer
 
 
 class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):
     model_class = User
-    serializer_class = MedicSerializer
+    serializer_class = MedicUserSerializer
 
     @swagger_auto_schema(
         operation_id='get_current_medic',
@@ -292,7 +292,7 @@ class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetails
             ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current medic data",
-                schema=MedicSerializer(),
+                schema=MedicUserSerializer(),
             )
         }
     )
@@ -311,7 +311,7 @@ class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetails
             ),
             status.HTTP_200_OK: openapi.Response(
                 description="Current patient data",
-                schema=MedicSerializer(),
+                schema=MedicUserSerializer(),
             )
         }
     )
