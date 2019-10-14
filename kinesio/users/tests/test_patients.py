@@ -32,14 +32,14 @@ class TestPatientsAPI(APITestCase):
         self._log_in(self.medic, '1234')
         response = self.client.get('/api/v1/patients/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()['data']), 2)
+        self.assertEqual(len(response.json()['patients']), 2)
 
     def test_do_not_get_patients_from_other_medics(self):
         self._log_in(self.medic, '1234')
         User.objects.create_user(username='pepe23', dni=9044004, birth_date=datetime.now())
         response = self.client.get('/api/v1/patients/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()['data']), 2)
+        self.assertEqual(len(response.json()['patients']), 2)
 
     def test_update_patient_first_name(self):
         self._log_in(self.patient, '1234')

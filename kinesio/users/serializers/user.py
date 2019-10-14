@@ -13,9 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
     # whether is a patient or a medic. The options are the current one or multiple type tests on different places.
     medic = MedicTypeSerializer(required=False)
     patient = PatientTypeSerializer(required=False)
+    # otherwise the drf-yasg detects it as required.
+    # fixme: change auth method on drf-yasg, because the detection of HTTP Authorization scheme as "basic" is requestion for user and password even if write_only=True.
     password = serializers.CharField(min_length=4,
                                      write_only=True,
-                                     required=False,  # otherwise the drf-yasg detects it as required. fixme: change auth method on drf-yasg, because the detection of HTTP Authorization scheme as "basic" is requestion for user and password even if write_only=True.
+                                     required=False,
                                      style={'input_type': 'password'})
     picture_url = serializers.CharField(read_only=True, required=False)
     dni = serializers.IntegerField(required=False)

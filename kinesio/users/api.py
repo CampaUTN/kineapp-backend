@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 import textwrap
 
 from .models import User, SecretQuestion
-from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientUserSerializer, MedicUserSerializer
+from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientUserSerializer, MedicUserSerializer, RelatedPatientsSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, GoogleRejectsTokenException, InformationNotAccessibleFromTokenException, InvalidAudienceException
 from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
@@ -217,21 +217,21 @@ def register(request, google_user_class=GoogleUser):
 
 # Patients
 class PatientListAPIView(GenericListView):
-    serializer_class = PatientUserSerializer
+    serializer_class = RelatedPatientsSerializer
     queryset = User.objects.patients()
 
     @swagger_auto_schema(
         operation_id='get_related_patients',
         responses={
             status.HTTP_200_OK: openapi.Response(
-                description="Data from patients of the current medic. If used as a patient, return a list containing only its own data.",
-                schema=PatientUserSerializer(many=True),
+                description="Data from patients of the current medic. If used as a patient, it will fail.",
+                schema=RelatedPatientsSerializer(),
             )
         }
     )
-    def get(self, request):
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
-        return super().get(request)
+    def get(self, request) -> Response:
+        serializer = self.serializer_class(request.user)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
 class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetailsView):
