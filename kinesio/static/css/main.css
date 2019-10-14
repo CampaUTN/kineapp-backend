@@ -33,6 +33,18 @@ body {
     left: 0;
 }
 
+.card_routine_medic {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.card_routine_patient {
+    margin-top: 10px;
+}
+
 #card_history {
     margin-top: 10px;
 }
@@ -164,7 +176,7 @@ div.col > .form-control::placeholder {
     position:absolute;
 }
 
-.fa-times, .fa-history {
+.fa-times, .fa-history, .fa-dumbbell {
     color: white;
 }
 
@@ -191,4 +203,57 @@ div.col > .form-control::placeholder {
     justify-content: center;
     display: flex;
     margin-bottom: 10px;
+}
+
+.menu .accordion-heading {  position: relative; }
+.menu .accordion-heading .edit {
+    position: absolute;
+    top: 8px;
+    right: 30px;
+}
+.menu .area { border-left: 4px solid #f38787; }
+.menu .collapse.in { overflow: visible; }
+
+.accordion{margin-bottom:20px;}
+.accordion-group{margin-bottom:2px;border:1px solid #e5e5e5;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;}
+.accordion-heading{border-bottom:0;}
+.accordion-heading .accordion-toggle{display:block;padding:8px 15px;}
+.accordion-toggle{cursor:pointer;}
+.accordion-inner{padding:9px 15px;border-top:1px solid #e5e5e5;}
+
+.list-group-item-action:hover {
+    z-index: 0;
+}
+
+.scroll {
+  overflow-y: scroll;
+}
+
+.scroll::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+	border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar
+{
+	width: 10px;
+	background-color: #F5F5F5;
+}
+
+.scroll::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	background-image: -webkit-gradient(linear,
+									   left bottom,
+									   left top,
+									   color-stop(0.44, rgb(122,153,217)),
+									   color-stop(0.72, rgb(73,125,189)),
+									   color-stop(0.86, rgb(28,58,148)));
+}
+
+#listSession {
+    height:300px;
+    display: block;
 }

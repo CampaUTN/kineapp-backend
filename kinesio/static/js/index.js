@@ -84,6 +84,38 @@ function get_videos() {
     });
 }
 
+function get_rutine(patient_id, medic) {
+
+    if(medic) {
+        $.ajax({
+            type: 'GET',
+            url: 'routine/?patient_id=' + patient_id,
+            success: function(response) {
+                $('#card_history').append(response).one($('#card_routine').width('100%')).one("animationend", function () {
+                    $('#card_routine').removeClass('animated slideInRight')
+                });
+            },
+            error: showModalLogin
+        });
+    } else {
+        $('.data').load('routine/?patient_id=' + patient_id, null, function (responseText, textStatus, xhr) {
+            $('#card_routine').removeClass('card_routine_medic').addClass('card_routine_patient');
+            if(xhr.status == 401 ){
+                $('.modal-content').load('secret_questions/',function(){
+                    $('#modalGeneric').modal();
+                });
+            }
+        });
+    }
+
+}
+
+function close_routine() {
+    $('#card_routine').addClass('animated slideOutRight').one("animationend", function () {
+        $('#card_routine').remove()
+    });
+}
+
 function close_clinical_history() {
     $('#card_history').addClass('animated slideOutRight').one("animationend", function () {
         $('#card_history').remove()

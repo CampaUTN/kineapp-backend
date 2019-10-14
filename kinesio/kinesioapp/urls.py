@@ -14,6 +14,7 @@ urlpatterns = [
     re_path(r'^clinical_session/?$', views.ClinicalSessionView.as_view(), name='clinical_session_view'),
     re_path(r'^timelapse/?$', views.TimelapseView.as_view(), name='timelapse_view'),
     re_path(r'^videos/?$', views.PublicVideosView.as_view(), name='videos_view'),
+    re_path(r'^routine/?$', views.RoutineView.as_view(), name='routine_view'),
 
     # API
     re_path(r'^api/v1/clinical_sessions/?$', clinical_sessions.ClinicalSessionAPIView.as_view(), name='clinical_session'),

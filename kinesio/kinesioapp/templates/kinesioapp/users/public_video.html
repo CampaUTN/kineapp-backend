@@ -9,7 +9,7 @@
         </ul>
     </div>
     <div class="card-body">
-        <div class="row" style="height: 100%; display: inherit">
+        <div class="row" style="height: 100%;">
             {% if videos %}
                 <div class="col">
                     <i class="fas fa-arrow-circle-left prev"></i>
@@ -17,15 +17,12 @@
                 <div class="multiple-items col-lg-10">
                     {% for video in videos %}
                         <div class="embed-responsive embed-responsive-16by9">
-                            <iframe class="embed-responsive-item" src="video.path" allowfullscreen></iframe>
+                            <video controls title="{{video.name}}">
+                                <source src="{{video.url}}" type="video/mp4">
+                                Your browser does not support the videos.
+                            </video>
                         </div>
                     {% endfor %}
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/v64KOxKVLVg" allowfullscreen></iframe>
-                    </div>
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/v64KOxKVLVg" allowfullscreen></iframe>
-                    </div>
                 </div>
                 <div class="col">
                     <i class="fas fa-arrow-circle-right next"></i>
