@@ -28,13 +28,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password',
                   'picture_url', 'dni', 'birth_date')
 
-    def _want_to_set_patient_data(self, validated_data):
+    def _want_to_set_patient_data(self, validated_data: dict) -> bool:
         return 'patient' in validated_data.keys()
 
-    def _want_to_set_medic_data(self, validated_data):
+    def _want_to_set_medic_data(self, validated_data: dict) -> bool:
         return 'medic' in validated_data.keys()
 
-    def update(self, instance, validated_data):
+    def update(self, instance: User, validated_data: dict) -> User:
         # Remove nested field information from validated_data
         medic_data = validated_data.pop('medic') if self._want_to_set_medic_data(validated_data) else None
         patient_data = validated_data.pop('patient') if self._want_to_set_patient_data(validated_data) else None

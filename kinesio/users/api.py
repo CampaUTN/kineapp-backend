@@ -7,9 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-import textwrap
+from rest_framework.request import HttpRequest
 
 from .models import User, SecretQuestion
 from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientUserSerializer, MedicUserSerializer, RelatedPatientsSerializer
@@ -49,7 +48,7 @@ from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetai
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
-def users_exists(request):
+def users_exists(request: HttpRequest) -> Response:
     try:
         google_token = request.data['google_token']
     except KeyError:
@@ -111,7 +110,7 @@ def users_exists(request):
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 @mock_google_user_on_tests
-def login(request, google_user_class=GoogleUser):
+def login(request: HttpRequest, google_user_class: type = GoogleUser) -> Response:
     # Check that there are no missing parameters
     try:
         google_token = request.data['google_token']
@@ -184,7 +183,7 @@ def login(request, google_user_class=GoogleUser):
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 @mock_google_user_on_tests
-def register(request, google_user_class=GoogleUser):
+def register(request: HttpRequest, google_user_class: type = GoogleUser) -> Response:
     google_token = request.data.get('google_token', None)
     secret_question_id = request.data.get('secret_question_id')
     answer = request.data.get('answer')
@@ -229,7 +228,7 @@ class PatientListAPIView(GenericListView):
             )
         }
     )
-    def get(self, request) -> Response:
+    def get(self, request: HttpRequest) -> Response:
         serializer = self.serializer_class(request.user)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -250,7 +249,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
             )
         }
     )
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().get(request, request.user.id)
 
@@ -270,7 +269,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
             )
         }
     )
-    def patch(self, request):
+    def patch(self, request: HttpRequest) -> Response:
         return super().patch(request, request.user.id)
 
 
@@ -296,7 +295,7 @@ class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetails
             )
         }
     )
-    def get(self, request):
+    def get(self, request: HttpRequest) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().get(request, request.user.id)
 
@@ -315,7 +314,7 @@ class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetails
             )
         }
     )
-    def patch(self, request):
+    def patch(self, request: HttpRequest) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().patch(request, request.user.id)
 

@@ -17,10 +17,10 @@ class InvalidAudienceException(Exception):
 
 
 class GoogleUser:
-    def __init__(self, google_token):
+    def __init__(self, google_token: str) -> None:
         self.account_information = self._validate_and_generate_account_information(google_token)
 
-    def _validate_and_generate_account_information(self, google_token):
+    def _validate_and_generate_account_information(self, google_token: str) -> dict:
         account_information = self._get_account_information(google_token)
         if account_information['aud'] not in [settings.CLIENT_ID_ANDROID, settings.CLIENT_ID_WEB]:
             raise InvalidAudienceException('Audience is neither the client_id of the web or the mobile application.')
@@ -31,11 +31,11 @@ class GoogleUser:
         return account_information
 
     @staticmethod
-    def _account_information_is_valid(acc_info):
+    def _account_information_is_valid(acc_info: dict) -> bool:
         return all(key in acc_info for key in ['aud', 'iss', 'sub', 'given_name', 'family_name', 'email', 'picture'])
 
     @staticmethod
-    def _get_account_information(google_token):
+    def _get_account_information(google_token) -> dict:
         try:
             account_information = id_token.verify_oauth2_token(google_token, requests.Request())
         except ValueError:
@@ -43,25 +43,25 @@ class GoogleUser:
         return account_information
 
     @property
-    def username_is_valid(self):
+    def username_is_valid(self) -> bool:
         return self.account_information['iss'].lower().split('://').pop().strip() == 'accounts.google.com'
 
     @property
-    def picture_url(self):
+    def picture_url(self) -> str:
         return self.account_information['picture']
 
     @property
-    def user_id(self):
+    def user_id(self) -> str:
         return self.account_information['sub']
 
     @property
-    def first_name(self):
+    def first_name(self) -> str:
         return self.account_information['given_name']
 
     @property
-    def last_name(self):
+    def last_name(self) -> str:
         return self.account_information['family_name']
 
     @property
-    def email(self):
+    def email(self) -> str:
         return self.account_information['email']

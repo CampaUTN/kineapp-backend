@@ -25,7 +25,7 @@ class UserManager(DjangoUserManager):
     def get_queryset(self) -> UserQuerySet:
         return UserQuerySet(self.model, using=self._db)
 
-    def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs) -> User:
+    def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs: dict) -> User:
         # We need to use dynamic imports to avoid circular imports.
         from users.models.patient import Patient
         from users.models.medic import Medic
@@ -86,7 +86,7 @@ class User(AbstractUser, CanViewModelMixin):
     def get_or_create_token(self) -> Token:
         return Token.objects.get_or_create(user=self)[0]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
     def log_valid_try(self) -> None:
@@ -99,7 +99,7 @@ class User(AbstractUser, CanViewModelMixin):
             self.is_active = False
         self.save()
 
-    def can_edit_and_delete(self, user) -> bool:
+    def can_edit_and_delete(self, user: User) -> bool:
         return self == user
 
     def check_question_and_answer(self, secret_question_id: int, answer: str) -> bool:

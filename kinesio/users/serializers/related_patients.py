@@ -13,7 +13,7 @@ class RelatedPatientsSerializer(serializers.Serializer):
         model = User
         fields = ('patients', 'non_assigned_patients')
 
-    def to_representation(self, obj):
+    def to_representation(self, obj: User) -> dict:
         """ Validate that the user is a medic and not a patient. """
         if not obj.is_medic:
             raise serializers.DjangoValidationError('Only users of medic type are serializable with RelatedPatientsSerializer class.')

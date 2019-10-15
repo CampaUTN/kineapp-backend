@@ -1,7 +1,7 @@
 import time
-
+from typing import Optional
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpRequest
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 
 try:
@@ -14,7 +14,7 @@ SESSION_TIMEOUT_KEY = "_session_init_timestamp_"
 
 
 class SessionTimeoutMiddleware(MiddlewareMixin):
-    def process_request(self, request):
+    def process_request(self, request: HttpRequest) -> Optional[HttpResponse]:
         if not hasattr(request, "session") or request.session.is_empty():
             return
 

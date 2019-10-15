@@ -1,6 +1,6 @@
 from django.db import models
 
-from users.models.user import User
+from users.models.user import User, UserQuerySet
 from users.models.medic import Medic
 
 
@@ -11,7 +11,7 @@ class Patient(models.Model):
     shared_history_with = models.ManyToManyField(Medic, related_name='shared')
 
     @property
-    def related_patients(self) -> models.QuerySet:
+    def related_patients(self) -> UserQuerySet:
         return User.objects.filter(id=self.user.id)
 
     @property
