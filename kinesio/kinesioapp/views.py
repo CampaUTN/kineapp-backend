@@ -4,12 +4,12 @@ from users.models import SecretQuestion, Patient
 from django.contrib.auth import logout
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import ClinicalSession, Image, Video
+from .models import ClinicalSession, Image, Video, Exercise
 
 
 class IndexView(generic.View):
-
     def get(self, request: HttpRequest) -> HttpResponse:
         if request.user.is_authenticated:
             user = request.user
@@ -31,7 +31,6 @@ class SecretQuestionView(generic.View):
 
 
 class NoUserView(generic.View):
-
     def get(self, request: HttpRequest) -> HttpResponse:
         return render(request, 'kinesioapp/login/no_user.html')
 
@@ -41,7 +40,7 @@ def logout_view(request: HttpRequest) -> HttpResponse:
     return HttpResponse("User logout")
 
 
-class ClinicalHistoryView(generic.View):
+class ClinicalHistoryView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         patient_id = request.GET.get("patient_id", None)
         patient = Patient.objects.get(pk=patient_id)
@@ -50,14 +49,14 @@ class ClinicalHistoryView(generic.View):
                       {'sessions': sessions, 'patient': patient.user})
 
 
-class ClinicalSessionView(generic.View):
+class ClinicalSessionView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest):
         clinical_session_id = request.GET.get("clinical_session_id", None)
         clinical_session = ClinicalSession.objects.get(pk=clinical_session_id)
         return render(request, 'kinesioapp/users/clinical_session.html', {'clinical_session': clinical_session})
 
 
-class TimelapseView(generic.View):
+class TimelapseView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         tag = request.GET.get("tag", None)
         patient_id = request.GET.get("patient_id", None)
@@ -66,8 +65,19 @@ class TimelapseView(generic.View):
         return render(request, 'kinesioapp/users/timelapse.html', {'images': images})
 
 
-class PublicVideosView(generic.View):
+class PublicVideosView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         user = request.user
         videos = Video.objects.filter(owner=user)
         return render(request, 'kinesioapp/users/public_video.html', {'videos': videos})
+
+
+class RoutineView(LoginRequiredMixin, generic.View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        patient_id = request.GET.get("patient_id", None)
+        exercises = Exercise.objects.filter(patient_id=patient_id)
+        days = Exercise.objects.filter(patient_id=patient_id).values('day').distinct() #fixme needed for complete days that no have exercises. Looking for another solution
+        active_days = []
+        for day in days:
+            active_days.append(day['day'])
+        return render(request, 'kinesioapp/users/routine.html', {'exercises': exercises, 'days_range': range(7), 'active_days': active_days})

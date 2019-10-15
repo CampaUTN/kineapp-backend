@@ -19,6 +19,10 @@
                         <a class="nav-link" onclick="get_videos()">
                             <i class="fas fa-video"></i> Videos </a>
                     </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link white-text" onclick="get_rutine({{ user.patient.pk }}, false)"><i class="fas fa-dumbbell"></i> Rutina</a>
+                    </li>
                 {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
