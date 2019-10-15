@@ -1,3 +1,4 @@
+from __future__ import annotations
 from django.db import models
 
 from users.models import User, Patient
@@ -5,7 +6,7 @@ from kinesioapp.utils.models_mixins import CanViewModelMixin
 
 
 class ClinicalSessionQuerySet(models.QuerySet):
-    def accessible_by(self, user: User) -> models.QuerySet:
+    def accessible_by(self, user: User) -> ClinicalSessionQuerySet:
         return self.filter(patient__user__in=user.related_patients)
 
 

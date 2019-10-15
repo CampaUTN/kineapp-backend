@@ -1,6 +1,8 @@
 from rest_framework import generics, status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.response import Response
+from rest_framework.request import HttpRequest
 
 from ..models import Exercise
 from ..serializers import ExerciseSerializer
@@ -33,12 +35,12 @@ class ExerciseCreateAPIView(generics.CreateAPIView):
             )
         }
     )
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         if 'done' in request.POST:
             request.POST.pop('done')
         return super().post(request)
 
-    def get_serializer(self, data):
+    def get_serializer(self, data: dict) -> ExerciseSerializer:
         exercises = []
         days = data.pop('days')
         for day in days:
@@ -80,7 +82,7 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
             )
         }
     )
-    def patch(self, request, id):
+    def patch(self, request: HttpRequest, id: int) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().patch(request, id)
 
@@ -106,6 +108,6 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
             ),
         }
     )
-    def delete(self, request, id: int):
+    def delete(self, request: HttpRequest, id: int) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().delete(request, id)

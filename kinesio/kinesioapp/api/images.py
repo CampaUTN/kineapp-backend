@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from rest_framework.request import HttpRequest
 
 from ..serializers import ThumbnailSerializer
 from ..models import Image
@@ -41,7 +42,7 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
             ),
         }
     )
-    def get(self, request, id):
+    def get(self, request: HttpRequest, id: int) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().get(request, id)
 
@@ -72,7 +73,7 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
             ),
         }
     )
-    def delete(self, request, id):
+    def delete(self, request: HttpRequest, id: int) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().delete(request, id)
 
@@ -108,7 +109,7 @@ class ImagesWithTagAPIView(APIView):
             ),
         }
     )
-    def get(self, request, patient_id, tag):
+    def get(self, request: HttpRequest, patient_id: int, tag: str) -> Response:
         patient = get_object_or_404(User, id=patient_id)
         images = Image.objects.of_patient(patient).by_tag(tag)
         if patient not in request.user.related_patients:
@@ -139,7 +140,7 @@ class ImageCreateAPIView(APIView):
             )
         }
     )
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         try:
             clinical_session_id = request.data['clinical_session_id']
             content_as_base64 = request.data['content']

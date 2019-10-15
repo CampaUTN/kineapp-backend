@@ -1,6 +1,8 @@
 from rest_framework import generics, status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.response import Response
+from rest_framework.request import HttpRequest
 
 from ..models import ClinicalSession
 from ..serializers import ClinicalSessionSerializer
@@ -32,7 +34,7 @@ class ClinicalSessionsForPatientView(GenericListView):
             )
         }
     )
-    def get(self, request, patient_id):
+    def get(self, request: HttpRequest, patient_id: int) -> Response:
         return super().get(request, queryset=self.queryset.filter(patient_id=patient_id))
 
 
@@ -58,6 +60,6 @@ class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
             )
         }
     )
-    def patch(self, request, id):
+    def patch(self, request: HttpRequest, id: int) -> Response:
         """ This method exist only to add an '@swagger_auto_schema' annotation """
         return super().patch(request, id)
