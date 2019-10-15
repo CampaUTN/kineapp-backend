@@ -1,3 +1,4 @@
+from __future__ import annotations
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.db import models, transaction
 from django.conf import settings
@@ -8,23 +9,23 @@ from users.models.question import SecretQuestion
 
 
 class UserQuerySet(models.QuerySet):
-    def medics(self) -> models.QuerySet:
+    def medics(self) -> UserQuerySet:
         return self.exclude(medic__isnull=True)
 
-    def patients(self) -> models.QuerySet:
+    def patients(self) -> UserQuerySet:
         return self.exclude(patient__isnull=True)
 
-    def accessible_by(self, user) -> models.QuerySet:
+    def accessible_by(self, user: User) -> UserQuerySet:
         users_with_access = user.related_patients
         users_with_access |= User.objects.filter(id=user.related_medic.id)
         return self.intersection(users_with_access)
 
 
 class UserManager(DjangoUserManager):
-    def get_queryset(self) -> models.QuerySet:
+    def get_queryset(self) -> UserQuerySet:
         return UserQuerySet(self.model, using=self._db)
 
-    def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs) -> models.Model:
+    def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs) -> User:
         # We need to use dynamic imports to avoid circular imports.
         from users.models.patient import Patient
         from users.models.medic import Medic
@@ -36,13 +37,13 @@ class UserManager(DjangoUserManager):
                 Patient.objects.create(pk=user.pk, id=user.id, user=user, current_medic=current_medic)
         return user
 
-    def patients(self) -> models.QuerySet:
+    def patients(self) -> UserQuerySet:
         return self.get_queryset().patients()
 
-    def medics(self) -> models.QuerySet:
+    def medics(self) -> UserQuerySet:
         return self.get_queryset().medics()
 
-    def accessible_by(self, user) -> models.QuerySet:
+    def accessible_by(self, user: User) -> UserQuerySet:
         return self.get_queryset().accessible_by(user)
 
 
@@ -56,11 +57,13 @@ class User(AbstractUser, CanViewModelMixin):
     objects = UserManager()
 
     @property
-    def is_patient(self):
+    def is_patient(self) -> bool:
+        """ Do not use this for type testing. This is intended only to know the user type in the front end. """
         return hasattr(self, 'patient')
 
     @property
-    def is_medic(self):
+    def is_medic(self) -> bool:
+        """ Do not use this for type testing. This is intended only to know the user type in the front end. """
         return not self.is_patient
 
     @property
@@ -73,24 +76,24 @@ class User(AbstractUser, CanViewModelMixin):
             return None
 
     @property
-    def related_patients(self):
+    def related_patients(self) -> User:
         return self.type.related_patients
 
     @property
-    def related_medic(self):
+    def related_medic(self) -> User:
         return self.type.related_medic
 
-    def get_or_create_token(self):
+    def get_or_create_token(self) -> Token:
         return Token.objects.get_or_create(user=self)[0]
 
     def __str__(self):
         return f'{"Dr." if self.is_medic else "Pac."} {self.last_name}, {self.first_name}'
 
-    def log_valid_try(self):
+    def log_valid_try(self) -> None:
         self.tries = 0
         self.save()
 
-    def log_invalid_try(self):
+    def log_invalid_try(self) -> None:
         self.tries += 1
         if self.tries >= settings.MAX_PASSWORD_TRIES:
             self.is_active = False
@@ -99,7 +102,7 @@ class User(AbstractUser, CanViewModelMixin):
     def can_edit_and_delete(self, user) -> bool:
         return self == user
 
-    def check_question_and_answer(self, secret_question_id, answer):
+    def check_question_and_answer(self, secret_question_id: int, answer: str) -> bool:
         credentials_are_valid = (self.secret_question.id == secret_question_id) and self.check_password(raw_password=answer)
         if not credentials_are_valid:
             self.log_invalid_try()
