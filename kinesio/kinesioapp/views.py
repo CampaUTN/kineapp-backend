@@ -50,7 +50,7 @@ class ClinicalHistoryView(LoginRequiredMixin, generic.View):
 
 
 class ClinicalSessionView(LoginRequiredMixin, generic.View):
-    def get(self, request: HttpRequest):
+    def get(self, request: HttpRequest) -> HttpResponse:
         clinical_session_id = request.GET.get("clinical_session_id", None)
         clinical_session = ClinicalSession.objects.get(pk=clinical_session_id)
         return render(request, 'kinesioapp/users/clinical_session.html', {'clinical_session': clinical_session})
@@ -76,8 +76,5 @@ class RoutineView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         patient_id = request.GET.get("patient_id", None)
         exercises = Exercise.objects.filter(patient_id=patient_id)
-        days = Exercise.objects.filter(patient_id=patient_id).values('day').distinct() #fixme needed for complete days that no have exercises. Looking for another solution
-        active_days = []
-        for day in days:
-            active_days.append(day['day'])
+        active_days = [exercise.day for exercise in Exercise.objects.filter(patient_id=patient_id).distinct('day')]
         return render(request, 'kinesioapp/users/routine.html', {'exercises': exercises, 'days_range': range(7), 'active_days': active_days})
