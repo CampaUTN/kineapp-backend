@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserMa
 from django.db import models, transaction
 from django.conf import settings
 from rest_framework.authtoken.models import Token
+from typing import Optional
 
 from kinesioapp.utils.models_mixins import CanViewModelMixin
 from users.models.question import SecretQuestion
@@ -25,7 +26,7 @@ class UserManager(DjangoUserManager):
     def get_queryset(self) -> UserQuerySet:
         return UserQuerySet(self.model, using=self._db)
 
-    def create_user(self, username: str, license: str = None, current_medic: str = None, **kwargs: dict) -> User:
+    def create_user(self, username: str, license: Optional[str] = None, current_medic: Optional[str] = None, **kwargs: dict) -> User:
         # We need to use dynamic imports to avoid circular imports.
         from users.models.patient import Patient
         from users.models.medic import Medic

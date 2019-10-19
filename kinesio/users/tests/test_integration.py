@@ -47,7 +47,7 @@ class TestIntegration(APITestCase):
         self._log_in(Token.objects.get(key=token).user, 'azul')
 
         # Try to update the user's personal information again and assign a medic. Now it should be working
-        update_data = {'first_name': 'raul', 'patient': {'current_medic_id': self.medic.id}}
+        update_data = {'first_name': 'raul', 'patient': {'current_medic': {'id': self.medic.id}}}
         response = self.client.patch(f'/api/v1/patients/detail/',
                                      update_data,
                                      format='json')
@@ -57,4 +57,4 @@ class TestIntegration(APITestCase):
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['first_name'], 'raul')
-        self.assertEqual(response.json()['patient']['current_medic_id'], self.medic.id)
+        self.assertEqual(response.json()['patient']['current_medic']['id'], self.medic.id)
