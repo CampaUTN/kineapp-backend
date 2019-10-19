@@ -6,7 +6,7 @@ from .user_medic_lite import MedicUserLiteSerializer
 
 
 class PatientTypeSerializer(serializers.ModelSerializer):
-    current_medic = MedicUserLiteSerializer(read_only=True)
+    current_medic = MedicUserLiteSerializer(required=False)
     shared_history_with = MedicUserLiteSerializer(read_only=True, many=True)
     exercises = ExerciseSerializer(read_only=True, many=True)
 
@@ -15,8 +15,9 @@ class PatientTypeSerializer(serializers.ModelSerializer):
         fields = ('current_medic', 'shared_history_with', 'exercises')
 
     def update(self, instance: Patient, validated_data: dict):
-        if 'current_medic_id' in validated_data and validated_data.get('current_medic_id') is not None and validated_data.get('current_medic_id') <= 0:
-            validated_data.update({'current_medic_id': None})
+        if validated_data.get('current_medic', None):
+            new_medic_id = validated_data.pop('current_medic').get('id', instance.current_medic.id)  # may be the same.
+            instance.current_medic_id = new_medic_id if new_medic_id > 0 else None
         return super().update(instance, validated_data)
 
     def to_representation(self, obj: Patient):

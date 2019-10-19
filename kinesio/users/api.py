@@ -255,7 +255,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
 
     @swagger_auto_schema(
         operation_id='patch_current_patient',
-        operation_description='Patch the current patient. You can use 0 or negative numbers, as well as \'null\', to unset the current medic.',
+        operation_description='Patch the current patient. You can use 0 or negative integers to unset the current medic. Do not use \'null\' for that purpose!.',
         responses={
             status.HTTP_400_BAD_REQUEST: openapi.Response(
                 description='Invalid parameter',

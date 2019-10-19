@@ -25,8 +25,8 @@ class TestPatientsAPI(APITestCase):
         self._log_in(self.patient, '1234')
         response = self.client.get(f'/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['patient']['current_medic_first_name'], self.patient.patient.current_medic.first_name)
-        self.assertEqual(response.json()['patient']['current_medic_last_name'], self.patient.patient.current_medic.last_name)
+        self.assertEqual(response.json()['patient']['current_medic']['first_name'], self.patient.patient.current_medic.first_name)
+        self.assertEqual(response.json()['patient']['current_medic']['last_name'], self.patient.patient.current_medic.last_name)
 
     def test_get_all_patients_of_the_current_medic(self):
         self._log_in(self.medic, '1234')
@@ -54,22 +54,33 @@ class TestPatientsAPI(APITestCase):
 
     def test_update_patient_current_medic_id(self):
         self._log_in(self.patient, '1234')
-        data = {'patient': {'current_medic_id': self.another_medic.id}}
+        data = {'patient': {'current_medic': {'id': self.another_medic.id}}}
         response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the response
-        self.assertEqual(response.json()['patient']['current_medic_id'], self.another_medic.id)
+        self.assertEqual(response.json()['patient']['current_medic']['id'], self.another_medic.id)
         # Check whether the db was properly updated or not
         self.patient.refresh_from_db()
         self.assertEqual(self.patient.patient.current_medic, self.another_medic)
 
-    def test_unset_medic_for_patient(self):
+    def test_unset_medic_for_patient_using_id_zero(self):
         self._log_in(self.patient, '1234')
-        data = {'patient': {'current_medic_id': 0}}
+        data = {'patient': {'current_medic': {'id': 0}}}
         response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check the response
-        self.assertEqual(response.json()['patient']['current_medic_id'], None)
+        self.assertEqual(response.json()['patient']['current_medic'], None)
+        # Check whether the db was properly updated or not
+        self.patient.refresh_from_db()
+        self.assertEqual(self.patient.patient.current_medic, None)
+
+    def test_unset_medic_for_patient_using_id_minus_one(self):
+        self._log_in(self.patient, '1234')
+        data = {'patient': {'current_medic': {'id': -1}}}
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check the response
+        self.assertEqual(response.json()['patient']['current_medic'], None)
         # Check whether the db was properly updated or not
         self.patient.refresh_from_db()
         self.assertEqual(self.patient.patient.current_medic, None)
