@@ -9,7 +9,7 @@ from ..serializers import MedicUserSerializer, RelatedPatientsSerializer, Relate
 from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
 
 
-class PatientListAPIView(GenericListView):
+class RelatedPatientsOfMedicAPIView(GenericListView):
     serializer_class = RelatedPatientsSerializer
     queryset = User.objects.patients()
 

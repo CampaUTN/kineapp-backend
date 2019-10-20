@@ -1,11 +1,10 @@
 from django.shortcuts import render
 from django.views import generic
-from users.models import SecretQuestion, Patient
-from django.contrib.auth import logout
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from users.models import Patient
 from .models import ClinicalSession, Image, Video, Exercise
 
 
@@ -21,23 +20,6 @@ class IndexView(generic.View):
                 return render(request, 'kinesioapp/index.html', {'sessions': sessions})
         else:
             return render(request, 'kinesioapp/index.html')
-
-
-class SecretQuestionView(generic.View):
-    def get(self, request: HttpRequest) -> HttpResponse:
-        questions = SecretQuestion.objects.order_by('description')
-
-        return render(request, 'kinesioapp/login/secret_question.html', {"questions": questions})
-
-
-class NoUserView(generic.View):
-    def get(self, request: HttpRequest) -> HttpResponse:
-        return render(request, 'kinesioapp/login/no_user.html')
-
-
-def logout_view(request: HttpRequest) -> HttpResponse:
-    logout(request)
-    return HttpResponse("User logout")
 
 
 class ClinicalHistoryView(LoginRequiredMixin, generic.View):

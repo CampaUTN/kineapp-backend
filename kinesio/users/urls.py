@@ -1,9 +1,14 @@
 from django.urls import re_path
 from rest_framework.urlpatterns import format_suffix_patterns
-from . import api
-from django.contrib.auth.views import auth_logout
+from . import api, views
 
-urlpatterns = [
+web_url_patterns = [
+    re_path(r'^logout/?$', views.logout_view, name='logout_view'),
+    re_path(r'^secret_questions/?$', views.SecretQuestionView.as_view(), name='secret_questions_view'),
+    re_path(r'^no_user/?$', views.NoUserView.as_view(), name='no_user_view'),
+]
+
+api_url_patterns = [
     # Login related views
     re_path(r'^api/v1/user_exists/?$', api.users_exists, name='user_exists'),
     re_path(r'^api/v1/login/?$', api.login, name='login_view'),
@@ -17,8 +22,8 @@ urlpatterns = [
     re_path(r'^api/v1/medics/detail/?', api.CurrentMedicDetailUpdateAPIView.as_view(), name='current_medic_detail'),
 
     # Patients
-    re_path(r'^api/v1/patients/?$', api.PatientListAPIView.as_view(), name='patients'),
+    re_path(r'^api/v1/patients/?$', api.RelatedPatientsOfMedicAPIView.as_view(), name='related_patients_of_medic'),
     re_path(r'^api/v1/patients/detail/?', api.CurrentPatientDetailUpdateAPIView.as_view(), name='current_patient_detail'),
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns = format_suffix_patterns(web_url_patterns + api_url_patterns)

@@ -1,4 +1,4 @@
-from .for_medics import CurrentMedicDetailUpdateAPIView, PatientListAPIView
+from .for_medics import CurrentMedicDetailUpdateAPIView, RelatedPatientsOfMedicAPIView
 from .for_patients import CurrentPatientDetailUpdateAPIView, MedicListAPIView
 from .login import login
 from .register import register
