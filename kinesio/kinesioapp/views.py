@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.utils.decorators import method_decorator
 from django.views import generic
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 
 from users.models import Patient
 from .models import ClinicalSession, Image, Video, Exercise
