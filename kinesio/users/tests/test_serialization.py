@@ -2,7 +2,7 @@ from kinesioapp.utils.test_utils import APITestCase
 from django.utils import timezone
 
 from ..models import User
-from ..serializers.serializers import UserSerializer
+from ..serializers import UserSerializer
 
 
 class TestObjectsSerializedInADictionary(APITestCase):

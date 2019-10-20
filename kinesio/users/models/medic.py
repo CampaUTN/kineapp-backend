@@ -1,6 +1,7 @@
+from __future__ import annotations
 from django.db import models
 
-from users.models.user import User
+from users.models.user import User, UserQuerySet
 
 
 class MedicManager(models.Manager):
@@ -9,7 +10,7 @@ class MedicManager(models.Manager):
             license = license.strip() if license.strip() != '' else None
         return license
 
-    def create(self, user: User, license: str, **kwargs) -> models.Model:
+    def create(self, user: User, license: str, **kwargs: dict) -> Medic:
         return super().create(user=user, license=self._fixed_license(license), **kwargs)
 
 
@@ -20,7 +21,7 @@ class Medic(models.Model):
     objects = MedicManager()
 
     @property
-    def related_patients(self) -> [User]:
+    def related_patients(self) -> UserQuerySet:
         return User.objects.filter(id__in=self.user.patients.values('id'))
 
     @property

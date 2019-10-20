@@ -1,12 +1,10 @@
-from django.core.files.storage import FileSystemStorage
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404
-
+from rest_framework.request import HttpRequest
 
 from ..models import Video
 from ..serializers import VideoSerializer
@@ -36,7 +34,7 @@ class VideoUploadView(APIView):
             )
         }
     )
-    def post(self, request):
+    def post(self, request: HttpRequest) -> Response:
         try:
             uploaded_file = request.data.get('content')
             name = request.data.get('name')
@@ -72,6 +70,6 @@ class VideoDeleteAPIView(GenericDeleteView):
             ),
         }
     )
-    def delete(self, request, id: int):
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+    def delete(self, request: HttpRequest, id: int) -> Response:
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().delete(request, id)

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from django.db import models, transaction
 from typing import List, Iterable
 
@@ -8,7 +9,7 @@ from .video import Video
 
 
 class ExerciseQuerySet(models.QuerySet):
-    def create_multiple(self, days: Iterable[int], **kwargs) -> List[models.Model]:
+    def create_multiple(self, days: Iterable[int], **kwargs: dict) -> List[Exercise]:
         if not days:
             raise Exception('At least one day should be specified for the exercise')
         elif any(not choices.days.is_valid(day) for day in days):

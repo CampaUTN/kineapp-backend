@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 import requests
 import os
 from django.conf import settings
+from typing import List, BinaryIO
 
 from ..utils.test_utils import APITestCase
 from ..models import Video
@@ -25,10 +26,10 @@ class TestVideoAPI(APITestCase):
         os.remove(f'{self.media_path}{self.file_name}')
         os.remove(f'{self.media_path}{self.file_name}_thumb.jpg')
 
-    def get_media_files(self):
+    def get_media_files(self) -> List[str]:
         return [f'{self.media_path}{file}' for file in os.listdir(self.media_path)]
 
-    def get_file_descriptor(self):
+    def get_file_descriptor(self) -> BinaryIO:
         return open(f'/kinesio/kinesio/kinesioapp/tests/resources/{self.file_name}', 'rb')
 
     def test_get_video(self):

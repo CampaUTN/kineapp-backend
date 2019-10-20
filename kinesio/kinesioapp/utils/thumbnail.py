@@ -13,23 +13,23 @@ class ThumbnailGenerator:
         self._image_content = base64.b64decode(image_content_as_base64)
 
     @property
-    def _datetime(self):
+    def _datetime(self) -> str:
         return str(datetime.now()).replace(' ', '_').replace(':', '_')
 
     @property
-    def _random_int(self):
+    def _random_int(self) -> int:
         return random.randint(0, 9999999)
 
     @property
-    def _image_hash(self):
+    def _image_hash(self) -> str:
         return hashlib.md5(self._image_content).hexdigest()
 
     @property
-    def _thumbail_path(self):
+    def _thumbail_path(self) -> str:
         return f'{self._path_base}_{self._image_hash}_thumbnail.jpg'
 
     @property
-    def thumbnail(self):
+    def thumbnail(self) -> bytes:
         try:
             im = Image.open(BytesIO(self._image_content))
             size = 320, 320

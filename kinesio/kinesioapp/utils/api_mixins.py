@@ -1,11 +1,14 @@
 from rest_framework.response import Response
-from rest_framework import generics, status
+from rest_framework.request import HttpRequest
+from rest_framework import status
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
+from django.db import models
+from typing import Optional
 
 
 class GenericPatchViewWithoutPut(APIView):
-    def patch(self, request, id: int) -> Response:
+    def patch(self, request: HttpRequest, id: int) -> Response:
         instance = get_object_or_404(self.model_class, id=id)
         if not instance.can_edit_and_delete(request.user):
             return Response(status=status.HTTP_401_UNAUTHORIZED,
@@ -20,7 +23,7 @@ class GenericPatchViewWithoutPut(APIView):
 
 
 class GenericDeleteView(APIView):
-    def delete(self, request, id: int) -> Response:
+    def delete(self, request: HttpRequest, id: int) -> Response:
         instance = get_object_or_404(self.model_class, id=id)
         if not instance.can_edit_and_delete(request.user):
             return Response(status=status.HTTP_401_UNAUTHORIZED,
@@ -32,7 +35,7 @@ class GenericDeleteView(APIView):
 
 # fixme: remove if unused
 class GenericListView(APIView):
-    def get(self, request, queryset=None) -> Response:
+    def get(self, request: HttpRequest, queryset: Optional[models.QuerySet] = None) -> Response:
         if queryset is None:
             queryset = self.queryset
         serializer = self.serializer_class(queryset.accessible_by(request.user), many=True)
@@ -40,7 +43,7 @@ class GenericListView(APIView):
 
 
 class GenericDetailsView(APIView):
-    def get(self, request, id) -> Response:
+    def get(self, request: HttpRequest, id: int) -> Response:
         instance = get_object_or_404(self.model_class, id=id)
         if not instance.can_view(request.user):
             return Response(status=status.HTTP_401_UNAUTHORIZED,
