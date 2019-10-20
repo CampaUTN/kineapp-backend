@@ -4,10 +4,10 @@ from ..models import User
 from .user import PatientUserSerializer
 
 
-class RelatedPatientsSerializer(serializers.Serializer):
+class RelatedPatientsSerializer(serializers.ModelSerializer):
     """ Serializes Users with Medic type. Not patients. """
     patients = PatientUserSerializer(many=True, read_only=True, source='medic.related_patients')
-    non_assigned_patients = PatientUserSerializer(many=True, read_only=True, source='medic.shared')
+    non_assigned_patients = PatientUserSerializer(many=True, read_only=True, source='shared')
 
     class Meta:
         model = User

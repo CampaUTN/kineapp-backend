@@ -5,7 +5,7 @@ from rest_framework import status
 from ..models import User
 
 
-class TestSharingPatient(APITestCase):
+class TestSharingFromPatientSide(APITestCase):
     def setUp(self) -> None:
         self.current_medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
                                                       dni=39203040, birth_date=datetime.now(),
@@ -21,14 +21,14 @@ class TestSharingPatient(APITestCase):
 
     def test_share_with_no_medics(self):
         self._log_in(self.patient, '1234')
-        response = self.client.get(f'/api/v1/patients/detail/')
+        response = self.client.get('/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertListEqual(response.json()['patient']['shared_history_with'], [])
 
     def test_share_with_one_medic(self):
         self._log_in(self.patient, '1234')
         self.patient.patient.share_with(self.first_medic)
-        response = self.client.get(f'/api/v1/patients/detail/')
+        response = self.client.get('/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.first_medic.first_name)
 
@@ -36,7 +36,7 @@ class TestSharingPatient(APITestCase):
         self._log_in(self.patient, '1234')
         self.patient.patient.share_with(self.first_medic)
         self.patient.patient.share_with(self.second_medic)
-        response = self.client.get(f'/api/v1/patients/detail/')
+        response = self.client.get('/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['patient']['shared_history_with']), 2)
 
@@ -44,7 +44,7 @@ class TestSharingPatient(APITestCase):
         self._log_in(self.patient, '1234')
         self.patient.patient.share_with(self.first_medic)
         self.patient.patient.share_with(self.second_medic)
-        response = self.client.get(f'/api/v1/patients/detail/')
+        response = self.client.get('/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['current_medic']['id'], self.current_medic.id)
 
@@ -53,7 +53,7 @@ class TestSharingPatient(APITestCase):
         self.patient.patient.share_with(self.first_medic)
         self.patient.patient.share_with(self.second_medic)
         self.patient.patient.unshare_with(self.first_medic)
-        response = self.client.get(f'/api/v1/patients/detail/')
+        response = self.client.get('/api/v1/patients/detail/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['patient']['shared_history_with']), 1)
         self.assertEqual(response.json()['patient']['shared_history_with'][0]['last_name'], self.second_medic.last_name)
