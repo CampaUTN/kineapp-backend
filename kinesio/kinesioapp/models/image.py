@@ -10,21 +10,23 @@ from users.models import User
 from kinesioapp.utils.thumbnail import ThumbnailGenerator
 from kinesioapp.utils.models_mixins import CanViewModelMixin
 from .clinical_session import ClinicalSession
+from ..utils.binary_field_to_string import binary_field_to_string
 
 
 class ImageQuerySet(models.QuerySet):
     def create(self, content_as_base64: bytes, **kwargs) -> models.Model:
-        content_as_base64 = content_as_base64.replace(b'\\n', b'').replace(b'\n', b'')  # to fix a bug in the mobile front end.
+        # Replace '\n's to fix a bug in the mobile front end.
+        content_as_base64 = content_as_base64.replace(b'\\n', b'').replace(b'\n', b'')
         encrypted_content = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(content_as_base64)
         encrypted_thumbnail = Fernet(settings.IMAGE_ENCRYPTION_KEY).encrypt(ThumbnailGenerator(content_as_base64).thumbnail)
         return super().create(_content_base64_and_encrypted=encrypted_content,
                               _thumbnail_base64_and_encrypted=encrypted_thumbnail,
                               **kwargs)
 
-    def by_tag(self, tag: str) -> models.QuerySet:
+    def by_tag(self, tag: str) -> ImageQuerySet:
         return self.annotate(tag_initial=Lower(Substr('tag', 1, 1))).filter(tag_initial=tag[0].lower())
 
-    def of_patient(self, user: User) -> models.QuerySet:
+    def of_patient(self, user: User) -> ImageQuerySet:
         return self.filter(clinical_session__patient__id__in=user.related_patients.values('id'))
 
     def has_images_with_tag(self, tag: str) -> bool:
@@ -42,17 +44,13 @@ class Image(models.Model, CanViewModelMixin):
 
     objects = ImageQuerySet.as_manager()
 
-    def _decrypted_binary_field(self, field) -> str:
-        field = field.tobytes() if type(field) is not bytes else field
-        return str(Fernet(settings.IMAGE_ENCRYPTION_KEY).decrypt(field))[2:-1]
-
     @property
     def content_as_base64(self) -> str:
-        return self._decrypted_binary_field(self._content_base64_and_encrypted)
+        return binary_field_to_string(self._content_base64_and_encrypted, decrypt=True)
 
     @property
     def thumbnail_as_base64(self) -> str:
-        return self._decrypted_binary_field(self._thumbnail_base64_and_encrypted)
+        return binary_field_to_string(self._thumbnail_base64_and_encrypted, decrypt=True)
 
     def can_edit_and_delete(self, user: User) -> bool:
         return self.clinical_session.can_edit_and_delete(user)

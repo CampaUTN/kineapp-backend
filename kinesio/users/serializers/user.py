@@ -19,22 +19,27 @@ class UserSerializer(serializers.ModelSerializer):
                                      write_only=True,
                                      required=False,
                                      style={'input_type': 'password'})
-    picture_url = serializers.CharField(read_only=True, required=False)
+    picture_base64 = serializers.CharField(required=False)
     dni = serializers.IntegerField(required=False)
     birth_date = serializers.DateField(required=False)
 
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'patient', 'password',
-                  'picture_url', 'dni', 'birth_date')
+                  'picture_base64', 'dni', 'birth_date')
 
     def update(self, instance: User, validated_data: dict) -> User:
         # Remove nested field information from validated_data
         medic_data = validated_data.pop('medic', None)
         patient_data = validated_data.pop('patient', None)
+        picture_base64 = validated_data.pop('picture_base64', None)
 
         # Update User
         super().update(instance, validated_data)
+
+        # Update profile picture
+        if picture_base64:
+            instance.change_profile_picture(picture_base64)
 
         # Update User's type.
         if patient_data:
@@ -50,11 +55,11 @@ class PatientUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'email', 'is_active', 'patient', 'password',
-                  'picture_url', 'dni', 'birth_date')
+                  'picture_base64', 'dni', 'birth_date')
 
 
 class MedicUserSerializer(UserSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'email', 'is_active', 'medic', 'password',
-                  'picture_url', 'dni', 'birth_date')
+                  'picture_base64', 'dni', 'birth_date')

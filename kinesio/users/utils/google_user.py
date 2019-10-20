@@ -1,7 +1,10 @@
 from google.oauth2 import id_token
-from google.auth.transport import requests
+from google.auth.transport import requests as google_auth_requests
 from django.conf import settings
 import textwrap
+import base64
+
+from . import retry_requests as requests
 
 
 class InformationNotAccessibleFromTokenException(Exception):
@@ -37,7 +40,7 @@ class GoogleUser:
     @staticmethod
     def _get_account_information(google_token) -> dict:
         try:
-            account_information = id_token.verify_oauth2_token(google_token, requests.Request())
+            account_information = id_token.verify_oauth2_token(google_token, google_auth_requests.Request())
         except ValueError:
             raise GoogleRejectsTokenException('Google rejects the token.')
         return account_information
@@ -47,8 +50,10 @@ class GoogleUser:
         return self.account_information['iss'].lower().split('://').pop().strip() == 'accounts.google.com'
 
     @property
-    def picture_url(self) -> str:
-        return self.account_information['picture']
+    def picture_base64(self) -> bytes:
+        picture_url = self.account_information['picture']
+        picture = requests.get(picture_url).content
+        return base64.b64encode(picture)
 
     @property
     def user_id(self) -> str:

@@ -3,10 +3,11 @@ from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserMa
 from django.db import models, transaction
 from django.conf import settings
 from rest_framework.authtoken.models import Token
-from typing import Optional
+from typing import Optional, Union
 
 from kinesioapp.utils.models_mixins import CanViewModelMixin
 from users.models.question import SecretQuestion
+from kinesioapp.utils.binary_field_to_string import binary_field_to_string
 
 
 class UserQuerySet(models.QuerySet):
@@ -30,8 +31,10 @@ class UserManager(DjangoUserManager):
         # We need to use dynamic imports to avoid circular imports.
         from users.models.patient import Patient
         from users.models.medic import Medic
+
+        # Create the user and its type on a single transaction
         with transaction.atomic():
-            user = super().create_user(username,  **kwargs)
+            user = super().create_user(username, **kwargs)
             if license is not None:
                 Medic.objects.create(pk=user.pk, id=user.id, user=user, license=license)
             else:
@@ -50,12 +53,16 @@ class UserManager(DjangoUserManager):
 
 class User(AbstractUser, CanViewModelMixin):
     secret_question = models.ForeignKey(SecretQuestion, null=True, on_delete=models.SET_NULL)
-    tries = models.IntegerField(default=0)
-    picture_url = models.CharField(max_length=255, default=None, null=True)
+    tries = models.PositiveSmallIntegerField(default=0)
+    _picture_base64 = models.BinaryField(default=None, null=True)
     dni = models.PositiveIntegerField(unique=True)  # National Identity Document of Argentina
     birth_date = models.DateField()
 
     objects = UserManager()
+
+    @property
+    def picture_base64(self):
+        return binary_field_to_string(self._picture_base64)
 
     @property
     def is_patient(self) -> bool:
@@ -110,3 +117,16 @@ class User(AbstractUser, CanViewModelMixin):
         else:
             self.log_valid_try()
         return credentials_are_valid
+
+    def change_profile_picture(self, picture_base64: Union[bytes, str]) -> None:
+        if type(picture_base64) is str:
+            picture_base64 = bytes(picture_base64.encode('utf-8'))
+        self._picture_base64 = picture_base64
+        self.save()
+
+    def save(self, **kwargs: dict) -> None:
+        # Replace '\n's to fix a bug in the mobile front end.
+        if self._picture_base64:
+            picture = self._picture_base64.tobytes() if type(self._picture_base64) is not bytes else self._picture_base64
+            self._picture_base64 = picture.replace(b'\\n', b'').replace(b'\n',  b'')
+        super().save(**kwargs)
