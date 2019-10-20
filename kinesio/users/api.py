@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.request import HttpRequest
 
 from .models import User, SecretQuestion
-from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientUserSerializer, MedicUserSerializer, RelatedPatientsSerializer
+from .serializers import UserSerializer, SecretQuestionSerializer, TokenSerializer, PatientUserSerializer, MedicUserSerializer, RelatedPatientsSerializer, RelatedPatientsDocumentationSerializer
 from .tests.utils.mock_decorators import mock_google_user_on_tests
 from .utils.google_user import GoogleUser, GoogleRejectsTokenException, InformationNotAccessibleFromTokenException, InvalidAudienceException
 from kinesioapp.utils.api_mixins import GenericPatchViewWithoutPut, GenericDetailsView, GenericListView
@@ -224,7 +224,7 @@ class PatientListAPIView(GenericListView):
         responses={
             status.HTTP_200_OK: openapi.Response(
                 description="Data from patients of the current medic. If used as a patient, it will fail.",
-                schema=RelatedPatientsSerializer(),
+                schema=RelatedPatientsDocumentationSerializer(),
             )
         }
     )

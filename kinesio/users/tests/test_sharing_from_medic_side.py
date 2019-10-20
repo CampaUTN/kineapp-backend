@@ -13,8 +13,8 @@ class TestSharingFromMedicSide(APITestCase):
                                                       dni=39203040, birth_date=datetime.now(),
                                                       first_name='maria', last_name='alvarez')
         self.medic = User.objects.create_user(username='juan55', password='1234', license='matricula #5343',
-                                                    dni=42203088, birth_date=datetime.now(),
-                                                    first_name='juan', last_name='gomez')
+                                              dni=42203088, birth_date=datetime.now(),
+                                              first_name='juan', last_name='gomez')
         self.patient = User.objects.create_user(username='martin', current_medic=self.current_medic,
                                                 dni=15505050, birth_date=datetime.now())
         self.another_patient = User.objects.create_user(username='sofia', current_medic=self.current_medic,
