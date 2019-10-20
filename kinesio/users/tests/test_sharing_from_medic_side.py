@@ -46,4 +46,4 @@ class TestSharingFromMedicSide(APITestCase):
         self.patient.patient.share_with(self.medic)
         response = self.client.get('/api/v1/patients')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['patients'][0]['current_medic']['id'], self.current_medic.id)
+        self.assertEqual(response.json()['patients'][0]['patient']['current_medic']['id'], self.current_medic.id)
