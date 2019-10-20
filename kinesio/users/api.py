@@ -250,7 +250,7 @@ class CurrentPatientDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetai
         }
     )
     def get(self, request: HttpRequest) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().get(request, request.user.id)
 
     @swagger_auto_schema(
@@ -296,7 +296,7 @@ class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetails
         }
     )
     def get(self, request: HttpRequest) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().get(request, request.user.id)
 
     @swagger_auto_schema(
@@ -315,7 +315,7 @@ class CurrentMedicDetailUpdateAPIView(GenericPatchViewWithoutPut, GenericDetails
         }
     )
     def patch(self, request: HttpRequest) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().patch(request, request.user.id)
 
 

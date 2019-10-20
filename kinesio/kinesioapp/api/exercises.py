@@ -83,7 +83,7 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
         }
     )
     def patch(self, request: HttpRequest, id: int) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().patch(request, id)
 
     @swagger_auto_schema(
@@ -109,5 +109,5 @@ class ExerciseUpdateAndDeleteAPIView(GenericDeleteView, GenericPatchViewWithoutP
         }
     )
     def delete(self, request: HttpRequest, id: int) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().delete(request, id)

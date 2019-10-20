@@ -61,5 +61,5 @@ class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
         }
     )
     def patch(self, request: HttpRequest, id: int) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().patch(request, id)

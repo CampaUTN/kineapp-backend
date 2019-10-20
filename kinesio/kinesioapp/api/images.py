@@ -43,7 +43,7 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
         }
     )
     def get(self, request: HttpRequest, id: int) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().get(request, id)
 
     @swagger_auto_schema(
@@ -74,7 +74,7 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
         }
     )
     def delete(self, request: HttpRequest, id: int) -> Response:
-        """ This method exist only to add an '@swagger_auto_schema' annotation """
+        # This method exist only to add an '@swagger_auto_schema' annotation
         return super().delete(request, id)
 
 
