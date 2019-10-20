@@ -5,4 +5,4 @@ class GoogleUser:
         self.last_name = 'Gomez'
         self.email = 'test@gmail.com'
         self.username_is_valid = True
-        self.picture_url = 'https://kinesioapp.com/unexistentepicture'
+        self.picture_base64 = b'A0A0A0'

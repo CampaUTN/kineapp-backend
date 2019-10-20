@@ -11,4 +11,4 @@ class MedicUserLiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'picture_url')
+        fields = ('id', 'first_name', 'last_name', 'picture_base64')
