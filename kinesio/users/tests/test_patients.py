@@ -3,6 +3,7 @@ from rest_framework import status
 from datetime import datetime
 
 from ..models import User
+from kinesioapp.models import Exercise
 
 
 class TestPatientsAPI(APITestCase):
@@ -97,3 +98,36 @@ class TestPatientsAPI(APITestCase):
         # Check whether the db was properly updated or not
         self.patient.refresh_from_db()
         self.assertEqual(self.patient.patient.current_medic, None)
+
+
+class TestExerciseExistenceAfterPatientModification(APITestCase):
+    def setUp(self) -> None:
+        self.current_medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
+                                                      dni=39203040, birth_date=datetime.now())
+        self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
+                                                      dni=42203088, birth_date=datetime.now())
+        self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
+                                                dni=25000033, birth_date=datetime.now(), current_medic=self.current_medic)
+        Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
+        Exercise.objects.create(day=3, patient=self.patient.patient, name='another exercise')
+
+    def test_exercises_are_not_deleted_if_the_patients_new_medic_is_the_same(self):
+        self._log_in(self.patient, '1234')
+        data = {'patient': {'current_medic': {'id': self.current_medic.id}}}
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(self.patient.patient.exercises.count(), 2)
+
+    def test_exercises_are_deleted_if_the_patient_change_its_medic(self):
+        self._log_in(self.patient, '1234')
+        data = {'patient': {'current_medic': {'id': self.another_medic.id}}}
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(self.patient.patient.exercises.count(), 0)
+
+    def test_exercises_are_deleted_if_the_patient_removes_its_medic(self):
+        self._log_in(self.patient, '1234')
+        data = {'patient': {'current_medic': {'id': -1}}}
+        response = self.client.patch(f'/api/v1/patients/detail/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(self.patient.patient.exercises.count(), 0)

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import transaction
 
 from ..models import User, Patient
 from kinesioapp.serializers import ExerciseSerializer
@@ -16,8 +17,12 @@ class PatientTypeSerializer(serializers.ModelSerializer):
 
     def update(self, instance: Patient, validated_data: dict):
         if validated_data.get('current_medic', None):
-            new_medic_id = validated_data.pop('current_medic').get('id', instance.current_medic.id if instance.current_medic else 0)  # may be the same.
-            instance.current_medic = User.objects.get(id=new_medic_id) if new_medic_id > 0 else None
+            with transaction.atomic():
+                new_medic_id = validated_data.pop('current_medic').get('id', instance.current_medic.id if instance.current_medic else 0)
+                new_medic = User.objects.get(id=new_medic_id) if new_medic_id > 0 else None
+                if new_medic != instance.current_medic:  # The patient changed or unassigned the medic
+                    instance.exercises.all().delete()  # Remove exercises created by the previous medic
+                    instance.current_medic = new_medic
         return super().update(instance, validated_data)
 
     def to_representation(self, obj: Patient):
