@@ -41,7 +41,7 @@ class TestContinueSession(APITestCase):
         data = {'secret_question_id': self.secret_question.id + 100, 'answer': self.answer + 's'}
         response = self.client.post(f'/api/v1/continue_session/', data=data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     def test_continue_session_answer_is_case_insensitive(self):
         self._log_in(self.user, 'sky')
         data = {'secret_question_id': self.secret_question.id, 'answer': 'SKy'}

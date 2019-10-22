@@ -57,13 +57,13 @@ from ..utils.google_user import GoogleUser
 @permission_classes((AllowAny,))
 @mock_google_user_on_tests
 def register(request: HttpRequest, google_user_class: type = GoogleUser) -> Response:
-    google_token = request.data.get('google_token', None)
+    google_token = request.data.get('google_token')
     secret_question_id = request.data.get('secret_question_id')
     answer = request.data.get('answer')
-    license = request.data.get('license', None)
-    current_medic = request.data.get('current_medic', None)
-    if google_token is None:
-        response = Response({'error': 'Missing token'},
+    license = request.data.get('license')
+    current_medic = request.data.get('current_medic')
+    if google_token is None or answer is None or secret_question_id is None or answer == '':
+        response = Response({'error': 'Missing token, answer, secret_question_id or empty answer'},
                             status=status.HTTP_400_BAD_REQUEST)
     elif license is not None and current_medic is not None:
         response = Response({'error': 'Do not specify current_medic and license at the same time'},
