@@ -41,5 +41,5 @@ class Video(models.Model):
         video_file_path = self.content.path
         output_file_path = f'{video_file_path}_thumb.jpg'
         command = FFmpeg(inputs={video_file_path: None},
-                         outputs={output_file_path: ['-ss', '00:00:04', '-vframes', '1']})
+                         outputs={output_file_path: ['-ss', '00:00:00', '-vframes', '1']})
         command.run()
