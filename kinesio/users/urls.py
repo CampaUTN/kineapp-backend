@@ -11,7 +11,8 @@ web_url_patterns = [
 api_url_patterns = [
     # Login related views
     re_path(r'^api/v1/user_exists/?$', api.users_exists, name='user_exists'),
-    re_path(r'^api/v1/login/?$', api.login, name='login_view'),
+    re_path(r'^api/v1/login/?$', api.login, name='login'),
+    re_path(r'^api/v1/continue_session/?$', api.continue_session, name='continue_session'),
     re_path(r'^api/v1/secret_questions/?$', api.SecretQuestionAPIView.as_view(), name='secret_questions'),
 
     # Registration related views

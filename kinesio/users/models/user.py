@@ -111,12 +111,18 @@ class User(AbstractUser, CanViewModelMixin):
         return self == user
 
     def check_question_and_answer(self, secret_question_id: int, answer: str) -> bool:
-        credentials_are_valid = (self.secret_question.id == secret_question_id) and self.check_password(raw_password=answer)
+        credentials_are_valid = self.check_secret_question(secret_question_id) and self.check_password(raw_password=answer)
         if not credentials_are_valid:
             self.log_invalid_try()
         else:
             self.log_valid_try()
         return credentials_are_valid
+
+    def check_secret_question(self, secret_question_id: int) -> bool:
+        return self.secret_question.id == secret_question_id
+
+    def check_password(self, raw_password: str) -> bool:
+        return super().check_password(raw_password=raw_password.lower())
 
     def change_profile_picture(self, picture_base64: Union[bytes, str]) -> None:
         if type(picture_base64) is str:
@@ -129,4 +135,10 @@ class User(AbstractUser, CanViewModelMixin):
         if self._picture_base64:
             picture = self._picture_base64.tobytes() if type(self._picture_base64) is not bytes else self._picture_base64
             self._picture_base64 = picture.replace(b'\\n', b'').replace(b'\n',  b'')
+
         super().save(**kwargs)
+
+    def set_password(self, raw_password: str) -> None:
+        # It's a secret answer's response, not a password.
+        # Therefore, it should be case insensitive.
+        super().set_password(raw_password=raw_password.lower() if raw_password else raw_password)
