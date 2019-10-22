@@ -50,7 +50,7 @@ from .utils.authenticate import authenticate
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
-def login(request: HttpRequest) -> Response:
+def continue_session(request: HttpRequest) -> Response:
     # Check whether there are missing parameters
     try:
         secret_question_id = int(request.data['secret_question_id'])
