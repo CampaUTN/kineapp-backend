@@ -8,8 +8,9 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.authtoken.models import Token
 from rest_framework.request import HttpRequest
+from django.shortcuts import get_object_or_404
 
-from ..models import User
+from ..models import User, SecretQuestion
 from ..serializers import UserSerializer, TokenSerializer
 from ..tests.utils.mock_decorators import mock_google_user_on_tests
 from ..utils.google_user import GoogleUser
@@ -49,6 +50,9 @@ from ..utils.google_user import GoogleUser
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             description="Missing parameter or license and current_medic specified at the same time."
+        ),
+        status.HTTP_404_NOT_FOUND: openapi.Response(
+            description="Secret question not found."
         )
     }
 )
@@ -69,6 +73,7 @@ def register(request: HttpRequest, google_user_class: type = GoogleUser) -> Resp
         response = Response({'error': 'Do not specify current_medic and license at the same time'},
                             status=status.HTTP_400_BAD_REQUEST)
     else:
+        get_object_or_404(SecretQuestion, id=secret_question_id)  # Check secret question existence
         google_user = google_user_class(google_token)
         user_created = User.objects.create_user(username=google_user.user_id,
                                                 first_name=request.data.get('first_name', google_user.first_name),
