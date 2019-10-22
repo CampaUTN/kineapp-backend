@@ -141,4 +141,4 @@ class User(AbstractUser, CanViewModelMixin):
     def set_password(self, raw_password: str) -> None:
         # It's a secret answer's response, not a password.
         # Therefore, it should be case insensitive.
-        super().set_password(raw_password=raw_password.lower())
+        super().set_password(raw_password=raw_password.lower() if raw_password else raw_password)
