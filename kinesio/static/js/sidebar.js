@@ -5,12 +5,12 @@ $(function(){
 
         $that = $(this);
 
-        $that.parent().find('a').removeClass('active');
+        $that.parent().find('a').removeClass('active').removeClass("white-text");
         $that.addClass('active').addClass("white-text");
     });
 
     $('#search_clinical').bind("change keyup paste", function(){
-        event.preventDefault();
+        e.preventDefault();
         let value = $(this).val().toLowerCase();
         $("#list_data a").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
