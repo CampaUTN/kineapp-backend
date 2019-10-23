@@ -1,7 +1,8 @@
-from kinesioapp.utils.test_utils import APITestCase
 from datetime import datetime
+
 from rest_framework import status
 
+from kinesioapp.utils.test_utils import APITestCase
 from ..models import User
 
 
@@ -32,6 +33,19 @@ class TestSharingFromPatientSide(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.first_medic.first_name)
 
+    def test_share_with_one_medic_through_api(self):
+        self._log_in(self.patient, '1234')
+        data = {'user_to_share_with': self.first_medic.id}
+        response = self.client.post(f'/api/v1/share_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.first_medic.first_name)
+
+    def test_try_share_with_invalid_user_through_api(self):
+        self._log_in(self.patient, '1234')
+        data = {'user_to_share_with': 12345}
+        response = self.client.post(f'/api/v1/share_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_share_with_two_medics(self):
         self._log_in(self.patient, '1234')
         self.patient.patient.share_with(self.first_medic)
@@ -57,3 +71,14 @@ class TestSharingFromPatientSide(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['patient']['shared_history_with']), 1)
         self.assertEqual(response.json()['patient']['shared_history_with'][0]['last_name'], self.second_medic.last_name)
+
+    def test_cancel_share_with_medic_through_api(self):
+        self._log_in(self.patient, '1234')
+        data = {'user_to_share_with': self.first_medic.id}
+        response = self.client.post(f'/api/v1/share_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.first_medic.first_name)
+        data = {'user_to_unshare_with': self.first_medic.id}
+        response = self.client.post(f'/api/v1/unshare_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()['patient']['shared_history_with']), 0)
