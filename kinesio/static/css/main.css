@@ -226,7 +226,7 @@ div.col > .form-control::placeholder {
 }
 
 .scroll {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .scroll::-webkit-scrollbar-track
