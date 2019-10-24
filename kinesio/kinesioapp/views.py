@@ -52,7 +52,7 @@ class TimelapseView(LoginRequiredMixin, generic.View):
 class PublicVideosView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         user = request.user
-        videos = Video.objects.filter(owner=user)
+        videos = Video.objects.filter(owner=user.medic)
         return render(request, 'kinesioapp/users/public_video.html', {'videos': videos})
 
 
