@@ -1,9 +1,31 @@
+let idleTime = 0;
 $(document).ready(function () {
     <!-- Sometimes Google Api charge slow and the button does not render -->
     <!-- This is the solution -->
     renderButton();
 
+    //Increment the idle time counter every minute.
+    let idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+    //Zero the idle timer on mouse movement.
+    $(this).mousemove(function (e) {
+        idleTime = 0;
+    });
+    $(this).keypress(function (e) {
+        idleTime = 0;
+    });
+
 });
+
+function timerIncrement() {
+    idleTime = idleTime + 1;
+    if (idleTime >= 1) { // 5 minutes
+        $('.modal-content').load('secret_questions/', function(){
+            $('#modalGeneric').modal({show:true});
+        });
+    }
+}
+
 
 function signOut() {
     $.get('logout/').then(function () {
@@ -62,16 +84,18 @@ function renderButton() {
 }
 
 function get_session(clinical_session_id) {
+    $('.list-group-item').addClass('disable').then(
     $.ajax({
         type: 'GET',
         url: 'clinical_session/?clinical_session_id=' + clinical_session_id,
         success: function(response) {
             $('#card_history').append(response).one("animationend", function(){
-                $('#card_session').removeClass('animated slideInRight')
+                $('#card_session').removeClass('animated slideInRight');
+                $('.list-group-item').removeClass('disable');
             });
         },
         error: showModalLogin
-    });
+    }));
 }
 
 function get_videos() {
