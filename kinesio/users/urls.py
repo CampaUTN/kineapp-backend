@@ -25,6 +25,10 @@ api_url_patterns = [
     # Patients
     re_path(r'^api/v1/patients/?$', api.RelatedPatientsOfMedicAPIView.as_view(), name='related_patients_of_medic'),
     re_path(r'^api/v1/patients/detail/?', api.CurrentPatientDetailUpdateAPIView.as_view(), name='current_patient_detail'),
+
+    # Sharing
+    re_path(r'^api/v1/share_sessions/?$', api.share_sessions, name='share_sessions'),
+    re_path(r'^api/v1/unshare_sessions/?$', api.unshare_sessions, name='unshare_sessions'),
 ]
 
 urlpatterns = format_suffix_patterns(web_url_patterns + api_url_patterns)

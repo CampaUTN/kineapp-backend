@@ -16,7 +16,7 @@ class TestSharingFromMedicSide(APITestCase):
                                               dni=42203088, birth_date=datetime.now(),
                                               first_name='juan', last_name='gomez')
         self.patient = User.objects.create_user(username='martin', current_medic=self.current_medic,
-                                                dni=15505050, birth_date=datetime.now())
+                                                dni=15505050, birth_date=datetime.now(), password='1234')
         self.another_patient = User.objects.create_user(username='sofia', current_medic=self.current_medic,
                                                         dni=65345435, birth_date=datetime.now())
 
@@ -29,6 +29,17 @@ class TestSharingFromMedicSide(APITestCase):
     def test_share_of_one_patient(self):
         self._log_in(self.medic, '1234')
         self.patient.patient.share_with(self.medic)
+        response = self.client.get('/api/v1/patients')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['non_assigned_patients'][0]['first_name'], self.patient.first_name)
+
+    def test_share_of_one_patient_through_api(self):
+        self._log_in(self.patient, '1234')
+        data = {'user_to_share_with': self.medic.id}
+        response = self.client.post(f'/api/v1/share_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.medic.first_name)
+        self._log_in(self.medic, '1234')
         response = self.client.get('/api/v1/patients')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['non_assigned_patients'][0]['first_name'], self.patient.first_name)
@@ -47,3 +58,23 @@ class TestSharingFromMedicSide(APITestCase):
         response = self.client.get('/api/v1/patients')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()['patients'][0]['patient']['current_medic']['id'], self.current_medic.id)
+
+    def test_share_of_one_patient_then_cancel_through_api(self):
+        self._log_in(self.patient, '1234')
+        data = {'user_to_share_with': self.medic.id}
+        response = self.client.post(f'/api/v1/share_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.medic.first_name)
+        self._log_in(self.medic, '1234')
+        response = self.client.get('/api/v1/patients')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()['non_assigned_patients'][0]['first_name'], self.patient.first_name)
+        self._log_in(self.patient, '1234')
+        data = {'user_to_unshare_with': self.medic.id}
+        response = self.client.post(f'/api/v1/unshare_sessions/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()['patient']['shared_history_with']), 0)
+        self._log_in(self.medic, '1234')
+        response = self.client.get('/api/v1/patients')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()['non_assigned_patients']), 0)
