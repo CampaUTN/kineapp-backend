@@ -3,6 +3,7 @@ from typing import Optional
 from django.conf import settings
 from django.http import HttpResponse, HttpRequest
 from rest_framework.status import HTTP_401_UNAUTHORIZED
+from kinesio.settings import SESSION_TIMEOUT_KEY
 
 try:
     from django.utils.deprecation import MiddlewareMixin
@@ -10,12 +11,12 @@ except ImportError:
     MiddlewareMixin = object
 
 
-SESSION_TIMEOUT_KEY = "_session_init_timestamp_"
-
-
 class SessionTimeoutMiddleware(MiddlewareMixin):
-    def process_request(self, request: HttpRequest) -> Optional[HttpResponse]:
+    def process_view(self, request, callback, callback_args, callback_kwargs) -> Optional[HttpResponse]:
         if not hasattr(request, "session") or request.session.is_empty():
+            return
+
+        if getattr(callback, 'session_timeout_exempt', False):
             return
 
         init_time = request.session.setdefault(SESSION_TIMEOUT_KEY, time.time())
@@ -29,6 +30,7 @@ class SessionTimeoutMiddleware(MiddlewareMixin):
         if session_is_expired:
             request.session.flush()
             return HttpResponse('Unauthorized', status=HTTP_401_UNAUTHORIZED)
+
 
         expire_since_last_activity = getattr(
             settings, "SESSION_EXPIRE_AFTER_LAST_ACTIVITY", False

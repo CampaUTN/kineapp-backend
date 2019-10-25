@@ -19,8 +19,9 @@ $(document).ready(function () {
 
 function timerIncrement() {
     idleTime = idleTime + 1;
-    if (idleTime >= 1) { // 5 minutes
-        $('.modal-content').load('secret_questions/', function(){
+
+    if (idleTime >= 5 && !($("#modalGeneric").data('bs.modal') || {})._isShown) { // 5 minutes
+        $('.modal-content').load('continue_session/', function(){
             $('#modalGeneric').modal({show:true});
         });
     }
