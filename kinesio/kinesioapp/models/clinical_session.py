@@ -24,4 +24,4 @@ class ClinicalSession(models.Model, CanViewModelMixin):
         return self.patient.user in user.related_patients
 
     def can_view(self, user: User) -> bool:
-        return self.can_edit_and_delete(user) or user in self.patient.shared_history_with
+        return self.can_edit_and_delete(user) or user in self.patient.shared_history_with.all()

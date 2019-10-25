@@ -5,10 +5,10 @@ from django.conf import settings
 from typing import List
 from django.db.models.functions import Substr, Lower
 
-from kinesioapp import choices
+from .. import choices
 from users.models import User
-from kinesioapp.utils.thumbnail import ThumbnailGenerator
-from kinesioapp.utils.models_mixins import CanViewModelMixin
+from ..utils.thumbnail import ThumbnailGenerator
+from ..utils.models_mixins import CanViewModelMixin
 from .clinical_session import ClinicalSession
 from ..utils.binary_field_to_string import binary_field_to_string
 
@@ -54,3 +54,6 @@ class Image(models.Model, CanViewModelMixin):
 
     def can_edit_and_delete(self, user: User) -> bool:
         return self.clinical_session.can_edit_and_delete(user)
+
+    def can_view(self, user: User) -> bool:
+        return self.clinical_session.can_view(user)
