@@ -15,6 +15,11 @@ $(document).ready(function () {
         idleTime = 0;
     });
 
+    //Disable right-click on all images
+    $('body').on("contextmenu",function(e){
+        return false;
+    });
+
 });
 
 function timerIncrement() {

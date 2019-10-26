@@ -23,7 +23,7 @@
             <div class="col-sm-6 ">
                 <div class="text-center" style="margin-bottom: 20px;">
                     {% if patient.picture_base64 %}
-                        <img src="data:image/jpeg;base64,{{ patient.picture_base64 }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block">
+                        <img src="data:image/jpeg;base64,{{ patient.picture_base64 }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block" draggable="false">
                     {% else %}
                         <i class="fas fa-user-md fa-8x" style="color: #355C7D; horiz-align: center"></i>
                     {% endif %}
