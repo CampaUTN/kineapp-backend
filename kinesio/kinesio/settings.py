@@ -44,9 +44,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
+    'django_cron',
     'users.apps.UsersConfig',  # To use a custom User model.
     'kinesioapp'
 ]
@@ -179,3 +180,9 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
 IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
+
+
+# Reset exercise status
+CRON_CLASSES = [
+    "kinesioapp.cron.ResetExerciseStatus",
+]

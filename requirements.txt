@@ -22,3 +22,4 @@ attrs==19.1.0
 packaging==19.1
 pyparsing==2.4.2
 ffmpy==0.2.2
+django-cron==0.5.1
