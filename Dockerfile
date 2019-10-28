@@ -4,8 +4,9 @@ RUN mkdir /kinesio
 ADD . /kinesio
 WORKDIR /kinesio/kinesio
 
-RUN echo "America/Argentina/Buenos_Aires" > /etc/timezone && \
-    dpkg-reconfigure -f noninteractive tzdata
+ENV TZ=America/Argentina/Buenos_Aires
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y ffmpeg && \
