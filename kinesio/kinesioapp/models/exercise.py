@@ -19,6 +19,12 @@ class ExerciseQuerySet(models.QuerySet):
                 exercises = [self.create(day=day, **kwargs) for day in days]
         return exercises
 
+    def reset_status(self):
+        result = self.update(done=False)
+        for item in self:
+            item.save()
+        return result
+
 
 class Exercise(models.Model, CanViewModelMixin):
     """ If an exercise should be done two times a week, we will create two different exercises:
@@ -34,3 +40,7 @@ class Exercise(models.Model, CanViewModelMixin):
 
     def can_edit_and_delete(self, user: User) -> bool:
         return self.patient.user in user.related_patients
+
+    def reset_status(self):
+        self.done = False
+        self.save()
