@@ -188,6 +188,6 @@ CRON_CLASSES = [
 # Import secrets.py from current directory.
 # Sensitive information, such as API keys, should be placed on a secrets.py file and not pushed to the repository.
 try:
-    import secrets
+    from .secrets import (FIREBASE_API_KEY, IMAGE_ENCRYPTION_KEY, SECRET_KEY)
 except ModuleNotFoundError:
     logging.warning('Secrets file not found!')

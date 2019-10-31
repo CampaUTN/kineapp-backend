@@ -29,6 +29,9 @@ api_url_patterns = [
     # Sharing
     re_path(r'^api/v1/share_sessions/?$', api.share_sessions, name='share_sessions'),
     re_path(r'^api/v1/unshare_sessions/?$', api.unshare_sessions, name='unshare_sessions'),
+
+    # Notifications
+    re_path(r'^api/v1/change_device_id/?$', api.ChangeDeviceIDAPIView.as_view(), name='change_device_id'),
 ]
 
 urlpatterns = format_suffix_patterns(web_url_patterns + api_url_patterns)
