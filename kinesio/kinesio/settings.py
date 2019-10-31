@@ -20,9 +20,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7lex&^&d#s^yuz-y#g+5=nr%t+&r7i)xtwjl=^mamo(l%&p2ql'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -180,7 +177,6 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
-IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
 
 
 # Reset exercise status
