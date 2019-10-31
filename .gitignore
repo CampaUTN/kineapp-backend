@@ -120,3 +120,6 @@ kinesio/users/migrations/
 
 # Stuff generated during deployment
 deployment/
+
+# Private credentials
+kinesio/kinesio/secrets.py

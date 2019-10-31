@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -186,3 +187,11 @@ IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
 CRON_CLASSES = [
     "kinesioapp.cron.ResetExerciseStatus",
 ]
+
+
+# Import secrets.py from current directory.
+# Sensitive information, such as API keys, should be placed on a secrets.py file and not pushed to the repository.
+try:
+    import secrets
+except ModuleNotFoundError:
+    logging.warning('Secrets file not found!')
