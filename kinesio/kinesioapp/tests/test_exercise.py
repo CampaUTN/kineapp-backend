@@ -13,8 +13,10 @@ class TestGetExercisesOnPatientsAPI(APITestCase):
         self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
                                                       dni=42203088, birth_date=datetime.now())
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
-                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
-        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
+                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic,
+                                                firebase_device_id='1111111111')
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now(),
+                                 firebase_device_id='2222222')
 
     def test_get_current_patient_without_exercises(self):
         self._log_in(self.patient, '1234')
@@ -59,8 +61,10 @@ class TestExercisesAPI(APITestCase):
         self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
                                                       dni=42203088, birth_date=datetime.now())
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
-                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic)
-        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now())
+                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic,
+                                                firebase_device_id='11111111')
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now(),
+                                 firebase_device_id='22222222')
 
     def test_create_exercise_for_one_day(self):
         self._log_in(self.patient, '1234')

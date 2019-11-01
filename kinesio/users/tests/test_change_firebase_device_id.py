@@ -5,7 +5,7 @@ from django.utils import timezone
 from ..models import User
 
 
-class ChangeDeviceIDAPI(APITestCase):
+class TestChangeDeviceIDAPI(APITestCase):
     def setUp(self) -> None:
         self.medic_user = User.objects.create_user(username='juan22', password='1234', license='matricula #4942',
                                                    dni=39203040, birth_date=timezone.now())

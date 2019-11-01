@@ -10,8 +10,9 @@ from rest_framework.request import HttpRequest
 
 from ..models import User
 from ..serializers import TokenSerializer
-from ..tests.utils.mock_decorators import mock_google_user_on_tests
+from ..tests.utils.mock_decorators import inject_dependencies_on_testing
 from ..utils.google_user import GoogleUser, GoogleRejectsTokenException, InformationNotAccessibleFromTokenException, InvalidAudienceException
+from ..tests.utils.mocks import GoogleUser as GoogleUserMock
 from .utils.authenticate import authenticate
 
 
@@ -49,7 +50,7 @@ from .utils.authenticate import authenticate
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
-@mock_google_user_on_tests
+@inject_dependencies_on_testing({'google_user_class': GoogleUserMock})
 def login(request: HttpRequest, google_user_class: type = GoogleUser) -> Response:
     # Check that there are no missing parameters
     try:

@@ -1,12 +1,23 @@
-from django.http.request import HttpRequest
-from django.http.response import HttpResponse
-from typing import Callable
-
-from .testing_detection import is_testing_mode
-from .mocks import GoogleUser
+from typing import Callable, Dict, Any
+from functools import wraps
+from django.conf import settings
 
 
-def mock_google_user_on_tests(original_function: Callable) -> Callable:
-    def new_function(request: HttpRequest) -> HttpResponse:
-        return original_function(request, google_user_class=GoogleUser) if is_testing_mode() else original_function(request)
-    return new_function
+def inject_dependencies_on_testing(mocking_configuration: Dict[str, Any]) -> Callable:
+    """ This function injects dependencies if we are running django's tests through manage.py.
+        The argument should contain keys with the name of named parameters to override
+        and the parameter to inject as value.
+        For instnace, given:
+        @inject_dependencies_on_testing({'x': 100, 'y': 10})
+        def function(x, y=0, z=0):
+            return x + y + z
+        Then function(1000) is going to return 1000 normally but """
+    def real_decorator(function: Callable) -> Callable:
+        @wraps(function)
+        def wrapper(*args: tuple, **kwargs: dict) -> Any:
+            if settings.TESTING:
+                # Inject dependencies as kwargs to override original function's default values.
+                kwargs.update(mocking_configuration)
+            return function(*args, **kwargs)
+        return wrapper
+    return real_decorator

@@ -12,9 +12,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import logging
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -22,16 +23,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+TESTING = False
 
 ALLOWED_HOSTS = ['*']
-
 DEFAULT_PORT = 80
 PUBLIC_IP = '198.199.121.38'
-
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), ".."),
-)
-
 
 # Application definition
 
@@ -146,7 +142,7 @@ STATIC_URL = '/static/'
 # Media files
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "media")
 MEDIA_URL = '/media/'
-
+FFMPEG_GLOBAL_OPTIONS = None  # Global options to generate video thumbnails. Should be empty by default
 
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5rt4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
@@ -183,11 +179,3 @@ MAX_PASSWORD_TRIES = 10
 CRON_CLASSES = [
     "kinesioapp.cron.ResetExerciseStatus",
 ]
-
-
-# Import secrets.py from current directory.
-# Sensitive information, such as API keys, should be placed on a secrets.py file and not pushed to the repository.
-try:
-    from .secrets import (FIREBASE_API_KEY, IMAGE_ENCRYPTION_KEY, SECRET_KEY)
-except ModuleNotFoundError:
-    logging.warning('Secrets file not found!')
