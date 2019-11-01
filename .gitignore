@@ -122,4 +122,4 @@ kinesio/users/migrations/
 deployment/
 
 # Private credentials
-kinesio/kinesio/secrets.py
+kinesio/kinesio/settings/settings_production.py
