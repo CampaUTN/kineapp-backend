@@ -11,8 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-import logging
-import sys
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -179,3 +178,4 @@ MAX_PASSWORD_TRIES = 10
 CRON_CLASSES = [
     "kinesioapp.cron.ResetExerciseStatus",
 ]
+RESET_EXERCISES_AT_TIMES = ['05:00']

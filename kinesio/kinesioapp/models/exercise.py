@@ -3,6 +3,7 @@ from django.db import models, transaction
 from typing import List, Iterable
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+import datetime
 
 from kinesioapp import choices
 from users.models import User, Patient
@@ -49,6 +50,11 @@ class Exercise(models.Model, CanViewModelMixin):
     def reset_status(self):
         self.done = False
         self.save()
+
+    @inject_dependencies_on_testing({'notification_manager': NotificationManagerMock()})
+    def send_reminder_if_necessary(self, notification_manager: NotificationManager = NotificationManager()):
+        if datetime.date.today().weekday() == self.day:
+            notification_manager.send_exercise_reminder(self)
 
 # Signals
 @receiver(post_save, sender=Exercise)
