@@ -7,6 +7,9 @@
     <meta name="description" content="Kinesioapp Webpage">
     <meta name="author" content="kinesioappteam">
 
+    <link rel="shortcut icon" href="{% static "images/favicon.ico" %}" type="image/x-icon">
+    <link rel="icon" href="{% static "images/favicon.ico" %}" type="image/x-icon">
+
     <title>{% block title %}<<< Insert title on any template that extends base.html! >>>{% endblock %}</title>
 
     <!-- Font Awesome -->
@@ -21,7 +24,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <!-- Google Api -->
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <meta name="google-signin-client_id" content="989785370858-vo6q8dpnjs4d5gr08k6s0to4opp1repi.apps.googleusercontent.com">
 
     <!-- Slick Sliders -->
@@ -69,5 +71,6 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.8.7/js/mdb.min.js"></script>
 
 <script src="{% static "js/index.js" %}"></script>
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 </body>
 </html>
