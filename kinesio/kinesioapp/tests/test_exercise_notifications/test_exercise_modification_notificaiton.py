@@ -67,4 +67,6 @@ class TestExerciseModificationNotification(APITestCase):
         self.patient.firebase_device_id = None
         self.patient.save()
         Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
-        self.assertEquals(NotificationManagerMock().times_called, 0)
+        # The notification manager was cal, but the Firebase connector did not, because the user do not have the device_id
+        self.assertEquals(NotificationManagerMock().times_called, 1)
+        self.assertEquals(NotificationManagerMock().firebase_connector.times_called, 0)
