@@ -25,6 +25,7 @@ function timerIncrement() {
 
     if (idleTime >= 5 && !($("#modalGeneric").data('bs.modal') || {})._isShown) { // 5 minutes
         $('.modal-content').load('continue_session/', function(){
+            parent.$.fancybox.close();
             $('#modalGeneric').modal({show:true});
         });
     }

@@ -14,7 +14,7 @@ $(function(){
     $('#search_clinical').bind("change keyup paste", function(){
         event.preventDefault();
         let value = $(this).val().toLowerCase();
-        $("#list_data a").filter(function() {
+        $("#list_data li").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
