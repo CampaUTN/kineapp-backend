@@ -11,6 +11,10 @@ import textwrap
 
 from ..serializers import TokenSerializer
 from .utils.authenticate import authenticate
+from ..utils.session_timeout_exempt import session_timeout_exempt
+from kinesio.settings import SESSION_TIMEOUT_KEY
+import time
+
 
 
 @swagger_auto_schema(
@@ -48,6 +52,7 @@ from .utils.authenticate import authenticate
         )
     })
 @csrf_exempt
+@session_timeout_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def continue_session(request: HttpRequest) -> Response:
@@ -58,4 +63,6 @@ def continue_session(request: HttpRequest) -> Response:
     except KeyError:
         return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
     else:
+        # Update the session timeout time
+        request.session[SESSION_TIMEOUT_KEY] = time.time()
         return authenticate(request, request.user, secret_question_id, answer)

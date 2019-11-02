@@ -6,8 +6,11 @@
             {% if user.is_medic %}
             <a class="white-text" onclick="get_rutine({{ patient.pk }}, true)" style="margin-right: 10px;"><i class="fas fa-dumbbell"></i> Rutina  </a>
             {% endif %}
-            <a class="dropdown-toggle icon-card-header white-text" id="timelapseButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-right: 10px;"><i class="fas fa-history"></i> Timelapse</a>
-            <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="timelapseMenuButton">
+            <a class="dropdown-toggle icon-card-header white-text" id="timelapseButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-right: 10px;">
+                <i class="fas fa-history"></i>
+                Timelapse
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="timelapseButton">
                 <a class="dropdown-item text-center" onclick="open_timelapse('F', {{ patient.pk }})">Frontal</a>
                 <a class="dropdown-item text-center" onclick="open_timelapse('B', {{ patient.pk }})">Trasera</a>
                 <a class="dropdown-item text-center" onclick="open_timelapse('R', {{ patient.pk }})">Lado Derecho</a>
@@ -22,32 +25,30 @@
         <div class="row">
             <div class="col-sm-6 ">
                 <div class="text-center" style="margin-bottom: 20px;">
-                    {% if patient.picture_url %}
-                        <img src="{{ patient.picture_url }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block">
+                    {% if patient.picture_base64 %}
+                        <img src="data:image/jpeg;base64,{{ patient.picture_base64 }}" class="profile-pic img-fluid z-depth-1 rounded mx-auto d-block" draggable="false">
                     {% else %}
                         <i class="fas fa-user-md fa-8x" style="color: #355C7D; horiz-align: center"></i>
                     {% endif %}
                 </div>
-                <p class="card-text">Fecha de Nacimiento: {{ patient.birth_date }} </p>
-                <p class="card-text">DNI: {{ patient.dni }} </p>
-                {% if not sessions %}
-                    <h5 class="card-title">Actualmente no posees información clinica con este paciente/medico</h5>
-                {% endif %}
+                <p class="card-text" style="font-size: 1.1rem;">Fecha de Nacimiento: {{ patient.birth_date|date:"j" }} de {{ patient.birth_date|date:"F, Y" }} </p>
+                <p class="card-text" style="font-size: 1.1rem;">DNI: {{ patient.dni }} </p>
             </div>
             <div class="col-sm-6">
                 <h6 class="card-text ">Sesiones:</h6>
-                <ul class="list-group scroll" id="listSession">
-                    {% if sessions %}
+                {% if sessions %}
+                    <ul class="list-group list-group-flush scroll" id="listSession" style="display: block;">
                         {% for session in sessions %}
-                            <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date }}</li>
+                            <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date|date:"j" }} de {{ session.date|date:"F, Y" }} <span class="badge badge-default" style="float: right;">Creado por: Medic Hardcode</span></li>
                         {% endfor %}
-                    {% else %}
-                        <i class="fas fa-list fa-3x text-center"></i>
-                        <p class="card-text" style="font-size:15px; padding: 25px; text-align: center">
-                            Todavía no hay sesiones regitradas sobre este paciente. Se debe utilizar la aplcación para agregar una nueva.
-                        </p>
-                    {% endif %}
-                </ul>
+                    </ul>
+                {% else %}
+                    <i class="fas fa-list fa-3x text-center" style="display: block"></i>
+                    <p class="card-text" style="font-size:15px; padding: 25px; text-align: center">
+                        Todavía no hay sesiones regitradas sobre este paciente. Se debe utilizar la aplcación para agregar una nueva.
+                    </p>
+                {% endif %}
+
             </div>
         </div>
 

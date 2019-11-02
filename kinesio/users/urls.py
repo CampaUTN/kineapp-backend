@@ -5,6 +5,7 @@ from . import api, views
 web_url_patterns = [
     re_path(r'^logout/?$', views.logout_view, name='logout_view'),
     re_path(r'^secret_questions/?$', views.SecretQuestionView.as_view(), name='secret_questions_view'),
+    re_path(r'^continue_session/?$', views.continue_session_view, name='continue_session_view'),
     re_path(r'^no_user/?$', views.NoUserView.as_view(), name='no_user_view'),
 ]
 

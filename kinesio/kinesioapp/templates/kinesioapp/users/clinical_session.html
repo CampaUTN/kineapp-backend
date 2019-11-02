@@ -9,31 +9,34 @@
         </ul>
     </div>
     <div class="card-body">
+        {% if clinical_session.description %}
         <div class="row" style="display:inline-block; height: 30%; margin-left: 15px;">
             <div class="card-title">
                 <p>Observaciones: {{ clinical_session.description }}</p>
             </div>
         </div>
-        <div class="row" style="height: 100%;">
-            {% if clinical_session.images.all %}
+        {% endif %}
+        {% if clinical_session.images.all %}
+            <div class="row" style="height: 100%;">
                 <div class="col">
                     <i class="fas fa-arrow-circle-left prev"></i>
                 </div>
                 <div class="multiple-items col-lg-10">
                     {% for image in clinical_session.images.all %}
-                        <a data-fancybox="preview" class="loader view overlay zoom " href="data:image/jpeg;base64,{{ image.content_as_base64 }}"><img src="data:image/jpeg;base64,{{ image.thumbnail_as_base64 }}" class="img-fluid z-depth-1" style="margin-bottom: 5px;"></a>
+                        <a data-fancybox="preview" class="loader view overlay zoom " href="data:image/jpeg;base64,{{ image.content_as_base64 }}"><img src="data:image/jpeg;base64,{{ image.thumbnail_as_base64 }}" class="img-fluid z-depth-1" style="max-height: 175px; margin: 0 auto;" draggable="false"></a>
                     {% endfor %}
                 </div>
                 <div class="col">
                     <i class="fas fa-arrow-circle-right next"></i>
                 </div>
-                </div>
-            {% else %}
+            </div>
+        {% else %}
+            <div class="row" style="display: block;">
                 <p class="text-center" style="font-size:20px; padding: 5px; text-align: center">
                     <i class="fas fa-images fa-3x center-info"></i>
                     Esta sesión no cuenta con imagenes asociadas.
                 </p>
-            {% endif %}
-
+            </div>
+        {% endif %}
     </div>
 </div>
