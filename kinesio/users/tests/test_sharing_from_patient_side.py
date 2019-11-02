@@ -38,7 +38,7 @@ class TestSharingFromPatientSide(APITestCase):
         data = {'user_to_share_with': self.first_medic.id}
         response = self.client.post(f'/api/v1/share_sessions/', data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.first_medic.first_name)
+        self.assertEqual(response.json()['first_name'], self.first_medic.first_name)
 
     def test_try_share_with_invalid_user_through_api(self):
         self._log_in(self.patient, '1234')
@@ -77,8 +77,8 @@ class TestSharingFromPatientSide(APITestCase):
         data = {'user_to_share_with': self.first_medic.id}
         response = self.client.post(f'/api/v1/share_sessions/', data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['patient']['shared_history_with'][0]['first_name'], self.first_medic.first_name)
+        self.assertEqual(response.json()['first_name'], self.first_medic.first_name)
         data = {'user_to_unshare_with': self.first_medic.id}
         response = self.client.post(f'/api/v1/unshare_sessions/', data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()['patient']['shared_history_with']), 0)
+        self.assertEqual(response.json()['first_name'], self.first_medic.first_name)
