@@ -1,40 +1,74 @@
 {% load static %}
 <script src="{% static "js/sidebar.js" %}"></script>
 
-<div class="animated slideInLeft" style="margin-top: 10px">
-    <div style="width: 100%;">
-        <form class="form-inline md-form form-sm mt-0">
-            <div class="col" style=" max-width: 15px;">
-                <i class="fas fa-search" aria-hidden="true"></i>
-            </div>
+<div class="animated slideInLeft" style="height: 100%; margin-top: 10px">
+    <div class="row" style="height: 50%; display: block">
+        <div style="width: 100%;">
+            <form class="form-inline md-form form-sm mt-0">
+                <div class="col" style=" max-width: 15px;">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                </div>
 
-            <div class="col" style="width: 100%;">
-                <input id="search_clinical" class="form-control form-control-sm ml-3 white-text" style="width: 99%;" type="text" placeholder="Search" aria-label="Search">
-            </div>
-        </form>
-    </div>
-
-    <div id="list_data" class="list-group list-group-flush scrollbar scrollbar-primary" style="margin-top: 10px">
+                <div class="col" style="width: 100%;">
+                    <input id="search_clinical" class="form-control form-control-sm ml-3 white-text" style="width: 99%;" type="text" placeholder="Search" aria-label="Search">
+                </div>
+            </form>
+        </div>
         {% if user.is_medic %}
             {% if patients %}
-                {% for patient in patients %}
-                    <a onclick="get_clinical_history_by_patient({{ patient.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ patient }}</a>
-                {% endfor %}
+                <ul id="list_data" class="list-group list-group-flush scroll" style="margin-left: 20px; display: block;">
+                    {% for patient in patients %}
+                        <li onclick="get_clinical_history_by_patient({{ patient.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ patient }}</li>
+                    {% endfor %}
+                </ul>
             {% else %}
-                <i class="fas fa-user-injured fa-3x white-text text-center"></i>
-                <p class="white-text" style="font-size:20px; padding: 5px; text-align: center">
-                    Por el momento no contas con ningún paciente asignado. Desde la aplicación podes solicitar la asignación de los mismos.
-                </p>
+                <div style="width: 100%; margin-left: 20px;">
+                    <i class="fas fa-user-injured fa-3x white-text text-center"></i>
+                    <p class="white-text" style="font-size:20px; padding: 5px; text-align: center">
+                        Por el momento no contas con ningún paciente asignado. Desde la aplicación podes solicitar la asignación de los mismos.
+                    </p>
+                </div>
             {% endif %}
         {% else %}
-            {% if user.patient.current_medic%}
-                <a onclick="get_clinical_history_by_patient({{ user.pk }})" class="list-group-item list-group-item-action waves-effect"> {{ user.patient.current_medic }}</a>
+            {% if user.patient.sessions.all %}
+                <ul id="list_data" class="list-group list-group-flush scroll" style="margin-left: 20px; display: block;">
+                    {% for session in user.patient.sessions.all %}
+                        <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date|date:"j" }} de {{ session.date|date:"F, Y" }} <span class="badge badge-default" style="float: right;">Creado por: Medic Hardcode</span></li>
+                    {% endfor %}
+                </ul>
             {% else %}
-                <i class="fas fa-list fa-3x white-text text-center"></i>
-                <p class="white-text" style="font-size:20px; padding: 5px; text-align: center">
-                    Todavia no tenes sesiones registradas. Visita a algún profesional y las podras observar listadas aquí mismo.
-                </p>
+                <div style="width: 100%; margin-left: 20px;">
+                    <i class="fas fa-list fa-3x text-center" style="display: block"></i>
+                    <i class="fas fa-list fa-3x white-text text-center" style="display: block"></i>
+                    <p class="white-text" style="font-size:20px; padding: 5px; text-align: center">
+                        Todavía no tenes sesiones registradas. Visita a algún profesional y las podras observar listadas aquí mismo.
+                    </p>
+                </div>
             {% endif %}
         {%  endif %}
+
+    </div>
+    <div class="row" style="height: 50%; display: block; margin-top: 50px;">
+        <div style="width: 100%;">
+            <p class="white-text" style="font-size:20px; padding: 5px; margin-left: 20px;">
+                Historiales Compartidos:
+            </p>
+        </div>
+        {% if user.shared.all %}
+            <ul id="list_data_shared" class="list-group list-group-flush scroll" style="margin-left: 20px; display: block;">
+                {% for patient in user.shared.all %}
+                    <li onclick="get_clinical_history_by_patient({{ patient.pk }})" class="list-group-item list-group-item-action waves-effect"> Pac. {{ patient.user.last_name }}, {{ patient.user.first_name }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div style="width: 100%; margin-left: 20px; text-align: center">
+                <i class="fas fa-share fa-2x white-text text-center"></i>
+                <i class="fas fa-syringe fa-2x white-text text-center"></i>
+                <p class="white-text" style="font-size:15px; padding: 5px; text-align: center">
+                    Por el momento no contas con ningún paciente compartido.
+                </p>
+            </div>
+        {%  endif %}
+
     </div>
 </div>
