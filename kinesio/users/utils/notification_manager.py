@@ -16,7 +16,7 @@ class NotificationManager(metaclass=Singleton):
                                                          message_title=title,
                                                          message_body=body)
         else:
-            logging.info(f'Device ID not set for user: {user}')
+            logging.info(f'The user {user} has no firebase_device_id.')
 
     def routine_changed(self, user: User) -> None:
         self._send_notification(user,
