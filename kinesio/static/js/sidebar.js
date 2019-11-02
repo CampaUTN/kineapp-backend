@@ -1,18 +1,20 @@
 $(function(){
 
     $('.list-group a').click(function(e) {
-        e.preventDefault()
+        e.preventDefault();
 
         $that = $(this);
 
-        $that.parent().find('a').removeClass('active');
+        $("#list_data").find('a').removeClass('active').removeClass("white-text");
+        $("#list_data_shared").find('a').removeClass('active').removeClass("white-text");
         $that.addClass('active').addClass("white-text");
+
     });
 
     $('#search_clinical').bind("change keyup paste", function(){
         event.preventDefault();
         let value = $(this).val().toLowerCase();
-        $("#list_data a").filter(function() {
+        $("#list_data li").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });

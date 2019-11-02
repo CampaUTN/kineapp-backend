@@ -55,10 +55,13 @@
                                             <a class="accordion-toggle" data-toggle="collapse" href="#exersice{{ exercise.pk }}">
                                                 {% if exercise.done %}
                                                     <i class="far fa-check-circle"></i>
+                                                    {{ exercise.name }}
+                                                    <span class="badge badge-success">Realizado!</span>
                                                 {% else %}
                                                     <i class="far fa-times-circle"></i>
+                                                    {{ exercise.name }}
+                                                    <span class="badge badge-danger">No fue realizado!</span>
                                                 {% endif %}
-                                                {{ exercise.name }}
                                             </a>
                                         </div>
                                         <div class="accordion-body collapse" id="exersice{{ exercise.pk }}">

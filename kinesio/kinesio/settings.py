@@ -175,6 +175,7 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/'
 SESSION_EXPIRE_SECONDS = 300  # 5 Minutes
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+SESSION_TIMEOUT_KEY = "_session_init_timestamp_"
 
 
 # Custom Fields

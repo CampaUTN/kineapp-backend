@@ -1,7 +1,7 @@
 $(document).ready(function(){
     $('.multiple-items').slick({
         infinite: true,
-        slidesToShow: 1,
+        slidesToShow: 3,
         rows: 1,
         prevArrow: $(".prev"),
         nextArrow: $(".next"),
