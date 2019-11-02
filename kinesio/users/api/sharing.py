@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.request import HttpRequest
 
 from ..models import User
-from ..serializers import UserSerializer
+from ..serializers.user_medic_lite import MedicUserLiteSerializer
 
 
 @swagger_auto_schema(
@@ -23,7 +23,7 @@ from ..serializers import UserSerializer
     responses={
         status.HTTP_200_OK: openapi.Response(
             description="Successful share.",
-            schema=UserSerializer(),
+            schema=MedicUserLiteSerializer(),
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             description="Missing parameter, user_to_share_with",
@@ -52,7 +52,7 @@ def share_sessions(request: HttpRequest) -> Response:
 
     user_to_share_with = get_object_or_404(User, id=id_to_share_with)
     patient.share_with(user_to_share_with)
-    return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
+    return Response(MedicUserLiteSerializer(user_to_share_with).data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(
@@ -68,7 +68,7 @@ def share_sessions(request: HttpRequest) -> Response:
     responses={
         status.HTTP_200_OK: openapi.Response(
             description="Successful unshare.",
-            schema=UserSerializer(),
+            schema=MedicUserLiteSerializer(),
         ),
         status.HTTP_400_BAD_REQUEST: openapi.Response(
             description="Missing parameter, user_to_unshare_with",
@@ -94,4 +94,4 @@ def unshare_sessions(request: HttpRequest) -> Response:
 
     user_to_unshare_with = get_object_or_404(User, id=id_to_unshare_with)
     patient.unshare_with(user_to_unshare_with)
-    return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
+    return Response(MedicUserLiteSerializer(user_to_unshare_with).data, status=status.HTTP_200_OK)
