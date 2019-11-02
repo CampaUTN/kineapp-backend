@@ -8,10 +8,10 @@
 {% block body %}
     {% if not user.is_authenticated %}
         <div id="logo_index" class="text-center animated fadeInUp">
-            <img src="{% static "images/logo.png" %}" class="img-fluid logo_image_index" alt="Temporal Logo" >
+            <img src="{% static "images/logo.png" %}" class="img-fluid logo_image_index" style=" -webkit-filter: drop-shadow(12px 12px 25px rgba(0,0,0,0.5));" alt="Temporal Logo" >
             <div style="margin-bottom: 15px">
-                <h1 class="display-2 logo_title_index" style="font-family: 'Montserrat'"><strong>KineApp</strong></h1>
-                <p class="display-2 logo_title_index" style="font-family: 'Montserrat'; font-size: 35px;"><strong>Un nuevo paradigma en la salud</strong></p>
+                <h1 class="display-2 logo_title_index" style="font-family: 'Montserrat'; text-shadow: 12px 12px 25px rgba(0,0,0,1);"><strong>KineApp</strong></h1>
+                <p class="display-2 logo_title_index" style="font-family: 'Montserrat'; font-size: 35px; text-shadow: 12px 12px 25px rgba(0,0,0,1);"><strong>Un nuevo paradigma en la salud</strong></p>
             </div>
             <div class="google_center">
                 <div id="my-signin2"></div>
