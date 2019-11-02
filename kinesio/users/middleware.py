@@ -1,7 +1,7 @@
 import time
 from typing import Optional
 from django.conf import settings
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 from kinesio.settings import SESSION_TIMEOUT_KEY
 
@@ -30,7 +30,6 @@ class SessionTimeoutMiddleware(MiddlewareMixin):
         if session_is_expired:
             request.session.flush()
             return HttpResponse('Unauthorized', status=HTTP_401_UNAUTHORIZED)
-
 
         expire_since_last_activity = getattr(
             settings, "SESSION_EXPIRE_AFTER_LAST_ACTIVITY", False
