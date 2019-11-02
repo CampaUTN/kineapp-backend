@@ -7,10 +7,6 @@
     {% else %}
         <a class="navbar-brand disabled white-text" style="font-family: 'Montserrat'">KineApp</a>
     {% endif %}
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4"
-            aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
@@ -23,11 +19,24 @@
                     <li class="nav-item">
                         <a class="nav-link white-text" onclick="get_rutine({{ user.patient.pk }}, false)"><i class="fas fa-dumbbell"></i> Rutina</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdownTimelapse" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-history"></i> Timelapse
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownTimelapse">
+                            <a class="dropdown-item text-center" onclick="open_timelapse('F', {{ user.patient.pk }})">Frontal</a>
+                            <a class="dropdown-item text-center" onclick="open_timelapse('B', {{ user.patient.pk }})">Trasera</a>
+                            <a class="dropdown-item text-center" onclick="open_timelapse('R', {{ user.patient.pk }})">Lado Derecho</a>
+                            <a class="dropdown-item text-center" onclick="open_timelapse('L', {{ user.patient.pk }})">Lado Izquierdo</a>
+                            <a class="dropdown-item text-center" onclick="open_timelapse('O', {{ user.patient.pk }})">Otro</a>
+                        </div>
+                    </li>
                 {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user-md"></i> Profile </a>
+                        <i class="fas fa-user-md"></i> Profile
+                    </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
                         <a class="dropdown-item text-center" href="#">My account</a>
                         <a class="dropdown-item text-center" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Log out</a>

@@ -1,8 +1,5 @@
 let idleTime = 0;
 $(document).ready(function () {
-    <!-- Sometimes Google Api charge slow and the button does not render -->
-    <!-- This is the solution -->
-    renderButton();
 
     //Increment the idle time counter every minute.
     let idleInterval = setInterval(timerIncrement, 60000); // 1 minute
@@ -20,6 +17,7 @@ $(document).ready(function () {
         return false;
     });
 
+    $('[data-toggle="popover"]').popover()
 });
 
 function timerIncrement() {
@@ -40,13 +38,16 @@ function signOut() {
 }
 
 showModalLogin = function(response){
-    console.log(response.status)
     if(response.status == 401) {
         $('.modal-content').load('secret_questions/', function(){
             $('#modalGeneric').modal({show:true});
         });
+    } else if(response.status == 406) {
+        $('.modal-content').load('no_user/', function(){
+            $('#modalGeneric').modal({show:true});
+        });
     } else {
-        console.log("There was an error.")
+        console.log("There was an error.");
     }
 };
 
@@ -90,18 +91,26 @@ function renderButton() {
 }
 
 function get_session(clinical_session_id) {
-    $('.list-group-item').addClass('disable').then(
+    $('.list-group-item').addClass('disable');
     $.ajax({
         type: 'GET',
         url: 'clinical_session/?clinical_session_id=' + clinical_session_id,
         success: function(response) {
-            $('#card_history').append(response).one("animationend", function(){
-                $('#card_session').removeClass('animated slideInRight');
-                $('.list-group-item').removeClass('disable');
-            });
+            if($('#card_history').length > 0) {
+                $('#card_history').append(response).one("animationend", function () {
+                    $('#card_session').removeClass('animated slideInRight');
+                    $('.list-group-item').removeClass('disable');
+                });
+            } else {
+                $('.data').html(response).one("animationend", function () {
+                    $('#card_session').addClass("width")
+                    $('#card_session').removeClass('animated slideInRight');
+                    $('.list-group-item').removeClass('disable');
+                });
+            }
         },
         error: showModalLogin
-    }));
+    });
 }
 
 function get_videos() {
@@ -159,8 +168,9 @@ function open_timelapse(tag, patient_id){
         type: 'GET',
         url: 'timelapse/?tag=' + tag + ";patient_id=" + patient_id,
         success: function (data) {
-            $('#card_history').append(data);
-            var fancyGallery = $("#timelapse").find("a");
+            $('.data').append(data);
+
+            let fancyGallery = $("#timelapse").find("a");
             fancyGallery.attr("rel","gallery").fancybox({
                 type: "image",
                 loop: true,
@@ -177,7 +187,7 @@ function open_timelapse(tag, patient_id){
                 },
             });
             fancyGallery.eq(0).click();
-        },
+        } ,
         error: showModalLogin
     });
 
