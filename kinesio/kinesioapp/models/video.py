@@ -1,6 +1,7 @@
 from __future__ import annotations
 from django.db import models
 from ffmpy import FFmpeg
+from django.conf import settings
 
 from kinesioapp.utils.django_server import DjangoServerConfiguration
 from users.models import User, Medic
@@ -40,6 +41,7 @@ class Video(models.Model):
     def generate_thumbnail(self) -> None:
         video_file_path = self.content.path
         output_file_path = f'{video_file_path}_thumb.jpg'
-        command = FFmpeg(inputs={video_file_path: None},
+        command = FFmpeg(global_options=settings.FFMPEG_GLOBAL_OPTIONS,
+                         inputs={video_file_path: None},
                          outputs={output_file_path: ['-ss', '00:00:00', '-vframes', '1']})
         command.run()

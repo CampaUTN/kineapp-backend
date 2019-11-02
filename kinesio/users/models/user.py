@@ -57,6 +57,7 @@ class User(AbstractUser, CanViewModelMixin):
     _picture_base64 = models.BinaryField(default=None, null=True)
     dni = models.PositiveIntegerField(unique=True)  # National Identity Document of Argentina
     birth_date = models.DateField()
+    firebase_device_id = models.CharField(max_length=255, default=None, blank=True, null=True)
 
     objects = UserManager()
 
@@ -142,3 +143,7 @@ class User(AbstractUser, CanViewModelMixin):
         # It's a secret answer's response, not a password.
         # Therefore, it should be case insensitive.
         super().set_password(raw_password=raw_password.lower() if raw_password else raw_password)
+
+    def change_firebase_device_id(self, new_device_id: str) -> None:
+        self.firebase_device_id = new_device_id
+        self.save()

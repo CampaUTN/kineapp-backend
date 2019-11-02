@@ -12,28 +12,21 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7lex&^&d#s^yuz-y#g+5=nr%t+&r7i)xtwjl=^mamo(l%&p2ql'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+TESTING = False
 
 ALLOWED_HOSTS = ['*']
-
 DEFAULT_PORT = 80
 PUBLIC_IP = '198.199.121.38'
-
-PROJECT_ROOT = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), ".."),
-)
-
 
 # Application definition
 
@@ -148,7 +141,7 @@ STATIC_URL = '/static/'
 # Media files
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "deployment", "media")
 MEDIA_URL = '/media/'
-
+FFMPEG_GLOBAL_OPTIONS = None  # Global options to generate video thumbnails. Should be empty by default
 
 FIELD_ENCRYPTION_KEY = '6-QgONW6TUl5rt4Xq8u-wBwPcb15sIYS2CN6d69zueM='
 
@@ -180,10 +173,10 @@ SESSION_TIMEOUT_KEY = "_session_init_timestamp_"
 
 # Custom Fields
 MAX_PASSWORD_TRIES = 10
-IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
 
 
 # Reset exercise status
 CRON_CLASSES = [
     "kinesioapp.cron.ResetExerciseStatus",
 ]
+RESET_EXERCISES_AT_TIMES = ['05:00']

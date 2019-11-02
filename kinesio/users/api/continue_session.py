@@ -16,7 +16,6 @@ from kinesio.settings import SESSION_TIMEOUT_KEY
 import time
 
 
-
 @swagger_auto_schema(
     method='post',
     operation_id='continue_session',

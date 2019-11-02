@@ -12,8 +12,9 @@ from django.shortcuts import get_object_or_404
 
 from ..models import User, SecretQuestion
 from ..serializers import UserSerializer, TokenSerializer
-from ..tests.utils.mock_decorators import mock_google_user_on_tests
+from ..tests.utils.mock_decorators import inject_dependencies_on_testing
 from ..utils.google_user import GoogleUser
+from ..tests.utils.mocks import GoogleUser as GoogleUserMock
 
 
 @swagger_auto_schema(
@@ -59,7 +60,7 @@ from ..utils.google_user import GoogleUser
 @csrf_exempt
 @api_view(["POST"])
 @permission_classes((AllowAny,))
-@mock_google_user_on_tests
+@inject_dependencies_on_testing({'google_user_class': GoogleUserMock})
 def register(request: HttpRequest, google_user_class: type = GoogleUser) -> Response:
     google_token = request.data.get('google_token')
     secret_question_id = request.data.get('secret_question_id')
