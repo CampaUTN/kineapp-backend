@@ -63,7 +63,10 @@ class User(AbstractUser, CanViewModelMixin):
 
     @property
     def picture_base64(self):
-        return binary_field_to_string(self._picture_base64)
+        if self._picture_base64:
+            return binary_field_to_string(self._picture_base64)
+        else:
+            return None
 
     @property
     def is_patient(self) -> bool:
