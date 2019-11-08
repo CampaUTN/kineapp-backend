@@ -2,7 +2,7 @@ from __future__ import annotations
 from django.db import models
 from django.db.models import Q
 
-from users.models import User, Patient
+from users.models import User, Patient, Medic
 from kinesioapp.utils.models_mixins import CanViewModelMixin
 
 
@@ -17,6 +17,7 @@ class ClinicalSession(models.Model, CanViewModelMixin):
     date = models.DateTimeField(auto_now_add=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
     description = models.CharField(default='', max_length=511)
+    created_by = models.ForeignKey(Medic, related_name='creator', blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = ClinicalSessionQuerySet.as_manager()
 
