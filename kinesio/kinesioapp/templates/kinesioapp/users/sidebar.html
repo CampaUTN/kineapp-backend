@@ -23,7 +23,7 @@
                 </ul>
             {% else %}
                 <div style="width: 100%; margin-left: 20px;">
-                    <i class="fas fa-user-injured fa-3x white-text text-center"></i>
+                    <i class="fas fa-user-injured fa-3x white-text text-center" style="display: block; margin-right: 25px;"></i>
                     <p class="white-text" style="font-size:20px; padding: 5px; text-align: center">
                         Por el momento no contas con ningún paciente asignado. Desde la aplicación podes solicitar la asignación de los mismos.
                     </p>
@@ -33,7 +33,13 @@
             {% if user.patient.sessions.all %}
                 <ul id="list_data" class="list-group list-group-flush scroll" style="margin-left: 20px; display: block;">
                     {% for session in user.patient.sessions.all %}
-                        <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date|date:"j" }} de {{ session.date|date:"F, Y" }} <span class="badge badge-default" style="float: right;">Creado por: Medic Hardcode</span></li>
+                        <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date|date:"j" }} de {{ session.date|date:"F, Y" }}
+                            {% if session.created_by %}
+                                <span class="badge badge-default" style="float: right;">Creado por: {{ session.created_by.user }}</span>
+                            {%  else %}
+                                <span class="badge badge-default" style="float: right;">Creado por: Usuario Eliminado</span>
+                            {% endif %}
+                        </li>
                     {% endfor %}
                 </ul>
             {% else %}
