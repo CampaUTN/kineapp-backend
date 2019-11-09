@@ -69,7 +69,7 @@ class TestImageAPI(APITestCase):
         self.assertEquals(len(Image.objects.classified_by_tag()), 3)
         self.assertEquals(sum([item['images'].count() for item in Image.objects.classified_by_tag()]), 4)
 
-    def test_images_by_tag(self):
+    def test_images_only_get_images_with_the_selected_tag(self):
         Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
                              tag=choices.images.FRONT)
         Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
@@ -83,3 +83,15 @@ class TestImageAPI(APITestCase):
         self.assertEquals(len(response.json()['data']), 2)
         self.assertEquals(bytes(response.json()['data'][0]['content'].encode('utf-8')), self.content)
         self.assertEquals(response.json()['data'][0]['tag'], choices.images.BACK)
+
+    def test_images_get_all_images_when_tag_is_A(self):
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.FRONT)
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.BACK)
+        Image.objects.create(content_as_base64=self.content, clinical_session=self.clinical_session,
+                             tag=choices.images.RIGHT)
+        response = self.client.get(f'/api/v1/image/{self.patient.id}/A')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 3)
+        self.assertEquals(response.json()['data'][0]['tag'], choices.images.FRONT)
