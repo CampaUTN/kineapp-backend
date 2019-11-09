@@ -27,7 +27,7 @@ class ImageQuerySet(models.QuerySet):
         return self.annotate(tag_initial=Lower(Substr('tag', 1, 1))).filter(tag_initial=tag[0].lower()) if tag else self
 
     def of_patient(self, user: User) -> ImageQuerySet:
-        return self.filter(clinical_session__patient__id__in=user.related_patients.values('id'))
+        return self.filter(clinical_session__patient=user.patient)
 
     def has_images_with_tag(self, tag: str) -> bool:
         return self.by_tag(tag).exists()

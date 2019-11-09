@@ -109,10 +109,10 @@ class ImagesWithTagAPIView(APIView):
         }
     )
     def get(self, request: HttpRequest, patient_id: int, tag: str) -> Response:
-        patient = get_object_or_404(User, id=patient_id)
+        patient_user = get_object_or_404(User, id=patient_id)
         tag = None if tag.lower() == 'a' else tag
-        images = Image.objects.of_patient(patient).by_tag(tag)
-        if patient not in request.user.related_patients:
+        images = Image.objects.of_patient(patient_user).by_tag(tag)
+        if patient_user not in request.user.related_patients and not patient_user.patient.allowed_user_to_see_its_information(request.user):
             return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         return Response(ImageSerializer(images, many=True).data, status=status.HTTP_200_OK)

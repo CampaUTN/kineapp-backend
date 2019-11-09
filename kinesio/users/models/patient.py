@@ -22,3 +22,6 @@ class Patient(models.Model):
 
     def unshare_with(self, user: User) -> None:
         self.shared_history_with.remove(user)
+
+    def allowed_user_to_see_its_information(self, user: User) -> bool:
+        return user in self.shared_history_with.all()
