@@ -14,6 +14,8 @@ class ClinicalSessionQuerySet(models.QuerySet):
 
 
 class ClinicalSession(models.Model, CanViewModelMixin):
+    class Meta:
+        ordering = ['-id']
     date = models.DateTimeField(auto_now_add=True)
     patient = models.ForeignKey(Patient, related_name='sessions', on_delete=models.CASCADE)
     description = models.CharField(default='', max_length=511)

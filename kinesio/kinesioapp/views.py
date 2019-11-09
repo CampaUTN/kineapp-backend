@@ -28,7 +28,7 @@ class ClinicalHistoryView(LoginRequiredMixin, generic.View):
     def get(self, request: HttpRequest) -> HttpResponse:
         patient_id = request.GET.get("patient_id", None)
         patient = Patient.objects.get(pk=patient_id)
-        sessions = ClinicalSession.objects.filter(patient_id=patient_id).order_by('-id')
+        sessions = ClinicalSession.objects.filter(patient_id=patient_id)
         return render(request, 'kinesioapp/users/clinical_history.html',
                       {'sessions': sessions, 'patient': patient.user})
 

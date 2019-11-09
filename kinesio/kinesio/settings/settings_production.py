@@ -1,5 +1,5 @@
 # String. Obtained from Firebase.
-FIREBASE_API_KEY = ''
+FIREBASE_API_KEY = '<placeholder>'
 
 # Bytes. Generate it manually.
 IMAGE_ENCRYPTION_KEY = b'k-rE9SGW0vOCK7aBDPwBHhb0fhJVsGA-hpsxXCWOB9o='
