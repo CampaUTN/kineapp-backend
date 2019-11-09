@@ -6,7 +6,7 @@ from rest_framework.request import HttpRequest
 
 from ..models import ClinicalSession
 from ..serializers import ClinicalSessionSerializer
-from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
+from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView, GenericDeleteView
 
 
 class ClinicalSessionAPIView(generics.CreateAPIView):
@@ -41,7 +41,7 @@ class ClinicalSessionsForPatientView(GenericListView):
         return super().get(request, queryset=self.queryset.filter(patient_id=patient_id))
 
 
-class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
+class ClinicalSessionUpdateAndDeleteAPIView(GenericPatchViewWithoutPut, GenericDeleteView):
     serializer_class = ClinicalSessionSerializer
     model_class = ClinicalSession
 
@@ -66,3 +66,33 @@ class ClinicalSessionUpdateAPIView(GenericPatchViewWithoutPut):
     def patch(self, request: HttpRequest, id: int) -> Response:
         # This method exist only to add an '@swagger_auto_schema' annotation
         return super().patch(request, id)
+
+    @swagger_auto_schema(
+        operation_id='clinical_session_delete',
+        operation_description='You will not be able to delete the session if the logged user does not have access.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Clinical Session's ID.",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_400_BAD_REQUEST: openapi.Response(
+                description='Invalid parameter',
+            ),
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to access that image. Only the patient and its medic can access the session."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid image id: Clinical Session not found"
+            ),
+            status.HTTP_204_NO_CONTENT: openapi.Response(
+                description="Clinical Session deleted successfully."
+            ),
+        }
+    )
+    def delete(self, request: HttpRequest, id: int) -> Response:
+        # This method exist only to add an '@swagger_auto_schema' annotation
+        return super().delete(request, id)

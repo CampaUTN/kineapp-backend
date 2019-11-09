@@ -65,6 +65,13 @@ class TestClinicalSessionCreateAPI(APITestCase):
         self.assertEquals(response.status_code, status.HTTP_201_CREATED)
         self.assertEquals(ClinicalSession.objects.count(), 1)
 
+    def test_delete_clinical_session(self):
+        clinical_session = ClinicalSession.objects.create(patient=self.patient.patient)
+        self.assertEquals(ClinicalSession.objects.count(), 1)
+        response = self.client.delete(f'/api/v1/clinical_sessions/{clinical_session.id}')
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEquals(ClinicalSession.objects.count(), 0)
+
     def test_update_clinical_session(self):
         clinical_session = ClinicalSession.objects.create(patient=self.patient.patient)
         new_description = 'new description'
