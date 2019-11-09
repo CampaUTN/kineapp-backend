@@ -37,3 +37,11 @@ class TestImageSharingAPI(APITestCase):
         self._log_in(self.medic, '12345')
         response = self.client.get(f'/api/v1/image/{self.image.id}')
         self.assertEquals(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_medic_can_access_to_images_by_tag_if_the_patient_shared_its_session(self):
+        self._log_in(self.medic, '12345')
+        self.patient.patient.share_with(self.medic)
+        response = self.client.get(f'/api/v1/image/{self.patient.id}/{choices.images.FRONT}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 1)
+        self.assertEquals(response.json()['data'][0]['id'], self.image.id)
