@@ -39,7 +39,17 @@
                 {% if sessions %}
                     <ul class="list-group list-group-flush scroll" id="listSession" style="display: block;">
                         {% for session in sessions %}
-                            <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date|date:"j" }} de {{ session.date|date:"F, Y" }} <span class="badge badge-default" style="float: right;">Creado por: Medic Hardcode</span></li>
+                            <li onclick="get_session({{ session.pk }})" class="list-group-item list-group-item-action waves-effect">{{ session.date|date:"j" }} de {{ session.date|date:"F, Y" }}
+                                {% if session.created_by.user == request.user %}
+                                    {% if session.created_by %}
+                                        <span class="badge badge-default" style="float: right;">Creado por mí</span>
+                                    {%  else %}
+                                        <span class="badge badge-default" style="float: right;">Creado por: {{ session.created_by.user }}</span>
+                                    {% endif %}
+                                {%  else %}
+                                    <span class="badge badge-default" style="float: right;">Creado por: Usuario Eliminado</span>
+                                {% endif %}
+                            </li>
                         {% endfor %}
                     </ul>
                 {% else %}

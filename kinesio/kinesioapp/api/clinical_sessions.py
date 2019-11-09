@@ -12,6 +12,9 @@ from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView
 class ClinicalSessionAPIView(generics.CreateAPIView):
     serializer_class = ClinicalSessionSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user.medic)
+
 
 class ClinicalSessionsForPatientView(GenericListView):
     serializer_class = ClinicalSessionSerializer

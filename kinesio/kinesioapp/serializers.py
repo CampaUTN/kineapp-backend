@@ -22,10 +22,11 @@ class ClinicalSessionSerializer(serializers.ModelSerializer):
     images = ThumbnailSerializer(many=True, read_only=True)
     patient_id = serializers.IntegerField(write_only=True)
     date = serializers.DateTimeField(read_only=True)
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = ClinicalSession
-        fields = ('id', 'patient_id', 'date', 'description', 'images')
+        fields = ('id', 'patient_id', 'date', 'description', 'images', 'created_by')
 
 
 class VideoSerializer(serializers.ModelSerializer):
