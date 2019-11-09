@@ -80,8 +80,8 @@ class ImageDetailsAndDeleteAPIView(GenericDeleteView, GenericDetailsView):
 
 class ImagesWithTagAPIView(APIView):
     @swagger_auto_schema(
-        operation_id='images_with_tag',
-        operation_description='This method returns the images matching the given patient and tag. You will not get the image if the current user does not have access.',
+        operation_id='images_of_patient',
+        operation_description='This method returns the images matching the given patient and tag. You will not get the images if the current user does not have access.',
         manual_parameters=[
             openapi.Parameter(
                 name='patient_id', in_=openapi.IN_PATH,
@@ -92,8 +92,7 @@ class ImagesWithTagAPIView(APIView):
             openapi.Parameter(
                 name='tag', in_=openapi.IN_PATH,
                 type=openapi.TYPE_STRING,
-                description="Tag (Any of: F, R, L, B, O).",
-                required=True
+                description="Tag (Any of: F, R, L, B, O). You can also use 'A' as a tag to get all images regardless their tags.",
             ),
         ],
         responses={
@@ -111,6 +110,7 @@ class ImagesWithTagAPIView(APIView):
     )
     def get(self, request: HttpRequest, patient_id: int, tag: str) -> Response:
         patient = get_object_or_404(User, id=patient_id)
+        tag = None if tag.lower() == 'a' else tag
         images = Image.objects.of_patient(patient).by_tag(tag)
         if patient not in request.user.related_patients:
             return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},

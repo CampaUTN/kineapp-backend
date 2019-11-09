@@ -24,7 +24,7 @@ class ImageQuerySet(models.QuerySet):
                               **kwargs)
 
     def by_tag(self, tag: str) -> ImageQuerySet:
-        return self.annotate(tag_initial=Lower(Substr('tag', 1, 1))).filter(tag_initial=tag[0].lower())
+        return self.annotate(tag_initial=Lower(Substr('tag', 1, 1))).filter(tag_initial=tag[0].lower()) if tag else self
 
     def of_patient(self, user: User) -> ImageQuerySet:
         return self.filter(clinical_session__patient__id__in=user.related_patients.values('id'))
