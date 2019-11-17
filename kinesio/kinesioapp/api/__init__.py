@@ -1,4 +1,4 @@
 from .clinical_sessions import ClinicalSessionAPIView, ClinicalSessionsForPatientView, ClinicalSessionUpdateAndDeleteAPIView
 from .exercises import ExerciseCreateAPIView, ExerciseUpdateAndDeleteAPIView
-from .images import ImageDetailsAndDeleteAPIView, ImagesWithTagAPIView, ImageCreateAPIView
+from .images import ImageDetailsAndDeleteAPIView, ImagesWithTagAPIView, ImagesOfClinicalSessionAPIView, ImageCreateAPIView
 from .videos import VideoUploadView, VideoDeleteAPIView

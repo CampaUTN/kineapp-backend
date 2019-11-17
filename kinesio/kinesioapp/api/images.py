@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.request import HttpRequest
 
 from ..serializers import ThumbnailSerializer
-from ..models import Image
+from ..models import Image, ClinicalSession
 from users.models import User
 from ..serializers import ImageSerializer
 from .. import choices
@@ -116,6 +116,40 @@ class ImagesWithTagAPIView(APIView):
             return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         return Response(ImageSerializer(images, many=True).data, status=status.HTTP_200_OK)
+
+
+class ImagesOfClinicalSessionAPIView(APIView):
+    @swagger_auto_schema(
+        operation_id='images_of_session',
+        operation_description='This method returns the images matching the given session. You will not get the images if the current user does not have access.',
+        manual_parameters=[
+            openapi.Parameter(
+                name='session_id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_STRING,
+                description="Session ID.",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_401_UNAUTHORIZED: openapi.Response(
+                description="User not authorized to access those images. Only the patient and its medic can access them."
+            ),
+            status.HTTP_404_NOT_FOUND: openapi.Response(
+                description="Invalid patient id: Patient not found"
+            ),
+            status.HTTP_200_OK: openapi.Response(
+                description='Images found and accessible.',
+                schema=ImageSerializer(many=True)
+            ),
+        }
+    )
+    def get(self, request: HttpRequest, session_id: int) -> Response:
+        session = get_object_or_404(ClinicalSession, id=session_id)
+        patient_user = session.patient.user
+        if patient_user not in request.user.related_patients and not patient_user.patient.allowed_user_to_see_its_information(request.user):
+            return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        return Response(ImageSerializer(session.images.all(), many=True).data, status=status.HTTP_200_OK)
 
 
 class ImageCreateAPIView(APIView):
