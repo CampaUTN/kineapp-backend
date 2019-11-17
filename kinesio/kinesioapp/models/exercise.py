@@ -31,6 +31,10 @@ class ExerciseQuerySet(models.QuerySet):
             item.save()
         return result
 
+    def exercises_similar_to(self, exercise: Exercise):
+        return self.filter(name=exercise.name, description=exercise.description, video=exercise.video,
+                           patient=exercise.patient).exclude(id=exercise.id)
+
 
 class Exercise(models.Model, CanViewModelMixin):
     """ If an exercise should be done two times a week, we will create two different exercises:
@@ -64,7 +68,8 @@ def report_exercise_saved(sender: type,
                           created: bool,
                           notification_manager: NotificationManager = NotificationManager(),
                           **kwargs: dict) -> None:
-    notification_manager.routine_changed(instance.patient.user)
+    if not created or Exercise.objects.exercises_similar_to(instance).count() == 0:
+        notification_manager.routine_changed(instance.patient.user)
 
 
 @receiver(post_delete, sender=Exercise)

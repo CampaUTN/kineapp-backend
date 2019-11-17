@@ -44,11 +44,17 @@ class TestExerciseModificationNotification(APITestCase):
         self.assertEquals(NotificationManagerMock().firebase_connector.times_called, 1)
         self.assertEquals(NotificationManagerMock().firebase_connector.sent_messages[0]['device_id'], 'patient_firebase_id')
 
-    def test_one_message_per_exercise_sent(self):
-        Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
-        Exercise.objects.create(day=2, patient=self.patient.patient, name='exercise')
-        Exercise.objects.create(day=3, patient=self.patient.patient, name='exercise')
+    def test_one_message_per_unique_exercise_sent(self):
+        Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise 1')
+        Exercise.objects.create(day=2, patient=self.patient.patient, name='exercise 2')
+        Exercise.objects.create(day=2, patient=self.patient.patient, name='exercise 3')
         self.assertEquals(NotificationManagerMock().firebase_connector.times_called, 3)
+
+    def test_duplicate_exercises_on_different_days_does_not_produce_messages(self):
+        Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise 1')
+        Exercise.objects.create(day=2, patient=self.patient.patient, name='exercise 2')
+        Exercise.objects.create(day=5, patient=self.patient.patient, name='exercise 2')
+        self.assertEquals(NotificationManagerMock().firebase_connector.times_called, 2)
 
     def test_notification_after_exercise_modification(self):
         exercise = Exercise.objects.create(day=3, patient=self.patient.patient, name='exercise')
