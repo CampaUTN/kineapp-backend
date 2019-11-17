@@ -21,7 +21,8 @@ api_url_patterns = [
     # Images
     re_path(r'^api/v1/image/?$', api.ImageCreateAPIView.as_view(), name='image_create'),
     re_path(r'^api/v1/image/(?P<id>[0-9]+)/?$', api.ImageDetailsAndDeleteAPIView.as_view(), name='image'),
-    re_path(r'^api/v1/image/(?P<patient_id>[0-9]+)/(?P<tag>[a-zA-Z]+)?$', api.ImagesWithTagAPIView.as_view(), name='images_with_tag'),
+    re_path(r'^api/v1/image/of_session/(?P<session_id>[0-9]+)/?$', api.ImagesOfClinicalSessionAPIView.as_view(), name='images_of_session'),
+    re_path(r'^api/v1/image/(?P<patient_id>[0-9]+)/(?P<tag>[a-zA-Z]+)/?$', api.ImagesWithTagAPIView.as_view(), name='images_with_tag'),
 
     # Videos
     re_path(r'^api/v1/video/?$', api.VideoUploadView.as_view(), name='video_create'),
