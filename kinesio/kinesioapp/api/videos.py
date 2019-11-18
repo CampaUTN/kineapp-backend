@@ -39,7 +39,7 @@ class VideoUploadView(APIView):
             uploaded_file = request.data.get('content')
             name = request.data.get('name')
         except KeyError:
-            return Response({'message': 'Missing or invalid file or name.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'}, status=status.HTTP_400_BAD_REQUEST)
         video = Video.objects.create(name=name, content=uploaded_file, medic_id=request.user.id)
         return Response(VideoSerializer(video).data, status=status.HTTP_201_CREATED)
 

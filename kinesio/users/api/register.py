@@ -68,10 +68,10 @@ def register(request: HttpRequest, google_user_class: type = GoogleUser) -> Resp
     license = request.data.get('license')
     current_medic = request.data.get('current_medic')
     if google_token is None or answer is None or secret_question_id is None or answer == '':
-        response = Response({'error': 'Missing token, answer, secret_question_id or empty answer'},
+        response = Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'},
                             status=status.HTTP_400_BAD_REQUEST)
     elif license is not None and current_medic is not None:
-        response = Response({'error': 'Do not specify current_medic and license at the same time'},
+        response = Response({'message': 'El formulario es inválido. Verifique los valores ingresados e intente nuevamente.'},
                             status=status.HTTP_400_BAD_REQUEST)
     else:
         get_object_or_404(SecretQuestion, id=secret_question_id)  # Check secret question existence

@@ -52,17 +52,19 @@ def users_exists(request: HttpRequest) -> Response:
         try:
             google_user = GoogleUser(google_token=google_token)
         except InformationNotAccessibleFromTokenException:
-            response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response({'message': 'Hubo un problema al verificar su identidad.'}, status=status.HTTP_400_BAD_REQUEST)
         except GoogleRejectsTokenException:
-            response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response({'message': 'Hubo un problema al verificar su identidad.'}, status=status.HTTP_400_BAD_REQUEST)
         except InvalidAudienceException:
-            response = Response({'error': 'Invalid Token. Please verify'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response({'message': 'Hubo un problema al verificar su identidad.'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             questions_serializer = SecretQuestionSerializer(SecretQuestion.objects.order_by('description'), many=True)
             if not google_user.username_is_valid:
-                response = Response({'error': 'Invalid User'}, status=status.HTTP_404_NOT_FOUND)
+                response = Response({'message': 'Usuario no registrado.'}, status=status.HTTP_404_NOT_FOUND)
             elif not User.objects.filter(username=google_user.user_id).exists():
-                response = Response({'warning': 'User do not exist.', 'questions': questions_serializer.data}, status=status.HTTP_406_NOT_ACCEPTABLE)
+                response = Response({'message': 'Usuario no registrado.',
+                                     'questions': questions_serializer.data},
+                                    status=status.HTTP_406_NOT_ACCEPTABLE)
             else:
                 user = User.objects.get(username=google_user.user_id)
                 response = Response({'questions': questions_serializer.data, 'user': UserSerializer(user).data},

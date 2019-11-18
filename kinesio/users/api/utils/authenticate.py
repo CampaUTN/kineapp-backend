@@ -15,15 +15,15 @@ def authenticate(request: HttpRequest, user: User, secret_question_id: int, answ
 
     # Check user status (active / banned)
     if not user.is_active:
-        return Response({'message': 'Your account has been blocked due to many access errors'},
+        return Response({'message': 'Su cuenta ha sido bloqueada por superar el límite de accesos incorrectos.'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
     # Check whether the question and the answer are correct
     if user.check_question_and_answer(secret_question_id, answer):
         auth.authenticate(username=user.username, password=answer)
         auth.login(request, user)
-        return Response({'message': 'Logged in', 'token': user.get_or_create_token().key},
+        return Response({'message': 'Ha iniciado sesión correctamente.', 'token': user.get_or_create_token().key},
                         status=status.HTTP_200_OK)
     else:
-        return Response({'message': 'Invalid question or answer (no more details are given due to security reasons).'},
+        return Response({'message': 'Credenciales (pregunta y/o respuesta) incorrectas.'},
                         status=status.HTTP_401_UNAUTHORIZED)

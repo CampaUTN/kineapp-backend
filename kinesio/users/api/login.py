@@ -58,13 +58,14 @@ def login(request: HttpRequest, google_user_class: type = GoogleUser) -> Respons
         secret_question_id = int(request.data['secret_question_id'])
         answer = request.data['answer']
     except KeyError:
-        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Check whether google token is valid
     try:
         google_user = google_user_class(google_token)
     except (InformationNotAccessibleFromTokenException, GoogleRejectsTokenException, InvalidAudienceException) as exception:
-        return Response({'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Google no nos permite acceder a todos los datos necesarios para permitir el inicio de sesión. Verfique los permisos de acceso a sus datos e intente nuevamente.'},
+                        status=status.HTTP_400_BAD_REQUEST)
     else:
         # Check user existence
         user = get_object_or_404(User, username=google_user.user_id)

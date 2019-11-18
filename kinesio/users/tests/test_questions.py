@@ -32,7 +32,7 @@ class CheckAnswerAPI(APITestCase):
             "answer": "rojo"
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get('message'), 'Logged in')
+        self.assertEqual(response.json().get('message'), 'Ha iniciado sesión correctamente.')
 
     def test_check_wrong_question_answer(self):
         response = self.client.post('/api/v1/login/', {
@@ -67,4 +67,4 @@ class CheckAnswerAPI(APITestCase):
                 "answer": "negro"
             })
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.json().get("message"), "Your account has been blocked due to many access errors")
+        self.assertEqual(response.json().get("message"), "Su cuenta ha sido bloqueada por superar el límite de accesos incorrectos.")

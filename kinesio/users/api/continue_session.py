@@ -60,7 +60,7 @@ def continue_session(request: HttpRequest) -> Response:
         secret_question_id = int(request.data['secret_question_id'])
         answer = request.data['answer']
     except KeyError:
-        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         # Update the session timeout time
         request.session[SESSION_TIMEOUT_KEY] = time.time()
