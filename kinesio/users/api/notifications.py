@@ -35,7 +35,8 @@ class ChangeDeviceIDAPIView(APIView):
         try:
             firebase_device_id = request.data['firebase_device_id']
         except KeyError:
-            response = Response({'message': 'Missing device ID'}, status=status.HTTP_400_BAD_REQUEST)
+            response = Response({'message': 'Se ha detectado un problema en la conexión a internet. Recuerde que la conexión es importante para el envío de notificaciones.'},
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             request.user.change_firebase_device_id(firebase_device_id)
             response = Response(status=status.HTTP_202_ACCEPTED)

@@ -45,10 +45,10 @@ def share_sessions(request: HttpRequest) -> Response:
         patient = request.user.patient
         id_to_share_with = request.data['user_to_share_with']
     except KeyError:
-        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'}, status=status.HTTP_400_BAD_REQUEST)
 
     if patient.current_medic and patient.current_medic.id == id_to_share_with:
-        return Response({'message': 'You are trying to share with your actual medic'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'No puede compartir el historial con su kinesiólogo asginado. Recuerde que el profesional asignado ya tiene acceso a su historial.'}, status=status.HTTP_400_BAD_REQUEST)
 
     user_to_share_with = get_object_or_404(User, id=id_to_share_with)
     patient.share_with(user_to_share_with)
@@ -90,7 +90,7 @@ def unshare_sessions(request: HttpRequest) -> Response:
         patient = request.user.patient
         id_to_unshare_with = request.data['user_to_unshare_with']
     except KeyError:
-        return Response({'message': 'Missing parameter'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'}, status=status.HTTP_400_BAD_REQUEST)
 
     user_to_unshare_with = get_object_or_404(User, id=id_to_unshare_with)
     patient.unshare_with(user_to_unshare_with)

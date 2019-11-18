@@ -113,7 +113,7 @@ class ImagesWithTagAPIView(APIView):
         tag = None if tag.lower() == 'a' else tag
         images = Image.objects.of_patient(patient_user).by_tag(tag)
         if patient_user not in request.user.related_patients and not patient_user.patient.allowed_user_to_see_its_information(request.user):
-            return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
+            return Response({'message': 'No tiene permisos para ver estas imágenes.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         return Response(ImageSerializer(images, many=True).data, status=status.HTTP_200_OK)
 
@@ -147,7 +147,7 @@ class ImagesOfClinicalSessionAPIView(APIView):
         session = get_object_or_404(ClinicalSession, id=session_id)
         patient_user = session.patient.user
         if patient_user not in request.user.related_patients and not patient_user.patient.allowed_user_to_see_its_information(request.user):
-            return Response({'message': 'User not authorized to access those images. Only the patient and its medic can access them.'},
+            return Response({'message': 'No tiene permisos para ver estas imágenes.'},
                             status=status.HTTP_401_UNAUTHORIZED)
         return Response(ImageSerializer(session.images.all(), many=True).data, status=status.HTTP_200_OK)
 
@@ -180,7 +180,7 @@ class ImageCreateAPIView(APIView):
             content_as_base64 = request.data['content']
             tag = request.data['tag']
         except KeyError:
-            return Response({'message': 'Missing or invalid clinical_session_id, tag or content.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Ha omitido uno o más campos obligatorios. Complételos e intente nuevamente.'}, status=status.HTTP_400_BAD_REQUEST)
 
         content_as_base64 = bytes(content_as_base64, 'utf-8')
         image = Image.objects.create(content_as_base64=content_as_base64, clinical_session_id=clinical_session_id, tag=tag)
