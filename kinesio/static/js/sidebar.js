@@ -21,7 +21,9 @@ $(function(){
 });
 
 function get_clinical_history_by_patient(patient_id){
+    $('#cover-spin').fadeIn(300);
     $('.data').load('clinical_history/?patient_id=' + patient_id, null, function (responseText, textStatus, xhr) {
+        $('#cover-spin').fadeOut(300);
         if(xhr.status == 401 ){
             $('.modal-content').load('secret_questions/',function(){
                 $('#modalGeneric').modal();

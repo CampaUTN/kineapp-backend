@@ -23,6 +23,7 @@ function check_answer(){
     } else {
         let question_id = $('#questionSelector').val();
         let google_token=sessionStorage.google_token;
+        $('#cover-spin').fadeIn(300);
         $.ajax({
             type: 'POST',
             url: 'api/v1/login/',
@@ -32,6 +33,7 @@ function check_answer(){
                 'answer': answer_input.val()
             },
             success: function(response) {
+                $('#cover-spin').fadeOut(300);
                 sessionStorage.setItem('token', response.token);
 
                 $('#modalGeneric').modal('hide');
@@ -40,6 +42,7 @@ function check_answer(){
                 });
             },
             error: function(response){
+                $('#cover-spin').fadeOut(300);
                 answer_input.addClass('animated bounce');
                 let popover= $('#answer_button').popover(
                     {content: response.responseJSON.message}
@@ -67,6 +70,7 @@ function continue_session(){
                 xhr.setRequestHeader('X-CSRFToken', token);
             }
         });
+        $('#cover-spin').fadeIn(300);
         $.ajax({
             type: 'POST',
             url: 'api/v1/continue_session/',
@@ -75,6 +79,7 @@ function continue_session(){
                 'answer': answer_input.val()
             },
             success: function(response) {
+                $('#cover-spin').fadeOut(300);
                 sessionStorage.setItem('token', response.token);
 
                 $('#modalGeneric').modal('hide');
@@ -83,6 +88,7 @@ function continue_session(){
                 });
             },
             error: function(response){
+                $('#cover-spin').fadeOut(300);
                 answer_input.addClass('animated bounce');
                 let popover= $('#answer_button').popover(
                     {content: response.responseJSON.message}
