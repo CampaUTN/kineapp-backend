@@ -39,6 +39,7 @@ function signOut() {
 }
 
 showModalLogin = function(response){
+    $('#cover-spin').fadeOut(300);
     if(response.status == 401) {
         $('.modal-content').load('secret_questions/', function(){
             $('#modalGeneric').modal({show:true});
@@ -56,7 +57,7 @@ function onSuccess(googleUser) {
     var id_token = googleUser.getAuthResponse().id_token;
 
     sessionStorage.setItem('google_token', id_token);
-
+    $('#cover-spin').fadeIn(300);
     $.ajax({
         type: 'POST',
         url: 'api/v1/user_exists/',
@@ -64,6 +65,7 @@ function onSuccess(googleUser) {
             'google_token': id_token
         },
         success: function(response, textStatus, xhr) {
+            $('#cover-spin').fadeOut(300);
             if(xhr.status == 200 ){
                 $('.modal-content').load('secret_questions/',function(){
                     $('#modalGeneric').modal();
@@ -92,17 +94,20 @@ function renderButton() {
 }
 
 function get_session(clinical_session_id) {
+    $('#cover-spin').fadeIn(300);
     $('.list-group-item').addClass('disable');
     $.ajax({
         type: 'GET',
         url: 'clinical_session/?clinical_session_id=' + clinical_session_id,
         success: function(response) {
+            $('#cover-spin').fadeOut(300);
             if($('#card_history').length > 0) {
                 $('#card_history').append(response).one("animationend", function () {
                     $('#card_session').removeClass('animated slideInRight');
                     $('.list-group-item').removeClass('disable');
                 });
             } else {
+                $('#cover-spin').fadeOut(300);
                 $('.data').html(response).one("animationend", function () {
                     $('#card_session').addClass("width")
                     $('#card_session').removeClass('animated slideInRight');
@@ -115,7 +120,9 @@ function get_session(clinical_session_id) {
 }
 
 function get_videos() {
+    $('#cover-spin').fadeIn(300);
     $('.data').load('videos/', null, function (responseText, textStatus, xhr) {
+        $('#cover-spin').fadeOut(300);
         if(xhr.status == 401 ){
             $('.modal-content').load('secret_questions/',function(){
                 $('#modalGeneric').modal();
@@ -125,12 +132,13 @@ function get_videos() {
 }
 
 function get_rutine(patient_id, medic) {
-
+    $('#cover-spin').fadeIn(300);
     if(medic) {
         $.ajax({
             type: 'GET',
             url: 'routine/?patient_id=' + patient_id,
             success: function(response) {
+                $('#cover-spin').fadeOut(300);
                 $('#card_history').append(response).one($('#card_routine').width('100%')).one("animationend", function () {
                     $('#card_routine').removeClass('animated slideInRight')
                 });
@@ -139,6 +147,7 @@ function get_rutine(patient_id, medic) {
         });
     } else {
         $('.data').load('routine/?patient_id=' + patient_id, null, function (responseText, textStatus, xhr) {
+            $('#cover-spin').fadeOut(300);
             $('#card_routine').removeClass('card_routine_medic').addClass('card_routine_patient');
             if(xhr.status == 401 ){
                 $('.modal-content').load('secret_questions/',function(){
@@ -164,11 +173,12 @@ function close_clinical_history() {
 
 function open_timelapse(tag, patient_id){
     $('#timelapse').remove();
-
+    $('#cover-spin').fadeIn(300);
     $.ajax({
         type: 'GET',
-        url: 'timelapse/?tag=' + tag + ";patient_id=" + patient_id,
+        url: 'timelapse/?tag=' + tag + "&patient_id=" + patient_id,
         success: function (data) {
+            $('#cover-spin').fadeOut(300);
             $('.data').append(data);
 
             let fancyGallery = $("#timelapse").find("a");
