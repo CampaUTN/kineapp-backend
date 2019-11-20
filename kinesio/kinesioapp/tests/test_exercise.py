@@ -1,21 +1,55 @@
 from rest_framework import status
-from datetime import datetime
+from django.utils import timezone
 
 from kinesioapp.utils.test_utils import APITestCase
 from users.models import User
 from kinesioapp.models import Exercise
 
 
+class TestClinicalSessionOnPatientAPI(APITestCase):
+    def setUp(self) -> None:
+        self.medic = User.objects.create_user(username='juan', password='12345', first_name='juan',
+                                              last_name='gomez', license='matricula #15433',
+                                              dni=39203040, birth_date=timezone.now())
+        self.patient = User.objects.create_user(first_name='facundo', last_name='perez', username='pepe',
+                                                password='12345', current_medic=self.medic,
+                                                dni=7357735, birth_date=timezone.now())
+        User.objects.create_user(first_name='maria', last_name='gomez', username='mgomez',
+                                 dni=2432457, birth_date=timezone.now())
+        Exercise.objects.create_multiple(days=[1, 2, 3], patient=self.patient.patient, name='exercise')
+
+    def test_get_exercises_for_a_patient(self):
+        self._log_in(self.patient, '12345')
+        response = self.client.get(f'/api/v1/exercises_for_patient/{self.patient.id}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 3)
+
+    def test_get_exercises_for_patients_of_the_medic(self):
+        self._log_in(self.medic, '12345')
+        response = self.client.get(f'/api/v1/exercises_for_patient/{self.patient.id}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 3)
+
+    def test_do_not_get_exercises_for_other_patients(self):
+        another_medic = User.objects.create_user(username='Pedro', password='12345', first_name='juan',
+                                                 last_name='gomez', license='matricula #43587',
+                                                 dni=92030455, birth_date=timezone.now())
+        self._log_in(another_medic, '12345')
+        response = self.client.get(f'/api/v1/exercises_for_patient/{self.patient.id}')
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(response.json()['data']), 0)
+
+
 class TestGetExercisesOnPatientsAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
-                                              dni=39203040, birth_date=datetime.now())
+                                              dni=39203040, birth_date=timezone.now())
         self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
-                                                      dni=42203088, birth_date=datetime.now())
+                                                      dni=42203088, birth_date=timezone.now())
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
-                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic,
+                                                dni=25000033, birth_date=timezone.now(), current_medic=self.medic,
                                                 firebase_device_id='1111111111')
-        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now(),
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=timezone.now(),
                                  firebase_device_id='2222222')
 
     def test_get_current_patient_without_exercises(self):
@@ -57,13 +91,13 @@ class TestGetExercisesOnPatientsAPI(APITestCase):
 class TestExercisesAPI(APITestCase):
     def setUp(self) -> None:
         self.medic = User.objects.create_user(username='maria22', password='1234', license='matricula #44423',
-                                              dni=39203040, birth_date=datetime.now())
+                                              dni=39203040, birth_date=timezone.now())
         self.another_medic = User.objects.create_user(username='juan55', license='matricula #5343',
-                                                      dni=42203088, birth_date=datetime.now())
+                                                      dni=42203088, birth_date=timezone.now())
         self.patient = User.objects.create_user(username='facundo22', first_name='facundo', password='1234',
-                                                dni=25000033, birth_date=datetime.now(), current_medic=self.medic,
+                                                dni=25000033, birth_date=timezone.now(), current_medic=self.medic,
                                                 firebase_device_id='11111111')
-        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=datetime.now(),
+        User.objects.create_user(username='martin', current_medic=self.medic, dni=15505050, birth_date=timezone.now(),
                                  firebase_device_id='22222222')
 
     def test_create_exercise_for_one_day(self):
@@ -100,7 +134,7 @@ class TestExercisesAPI(APITestCase):
 
     def test_fail_to_delete_a_exercise_of_other_patient(self):
         another_patient = User.objects.create_user(username='raul55', first_name='raul', password='0000',
-                                                   dni=633836, birth_date=datetime.now(), current_medic=self.medic)
+                                                   dni=633836, birth_date=timezone.now(), current_medic=self.medic)
         self._log_in(another_patient, '0000')
         exercise = Exercise.objects.create(day=1, patient=self.patient.patient, name='exercise')
         response = self.client.delete(f'/api/v1/exercise/{exercise.id}')
