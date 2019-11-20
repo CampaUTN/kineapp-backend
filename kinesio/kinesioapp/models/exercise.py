@@ -4,6 +4,7 @@ from typing import List, Iterable
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 import datetime
+from django.db.models import Q
 
 from kinesioapp import choices
 from users.models import User, Patient
@@ -31,9 +32,15 @@ class ExerciseQuerySet(models.QuerySet):
             item.save()
         return result
 
-    def exercises_similar_to(self, exercise: Exercise):
+    def exercises_similar_to(self, exercise: Exercise) -> ExerciseQuerySet:
         return self.filter(name=exercise.name, description=exercise.description, video=exercise.video,
                            patient=exercise.patient).exclude(id=exercise.id)
+
+    def accessible_by(self, user: User) -> ExerciseQuerySet:
+        # todo: repeated logic. Move to a superclass in the future.
+        # The first Q object gives access to the patient itself and its medic.
+        # The second one gives access to medics to whom the patient shared its clinical history.
+        return self.filter(Q(patient__user__in=user.related_patients) | Q(patient__in=user.shared.all()))
 
 
 class Exercise(models.Model, CanViewModelMixin):

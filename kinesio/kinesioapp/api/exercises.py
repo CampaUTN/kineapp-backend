@@ -6,7 +6,32 @@ from rest_framework.request import HttpRequest
 
 from ..models import Exercise
 from ..serializers import ExerciseSerializer
-from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericDeleteView
+from ..utils.api_mixins import GenericPatchViewWithoutPut, GenericListView, GenericDeleteView
+
+
+class ExercisesForPatientView(GenericListView):
+    serializer_class = ExerciseSerializer
+    queryset = Exercise.objects.all()
+
+    @swagger_auto_schema(
+        operation_id='exercises_for_patient',
+        manual_parameters=[
+            openapi.Parameter(
+                name='patient_id', in_=openapi.IN_PATH,
+                type=openapi.TYPE_INTEGER,
+                description="Patient's ID.",
+                required=True
+            ),
+        ],
+        responses={
+            status.HTTP_200_OK: openapi.Response(
+                description="Exercises for the patient with the given ID. If there is no matching session, the list will be empty.",
+                schema=ExerciseSerializer(many=True),
+            )
+        }
+    )
+    def get(self, request: HttpRequest, patient_id: int) -> Response:
+        return super().get(request, queryset=self.queryset.filter(patient_id=patient_id))
 
 
 class ExerciseCreateAPIView(generics.CreateAPIView):
